@@ -1,0 +1,30 @@
+#include "stdafx.h"
+#include "SloongException.h"
+
+using SoaringLoong::CException;
+
+CException::CException( LPCTSTR lpStr )
+{
+	m_strMessage = lpStr;
+}
+
+CException::CException(LPCTSTR lpStr, HRESULT hRes)
+{
+	m_strMessage = lpStr;
+	m_hResult = hRes;
+}
+
+
+CException::~CException()
+{
+}
+
+ctstring CException::GetException() const
+{
+	return m_strMessage;
+}
+
+HRESULT CException::GetResult() const
+{
+	return m_hResult;
+}
