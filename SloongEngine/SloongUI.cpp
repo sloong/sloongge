@@ -4,7 +4,6 @@
 #include "SloongLua.h"
 #include "SloongDraw.h"
 #include "SloongException.h"
-#include "SloongGame.h"
 
 using namespace SoaringLoong;
 using namespace SoaringLoong::Graphics;
@@ -46,14 +45,11 @@ CObject* CUserInterface::FindObject(UINT nID)
 
 void CUserInterface::Render()
 {
-	auto pLog = CSloongGame::GetLogSystem();
 	try
 	{
 		if (m_ObjectsMap.size())
 		{
-			CDDraw* pDraw = CSloongGame::GetDDraw();
-
-			pDraw->DDrawFillBackSurface(RGB(0, 0, 0));
+			m_pDDraw->DDrawFillBackSurface(RGB(0, 0, 0));
 			auto item = m_ObjectsMap.begin();
 			while (item != m_ObjectsMap.end())
 			{
@@ -61,11 +57,11 @@ void CUserInterface::Render()
 				{
 					try
 					{
-						item->second->Render(CSloongGame::GetDDraw()->GetBackSurface());
+						item->second->Render(m_pDDraw->GetBackSurface());
 					}
 					catch (CException& e)
 					{
-						pLog->Write(e.GetException().c_str());
+						m_pLog->Write(e.GetException().c_str());
 					}
 				}
 				item++;
@@ -78,9 +74,11 @@ void CUserInterface::Render()
 	}
 }
 
-void CUserInterface::Initialize(ctstring& strPath)
+void CUserInterface::Initialize(ctstring& strPath, CDDraw* pDDraw, CLua* pLua, ILogSystem* pLog)
 {
-	CLua* pLua = CSloongGame::GetSloongLua();
+	m_pLog = pLog;
+	m_pLua = pLua;
+	m_pDDraw = pDDraw;
 	pLua->RunScript(strPath.c_str());
 }
 
@@ -106,6 +104,10 @@ void SoaringLoong::Graphics::CUserInterface::Update()
 	{
 		if ( m_ObjectsMap.size())
 		{
+			CPoint pos;
+			GetCursorPos(&pos);
+			//ScreenToClient(CSloongGame::GetAppMain()->m_hMainWnd, &pos);
+
 			auto item = m_ObjectsMap.begin();
 			while (item != m_ObjectsMap.end())
 			{
@@ -113,7 +115,7 @@ void SoaringLoong::Graphics::CUserInterface::Update()
 				{
 					try
 					{
-						item->second->Update();
+						item->second->Update(pos);
 					}
 					catch (CException& e)
 					{

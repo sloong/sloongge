@@ -1,18 +1,27 @@
 #pragma once
 
+#ifdef SLOONGENGINE_EXPORTS
+#define SLOONGENGINE_API __declspec(dllexport)
+#else
+#define SLOONGENGINE_API __declspec(dllimport)
+#endif
+
 namespace SoaringLoong
 {
 	class CRect;
+	class CLua;
+	class ILogSystem;
 	namespace Graphics
 	{
 		class CObject;
-		class CUserInterface
+		class CDDraw;
+		class SLOONGENGINE_API CUserInterface
 		{
 		public:
 			CUserInterface();
 			~CUserInterface();
 
-			void Initialize(ctstring& strPath);
+			void Initialize(ctstring& strPath, CDDraw* pDDraw, CLua* pLua, ILogSystem* pLog);
 
 			tstring GetEventHandler() const;
 			void SetEventHandler(ctstring& strName);
@@ -27,6 +36,9 @@ namespace SoaringLoong
 		protected:
 			map<UINT, CObject*> m_ObjectsMap;
 			tstring m_strEventHandlerName;
+			CLua*				m_pLua;
+			ILogSystem*			m_pLog;
+			CDDraw*				m_pDDraw;
 		public:
 			void Update();
 		};

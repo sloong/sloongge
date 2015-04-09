@@ -7,7 +7,6 @@
 #include "SloongSprite.h"
 #include "SloongTextField.h"
 #include "SloongDraw.h"
-#include "SloongGame.h"
 
 using namespace SoaringLoong;
 using namespace SoaringLoong::Graphics;
@@ -34,26 +33,25 @@ void CUIManager::CreateGUIItem(const UINT nID, const tstring strType, const vect
 	}
 
 	CObject* pObject = nullptr;
-	CDDraw* pDDraw = CSloongGame::GetDDraw();
 
 	if (strSpriteName == strType)
 	{
 		// Create Sprite
-		CSprite* pSprite = new CSprite(pDDraw);
+		CSprite* pSprite = new CSprite(m_pDDraw);
 		pSprite->SetTexture(strTexture);
 		pObject = pSprite;
 	}
 	else if (strTextFieldName == strType)
 	{
 		// Create Text field
-		CTextField* pText = new CTextField(pDDraw);
+		CTextField* pText = new CTextField(m_pDDraw);
 		pText->SetTexture(strTexture);
 		pObject = pText;
 	}
 	else if (strButtonName == strType)
 	{
 		// Create Button
-		CButton* pButton = new CButton(pDDraw);
+		CButton* pButton = new CButton(m_pDDraw);
 		pButton->SetTexture(strTexture);
 		pObject = pButton;
 	}
@@ -84,7 +82,7 @@ void CUIManager::RunGUI(ctstring& strFileName)
 		m_UIMap[strFileName] = m_pCurrentUI;
 		// TODO : build the full path
 		tstring strFullPath = strFileName;
-		m_pCurrentUI->Initialize(strFullPath);
+		m_pCurrentUI->Initialize(strFullPath, m_pDDraw, m_pLua, m_pLog);
 		SendEvent(UI_EVENT::ENTER_INTERFACE);
 	}
 	else
@@ -93,7 +91,7 @@ void CUIManager::RunGUI(ctstring& strFileName)
 
 		if (m_pCurrentUI->GetEventHandler().empty())
 		{
-			m_pCurrentUI->Initialize(strFileName);
+			m_pCurrentUI->Initialize(strFileName,m_pDDraw,m_pLua,m_pLog);
 			SendEvent(UI_EVENT::ENTER_INTERFACE);
 		}
 		else
@@ -105,7 +103,7 @@ void CUIManager::RunGUI(ctstring& strFileName)
 
 void CUIManager::SendEvent(UI_EVENT emEvent, float arg1 /*= 0.0f*/, float arg2 /*= 0.0f*/, float arg3 /*= 0.0f*/, float arg4 /*= 0.0f*/)
 {
-	CSloongGame::SendEvent(0, emEvent);
+	//CSloongGame::SendEvent(0, emEvent);
 }
 
 void SoaringLoong::Graphics::CUIManager::DeleteItem(const UINT nID)

@@ -3,9 +3,11 @@
 #include "IUniversal.h"
 #include "SloongDraw.h"
 #include "SloongBitmap.h"
-#include "SloongGame.h"
 #include "SloongException.h"
+#include "SloongEngine.h"
+#include "SloongString.h"
 using namespace SoaringLoong;
+using namespace SoaringLoong::Universal;
 using namespace SoaringLoong::Graphics;
 
 LPCTSTR strSpriteName = _T("SloongGUISprite");
@@ -101,13 +103,11 @@ void CObject::SetFont(ctstring& strFontName, float fFontSize)
 
 }
 
-bool CObject::Update()
+bool CObject::Update( const CPoint& MousePos )
 {
-	CPoint pos;
-	GetCursorPos(&pos);
-	ScreenToClient(CSloongGame::GetAppMain()->m_hMainWnd, &pos);
+	
 	m_stStatus = NORMAL;
-	if ( CSloongGame::InRect(pos,m_rcObject))
+	if (CSloongEngine::InRect(MousePos, m_rcObject))
 	{
 		if (KEYDOWN(VK_LBUTTON))
 		{
@@ -121,10 +121,10 @@ bool CObject::Update()
 		switch (m_stStatus)
 		{
 		case SoaringLoong::Graphics::DOWN:
-			CSloongGame::SendEvent(m_nID, UI_EVENT::BUTTON_DOWN);
+			//CSloongGame::SendEvent(m_nID, UI_EVENT::BUTTON_DOWN);
 			break;
 		case SoaringLoong::Graphics::HOVER:
-			CSloongGame::SendEvent(m_nID, UI_EVENT::HOVER_TIMED_START);
+			//CSloongGame::SendEvent(m_nID, UI_EVENT::HOVER_TIMED_START);
 			break;
 		case SoaringLoong::Graphics::UP:
 			break;
@@ -323,8 +323,9 @@ void CObject::Draw(LPDIRECTDRAWSURFACE7 dest) // surface to draw the bob on
 	{
 		m_bRenderError = true;
 		LPCTSTR ErrorString = DXGetErrorDescription(hRes);
-		tstring str = CSloongGame::GetUniversal()->Format(_T("Render Error, object id : %d.Error string: %s.\r\n"), m_nID, ErrorString);
-		throw CException(str.c_str());
+		CString str;
+		str.Format(_T("Render Error, object id : %d.Error string: %s.\r\n"), m_nID, ErrorString);
+		throw CException(str.GetString().c_str());
 	}
 
 	/*// blt to destination surface

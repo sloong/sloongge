@@ -56,8 +56,6 @@ using std::list;
 #define SAFE_DELETE(p)		{if(NULL != (p)){delete (p);(p)=NULL;}}
 #endif	// SAFE_DELETE
 
-#pragma comment(lib,"SloongLua.lib")
-
 #ifndef HR
 #define HR(x)    { hr = x; if( FAILED(hr) ) { return hr; } }         //自定义一个HR宏，方便执行错误的返回
 #endif
@@ -79,6 +77,9 @@ using std::list;
 // these read the keyboard asynchronously
 #define KEY_DOWN(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
 #define KEY_UP(vk_code)   ((GetAsyncKeyState(vk_code) & 0x8000) ? 0 : 1)
+
+#define KEYDOWN(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
+#define KEYUP(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 0 : 1)
 
 // bit manipulation macros
 #define SET_BIT(word,bit_flag)   ((word)=((word) | (bit_flag)))

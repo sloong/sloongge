@@ -10,12 +10,26 @@
 #define SLOONGENGINE_API __declspec(dllimport)
 #endif
 
-// This class is exported from the SloongEngine.dll
-class SLOONGENGINE_API CSloongEngine {
-public:
-	CSloongEngine(void);
-	// TODO: add your methods here.
-};
+namespace SoaringLoong
+{
+	class CSize;
+	class CRect;
+	namespace Graphics
+	{
+		class CDDraw;
+	}
+	using namespace Graphics;
+	class SLOONGENGINE_API CSloongEngine {
+	public:
+		CSloongEngine(void);
+		// TODO: add your methods here.
+
+		static CDDraw* GetDraw();
+		static bool InRect(const CSize& pos, const CRect& rc);
+	};
+
+}
+
 
 extern SLOONGENGINE_API int nSloongEngine;
 

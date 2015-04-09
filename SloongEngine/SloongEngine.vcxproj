@@ -41,6 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(DXSDK_DIR)Include;$(SolutionDir)Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Include\x86;$(DXSDK_DIR)Lib\x86;$(OutDir);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -79,11 +81,47 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CameraClass.h" />
+    <ClInclude Include="ConsoleWindow.h" />
+    <ClInclude Include="Defines.h" />
+    <ClInclude Include="DInputClass.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="SkyBoxClass.h" />
+    <ClInclude Include="SloongBitmap.h" />
+    <ClInclude Include="SloongButton.h" />
+    <ClInclude Include="SloongCamera.h" />
+    <ClInclude Include="SloongD3D.h" />
+    <ClInclude Include="SloongDraw.h" />
     <ClInclude Include="SloongEngine.h" />
+    <ClInclude Include="SloongException.h" />
+    <ClInclude Include="SloongLua.h" />
+    <ClInclude Include="SloongMath2.h" />
+    <ClInclude Include="SloongMathBase.h" />
+    <ClInclude Include="SloongMatrix.h" />
+    <ClInclude Include="SloongModelLoader.h" />
+    <ClInclude Include="SloongObject.h" />
+    <ClInclude Include="SloongObject3D.h" />
+    <ClInclude Include="SloongParmLine.h" />
+    <ClInclude Include="SloongPlane.h" />
+    <ClInclude Include="SloongPolygon.h" />
+    <ClInclude Include="SloongQuaternion.h" />
+    <ClInclude Include="SloongSprite.h" />
+    <ClInclude Include="SloongString.h" />
+    <ClInclude Include="SloongTextField.h" />
+    <ClInclude Include="SloongUI.h" />
+    <ClInclude Include="SloongUIManager.h" />
+    <ClInclude Include="SloongVector.h" />
+    <ClInclude Include="SloongVertex.h" />
+    <ClInclude Include="SnowParticleClass.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TerrainClass.h" />
+    <ClInclude Include="XFileModelClass.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CameraClass.cpp" />
+    <ClCompile Include="ConsoleWindow.cpp" />
+    <ClCompile Include="DInputClass.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -92,11 +130,42 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SkyBoxClass.cpp" />
+    <ClCompile Include="SloongBitmap.cpp" />
+    <ClCompile Include="SloongButton.cpp" />
+    <ClCompile Include="SloongCamera.cpp" />
+    <ClCompile Include="SloongD3D.cpp" />
+    <ClCompile Include="SloongDraw.cpp" />
     <ClCompile Include="SloongEngine.cpp" />
+    <ClCompile Include="SloongException.cpp" />
+    <ClCompile Include="SloongLua.cpp" />
+    <ClCompile Include="SloongMath2.cpp" />
+    <ClCompile Include="SloongMathBase.cpp" />
+    <ClCompile Include="SloongMatrix.cpp" />
+    <ClCompile Include="SloongModelLoader.cpp" />
+    <ClCompile Include="SloongObject.cpp" />
+    <ClCompile Include="SloongObject3D.cpp" />
+    <ClCompile Include="SloongParmLine.cpp" />
+    <ClCompile Include="SloongPlane.cpp" />
+    <ClCompile Include="SloongPolygon.cpp" />
+    <ClCompile Include="SloongQuaternion.cpp" />
+    <ClCompile Include="SloongSprite.cpp" />
+    <ClCompile Include="SloongString.cpp" />
+    <ClCompile Include="SloongTextField.cpp" />
+    <ClCompile Include="SloongUI.cpp" />
+    <ClCompile Include="SloongUIManager.cpp" />
+    <ClCompile Include="SloongVector.cpp" />
+    <ClCompile Include="SloongVertex.cpp" />
+    <ClCompile Include="SnowParticleClass.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TerrainClass.cpp" />
+    <ClCompile Include="XFileModelClass.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="SLOONG.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

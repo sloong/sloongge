@@ -20,6 +20,7 @@ extern LPCTSTR strButtonName;
 namespace SoaringLoong
 {
 	class CRect;
+	class CPoint;
 	namespace Graphics
 	{
 		typedef enum _Body_Status
@@ -55,7 +56,7 @@ namespace SoaringLoong
 
 			virtual bool isDrawing() const;
 			virtual bool isDisable() const;
-			virtual bool Update();
+			virtual bool Update( const CPoint& MousePos );
 			virtual void Render(LPDIRECTDRAWSURFACE7 lpDDrawSurface);
 
 			void Enable(bool bEnable, bool bKeepDrawing);

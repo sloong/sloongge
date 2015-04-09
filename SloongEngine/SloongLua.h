@@ -1,14 +1,23 @@
 #pragma once
 
+#ifdef SLOONGENGINE_EXPORTS
+#define SLOONGENGINE_API __declspec(dllexport)
+#else
+#define SLOONGENGINE_API __declspec(dllimport)
+#endif
+
 #define LuaRes extern "C" int
 
 namespace SoaringLoong
 {
 
 	extern "C" {
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
+#include "..\\SloongLua\\lua-5.3.0\\src\\lua.h"
+#include "..\\SloongLua\\lua-5.3.0\\src\\lualib.h"
+#include "..\\SloongLua\\lua-5.3.0\\src\\lauxlib.h"
+//#include <lua.h>
+//#include <lualib.h>
+//#include <lauxlib.h>
 	}
 #pragma comment(lib,"SloongLua.lib")
 
@@ -22,7 +31,7 @@ namespace SoaringLoong
 		LuaFunctionType pFunction;
 	};
 
-	class CLua
+	class SLOONGENGINE_API CLua
 	{
 	public:
 		CLua();
@@ -49,6 +58,5 @@ namespace SoaringLoong
 		lua_State *m_pScriptContext;
 		void(*m_pErrorHandler)(LPCTSTR strError);
 	};
-
 
 }
