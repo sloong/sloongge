@@ -15,7 +15,7 @@ namespace SoaringLoong
 		} INTERSECT_TYPE;
 
 		// 2D parametric line /////////////////////////////////////////
-		typedef class CParamLine2D
+		typedef class SLOONGENGINE_API CParamLine2D
 		{
 		public:
 			void Init_Parm_Line2D(POINT2D_PTR p_init, POINT2D_PTR p_term, CParamLine2D* p);
@@ -31,7 +31,7 @@ namespace SoaringLoong
 		} PARMLINE2D, *PARMLINE2D_PTR;
 
 		// 3D parametric line /////////////////////////////////////////
-		typedef class CParamLine3D
+		typedef class SLOONGENGINE_API CParamLine3D
 		{
 		public:
 			void Init_Parm_Line3D(POINT3D_PTR p_init, POINT3D_PTR p_term, CParamLine3D* p);

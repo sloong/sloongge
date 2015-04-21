@@ -2,7 +2,9 @@
 //
 
 #include "stdafx.h"
+#include "IUniversal.h"
 #include "SloongDemo.h"
+
 #include "Defines.h"
 #include "SloongUIManager.h"
 #include "SloongUI.h"
@@ -16,6 +18,7 @@
 #include "SloongString.h"
 #include "DInputClass.h"
 #include "SloongCamera.h"
+#pragma comment(lib,"Universal.lib");
 using namespace SoaringLoong;
 using namespace SoaringLoong::Graphics;
 using namespace SoaringLoong::Universal;

@@ -25,7 +25,7 @@ namespace SoaringLoong
 				POLY_STATE_CLIPPED = 0x0002,
 				POLY_STATE_BACKFACE = 0x0004,
 			}POLYSTATE;
-			class CPolygon2D
+			class SLOONGENGINE_API CPolygon2D
 			{
 			public:
 				int state;        // state of polygon

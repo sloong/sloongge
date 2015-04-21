@@ -38,7 +38,7 @@ namespace SoaringLoong
 		} SPHERICAL3D, *SPHERICAL3D_PTR;
 
 
-		class CMath2
+		class SLOONGENGINE_API CMath2
 		{
 			// matrix defines
 		public:

@@ -14,7 +14,7 @@ namespace SoaringLoong
 			CAMERA_ELUER,
 			CAMERA_UVN,
 		};
-		class CCamera
+		class SLOONGENGINE_API CCamera
 		{
 		public:
 			CCamera();

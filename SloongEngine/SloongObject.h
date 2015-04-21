@@ -1,8 +1,8 @@
 #pragma once
 
-extern LPCTSTR strSpriteName;
-extern LPCTSTR strTextFieldName;
-extern LPCTSTR strButtonName;
+extern SLOONGENGINE_API LPCTSTR strSpriteName;
+extern SLOONGENGINE_API LPCTSTR strTextFieldName;
+extern SLOONGENGINE_API LPCTSTR strButtonName;
 
 #define MAX_BOB_FRAMES         64   // maximum number of bob frames
 #define MAX_BOB_ANIMATIONS     16   // maximum number of animation sequeces

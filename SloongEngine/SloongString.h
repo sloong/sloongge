@@ -4,7 +4,7 @@ namespace SoaringLoong
 {
 	namespace Universal
 	{
-		class CString : wstring
+		class SLOONGENGINE_API CString //: wstring
 		{
 		public:
 			CString();

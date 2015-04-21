@@ -2,7 +2,7 @@
 
 namespace SoaringLoong
 {
-	class CException : public exception
+	class SLOONGENGINE_API CException : public exception
 	{
 	public:
 		CException(LPCTSTR lpStr);

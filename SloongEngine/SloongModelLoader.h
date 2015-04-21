@@ -252,7 +252,7 @@ namespace SoaringLoong
 		} CAM4DV1, *CAM4DV1_PTR;
 
 
-		class CPLGLoader
+		class SLOONGENGINE_API CPLGLoader
 		{
 		public:
 			CPLGLoader(CDDraw* pDraw);

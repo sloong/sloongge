@@ -26,3 +26,12 @@
 *.exe
 *.out
 *.app
+/ipch
+/Debug
+/*.sdf
+/SloongDemo/Debug
+/SloongEngine/Debug
+/SloongLua/Debug
+/SloongLua/*.user
+/SloongDemo/*.log
+/*.suo

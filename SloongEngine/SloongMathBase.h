@@ -14,7 +14,7 @@ namespace SoaringLoong
 			return radian * 180.0 / PI;
 		}
 
-		class CMathBase
+		class SLOONGENGINE_API CMathBase
 		{
 		public:
 			CMathBase();

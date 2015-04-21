@@ -8,7 +8,7 @@ namespace SoaringLoong
 		using namespace Matrix;
 		namespace Vector
 		{
-			typedef class CVector2D
+			typedef class SLOONGENGINE_API CVector2D
 			{
 			public:
 				union
@@ -75,7 +75,7 @@ namespace SoaringLoong
 				int Fast_Distance_2D(int x, int y);
 			} VECTOR2D, POINT2D, *VECTOR2D_PTR, *POINT2D_PTR;
 
-			typedef class CVector3D : public CMathBase
+			typedef class SLOONGENGINE_API CVector3D : public CMathBase
 			{
 			public:
 				union
@@ -118,6 +118,7 @@ namespace SoaringLoong
 					(this)->x = (pSrc)->x;
 					(this)->y = (pSrc)->y;
 					(this)->z = (pSrc)->z;
+					return *this;
 				}
 
 				inline CVector3D& operator= ( const CVector3D& oSrc)
@@ -148,7 +149,7 @@ namespace SoaringLoong
 				
 			} VECTOR3D, POINT3D, *VECTOR3D_PTR, *POINT3D_PTR;
 
-			typedef class CVector4D : public CMathBase
+			typedef class SLOONGENGINE_API CVector4D : public CMathBase
 			{
 			public:
 				union

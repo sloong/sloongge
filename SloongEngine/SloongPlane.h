@@ -7,7 +7,7 @@ namespace SoaringLoong
 	{
 		using namespace Vector;
 
-		typedef class CPlane
+		typedef class SLOONGENGINE_API CPlane
 		{
 		public:
 			CPlane();

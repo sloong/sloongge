@@ -17,10 +17,17 @@
 #include <memory.h>
 #include <tchar.h>
 
+#ifdef SLOONGENGINE_EXPORTS
+#define SLOONGENGINE_API __declspec(dllexport)
+#else
+#define SLOONGENGINE_API __declspec(dllimport)
+#endif
 
 // TODO: reference additional headers your program requires here
 #include <ddraw.h>    // directX includes
 #include <DxErr.h>
+#define DIRECTINPUT_VERSION 0x0800
+#include <dinput.h>
 #pragma comment(lib,"ddraw.lib")
 #pragma comment(lib,"dxguid.lib")
 #pragma comment(lib,"DxErr.lib")

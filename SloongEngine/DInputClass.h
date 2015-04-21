@@ -8,7 +8,7 @@
 #include <dinput.h>
 
 //DInputClass类定义开始
-class DInputClass
+class SLOONGENGINE_API DInputClass
 {
 private:
 	IDirectInput8					* m_pDirectInput;   //IDirectInput8接口对象

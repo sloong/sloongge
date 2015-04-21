@@ -1,4 +1,11 @@
 #pragma once
+
+#ifdef SLOONGENGINE_EXPORTS
+#define SLOONGENGINE_API __declspec(dllexport)
+#else
+#define SLOONGENGINE_API __declspec(dllimport)
+#endif
+
 // DEFINES ////////////////////////////////////////////////
 #include "IUniversal.h"
 // default screen values, these are all overriden by the 
@@ -73,7 +80,7 @@ namespace SoaringLoong
 		} BLINKER, *BLINKER_PTR;
 
 	
-		class CDDraw
+		class SLOONGENGINE_API CDDraw
 		{
 		public:
 			CDDraw();

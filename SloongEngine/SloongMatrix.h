@@ -12,7 +12,7 @@ namespace SoaringLoong
 		using namespace Vector;
 		namespace Matrix
 		{
-			typedef class CMatrix1x2
+			typedef class SLOONGENGINE_API CMatrix1x2
 			{
 			public:
 				union
@@ -28,7 +28,7 @@ namespace SoaringLoong
 				}; // end union
 			}MATRIX1X2, *LPMATRIX1X2, *MATRIX1X2_PTR;
 
-			typedef class CMatrix1x3
+			typedef class SLOONGENGINE_API CMatrix1x3
 			{
 			public:
 				union
@@ -44,7 +44,7 @@ namespace SoaringLoong
 				}; // end union
 			}MATRIX1X3, *LPMATRIX1X3, *MATRIX1X3_PTR;
 
-			typedef class CMatrix1x4
+			typedef class SLOONGENGINE_API CMatrix1x4
 			{
 			public:
 				union
@@ -60,7 +60,7 @@ namespace SoaringLoong
 				}; // end union
 			} MATRIX1X4, *LPMATRIX1X4, *MATRIX1X4_PTR;
 
-			typedef class CMatrix2x2
+			typedef class SLOONGENGINE_API CMatrix2x2
 			{
 			public:
 				union
@@ -90,7 +90,7 @@ namespace SoaringLoong
 				int Solve_2X2_System(CMatrix2x2* A, MATRIX1X2_PTR X, MATRIX1X2_PTR B);
 			} MATRIX2X2, *LPMATRIX2X2, *MATRIX2X2_PTR;
 
-			typedef class CMatrix3x2
+			typedef class SLOONGENGINE_API CMatrix3x2
 			{
 			public:
 				union
@@ -110,7 +110,7 @@ namespace SoaringLoong
 				int Mat_Init_3X2(CMatrix3x2* ma,float m00, float m01,float m10, float m11,float m20, float m21);
 			} MATRIX3X2, *LPMATRIX3X2, *MATRIX3X2_PTR;
 
-			typedef class CMatrix3x3
+			typedef class SLOONGENGINE_API CMatrix3x3
 			{
 			public:
 				union
@@ -163,7 +163,7 @@ namespace SoaringLoong
 				int Mat_Mul_3X3(CMatrix3x3* ma,	CMatrix3x3* mb,	CMatrix3x3* mprod);
 			}MATRIX3X3, *LPMATRIX3X3, *MATRIX3X3_PTR;
 
-			typedef class CMatrix4x3
+			typedef class SLOONGENGINE_API CMatrix4x3
 			{
 			public:
 				union
@@ -195,7 +195,7 @@ namespace SoaringLoong
 				
 			} MATRIX4X3, *LPMATRIX4X3, *MATRIX4X3_PTR;
 
-			typedef class CMatrix4x4
+			typedef class SLOONGENGINE_API CMatrix4x4
 			{
 			public:
 				CMatrix4x4();

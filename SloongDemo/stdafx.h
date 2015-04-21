@@ -21,6 +21,8 @@
 // TODO: reference additional headers your program requires here
 #include <ddraw.h>    // directX includes
 //#include <DxErr.h>
+#define DIRECTINPUT_VERSION 0x0800
+#include <dinput.h>
 #pragma comment(lib,"ddraw.lib")
 #pragma comment(lib,"dxguid.lib")
 

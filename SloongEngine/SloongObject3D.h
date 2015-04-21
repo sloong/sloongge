@@ -28,7 +28,7 @@ namespace SoaringLoong
 	namespace Graphics3D
 	{
 		class CCamera;
-		class CObject3D
+		class SLOONGENGINE_API CObject3D
 		{
 		public:
 			CObject3D();
