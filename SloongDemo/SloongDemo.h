@@ -3,12 +3,32 @@
 #include "SloongUIManager.h"
 #include "resource.h"
 using namespace SoaringLoong;
-#pragma comment(lib,"SloongEngine.lib");
+#pragma comment(lib,"SloongEngine.lib")
 #include "SloongModelLoader.h"
 using namespace SoaringLoong::Loader;
 
+enum UI_EVENT
+{
+	BUTTON_UP = 0,
+	BUTTON_DOWN,
+	SELECTION_CHANGED,
+	TEXTFIELD_CLICKED,
+	KEY_PRESS,
+	REENTER_INTERFACE,
+	TIMER_EXPIRED,
+	ENTER_INTERFACE,
+	TEXT_SCROLL_END,
+	TEXTFIELD_RETURN,
+	HOVER_TIMED_START,
+	HOVER_END,
+	MOUSE_BUTTON_DOWN,
+	MOUSE_BUTTON_UP,
+};
+
+
 namespace SoaringLoong
 {
+	class CSloongEngine;
 	namespace Graphics
 	{
 		class CDDraw;
@@ -39,19 +59,6 @@ public:
 	int				Run();
 	void			Shutdown();
 	void			Render();
-
-	void			Section7Test2Init();
-	void			Section7Test2Render();
-
-	void			Section7Test1Init();
-	void			Section7Test1Render();
-
-	void			Section7Test3Init();
-	void			Section7Test3Render();
-
-	void			Section7Test6Init();
-	void			Section7Test6Render();
-
 public:
 	static int Version(lua_State* l);
 	static int RegisterEvent(lua_State* l);
@@ -104,23 +111,5 @@ public:
 	CSloongD3D*			m_pD3D;
 	DInputClass*		m_pInput;
 	RECT				m_rcWindow;
-public:
-	// Test
-	static RENDERLIST4DV1 rend_list; // the render list
-	POINT4D        towers[96],
-		tanks[24];
-
-	CAM4DV1        cam;       // the single camera
-	CCamera*			m_pCam;
-
-	OBJECT4DV1     obj_tower,    // used to hold the master tower
-		obj_tank,     // used to hold the master tank
-		obj_marker,   // the ground marker
-		obj_player;   // the player object        
-
-	VECTOR4D vscale, vpos, vrot;
-	//OBJECT4DV1 obj;
-	POLYF4DV1 poly1[4];
-
-
+	CSloongEngine*		m_pEngine;
 };

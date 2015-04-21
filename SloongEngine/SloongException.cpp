@@ -21,7 +21,7 @@ CException::~CException()
 
 ctstring CException::GetException() const
 {
-	return m_strMessage;
+	return m_strMessage.GetString();
 }
 
 HRESULT CException::GetResult() const

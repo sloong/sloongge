@@ -63,7 +63,6 @@ namespace SoaringLoong
 
 			RECT GetScrrenRect();
 
-			//
 			HRESULT Initialize(CDDraw* pDDraw, int x, int y, int width, int height, int nBodyImageNum, int attr, int mem_flags = 0, COLORREF dwColor = 0, int bpp = 32);
 
 			HRESULT Clone(CObject* pSource);

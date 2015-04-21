@@ -33,9 +33,6 @@
     <ClInclude Include="ConsoleWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Defines.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DInputClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>

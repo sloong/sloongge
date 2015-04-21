@@ -121,10 +121,10 @@ bool CObject::Update( const CPoint& MousePos )
 		switch (m_stStatus)
 		{
 		case SoaringLoong::Graphics::DOWN:
-			//CSloongGame::SendEvent(m_nID, UI_EVENT::BUTTON_DOWN);
+			CSloongEngine::SendEvent(m_nID, UI_EVENT::BUTTON_DOWN);
 			break;
 		case SoaringLoong::Graphics::HOVER:
-			//CSloongGame::SendEvent(m_nID, UI_EVENT::HOVER_TIMED_START);
+			CSloongEngine::SendEvent(m_nID, UI_EVENT::HOVER_TIMED_START);
 			break;
 		case SoaringLoong::Graphics::UP:
 			break;

@@ -7,20 +7,14 @@
 
 using namespace SoaringLoong;
 
-// This is an example of an exported variable
-SLOONGENGINE_API int nSloongEngine=0;
 
-// This is an example of an exported function.
-SLOONGENGINE_API int fnSloongEngine(void)
-{
-	return 42;
-}
 
+CSloongEngine* SoaringLoong::CSloongEngine::theEngine = nullptr;
 // This is the constructor of a class that has been exported.
 // see SloongEngine.h for the class definition
 CSloongEngine::CSloongEngine()
 {
-	return;
+	theEngine = this;
 }
 
 bool CSloongEngine::InRect(const CSize& pos, const CRect& rc)
@@ -31,4 +25,22 @@ bool CSloongEngine::InRect(const CSize& pos, const CRect& rc)
 		return false;
 
 	return true;
+}
+
+void SoaringLoong::CSloongEngine::SendEvent(int id, UI_EVENT args)
+{
+	if ( theEngine && theEngine->g_EventFunc )
+	{
+		theEngine->g_EventFunc(id, args);
+	}
+}
+
+void SoaringLoong::CSloongEngine::SetEnentHandler(EventFunc func)
+{
+	g_EventFunc = func;
+}
+
+SoaringLoong::CSloongEngine::~CSloongEngine()
+{
+	theEngine = nullptr;
 }

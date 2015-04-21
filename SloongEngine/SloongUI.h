@@ -6,11 +6,14 @@
 #define SLOONGENGINE_API __declspec(dllimport)
 #endif
 
+#include "SloongString.h"
+
 namespace SoaringLoong
 {
 	class CRect;
 	class CLua;
 	class ILogSystem;
+	using Universal::CString;
 	namespace Graphics
 	{
 		class CObject;
@@ -24,7 +27,7 @@ namespace SoaringLoong
 			void Initialize(ctstring& strPath, CDDraw* pDDraw, CLua* pLua, ILogSystem* pLog);
 
 			tstring GetEventHandler() const;
-			void SetEventHandler(ctstring& strName);
+			void SetEventHandler(LPCTSTR strName);
 			void DeleteObject(UINT nID);
 			void AddObject(UINT nID, CObject* pObject);
 			void SetObjectPosition(UINT nID, const CRect& rcClient);
@@ -34,13 +37,13 @@ namespace SoaringLoong
 			CObject* FindObject(UINT nID);
 
 		protected:
-			map<UINT, CObject*> m_ObjectsMap;
-			tstring m_strEventHandlerName;
+			map<UINT, CObject*>* m_ObjectsMap;
+			CString m_strEventHandlerName;
 			CLua*				m_pLua;
 			ILogSystem*			m_pLog;
 			CDDraw*				m_pDDraw;
 		public:
-			void Update();
+			void Update( HWND hWnd );
 		};
 	}
 }

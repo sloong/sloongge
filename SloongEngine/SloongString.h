@@ -21,16 +21,16 @@ namespace SoaringLoong
 			void FormatW(LPCWSTR lpStr, ...);
 			void Format(LPCTSTR lpStr, ...);
 
-			string GetStringA();
-			wstring GetStringW();
+			string GetStringA() const;
+			wstring GetStringW() const;
 
-			tstring GetString();
+			tstring GetString() const;
 
 		public:
 			static string UnicodeToANSI(LPCWSTR strWide);
 			static wstring ANSIToUnicode(LPCSTR strMulti);
 		protected:
-			wstring m_strString;
+			wstring* m_strString;
 		};
 	}
 	

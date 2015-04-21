@@ -36,16 +36,19 @@ namespace SoaringLoong
 				VERTEX2DF *vlist; // pointer to vertex list
 			};
 
-			class CPolygon3D
+			class SLOONGENGINE_API CPolygon3D
 			{
+			public:
+				CPolygon3D();
+				virtual ~CPolygon3D();
 			public:
 				HRESULT Render(CDDraw* pDraw);
 			public:
-				vector<CVector4D>	m_VectorList;
-				vector<CVector4D>	m_WorldVertex;
-				vector<CVector4D>	m_CameraVertexList;
-				vector<CVector4D>	m_ProjectVertexList;
-				vector<CVector4D>	m_ScreenVertexList;
+				vector<CVector4D>*	m_VectorList;
+				vector<CVector4D>*	m_WorldVertex;
+				vector<CVector4D>*	m_CameraVertexList;
+				vector<CVector4D>*	m_ProjectVertexList;
+				vector<CVector4D>*	m_ScreenVertexList;
 				DWORD				m_dwAttribute;
 				COLORREF			m_dwColor;
 			};

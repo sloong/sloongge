@@ -7,17 +7,19 @@
 #include "SloongSprite.h"
 #include "SloongTextField.h"
 #include "SloongDraw.h"
-
+#include "SloongEngine.h"
 using namespace SoaringLoong;
 using namespace SoaringLoong::Graphics;
 
 CUIManager::CUIManager()
 {
+	m_UIMap = new map<tstring, CUserInterface*>;
 }
 
 
 CUIManager::~CUIManager()
 {
+	SAFE_DELETE(m_UIMap);
 }
 
 void CUIManager::CreateGUIItem(const UINT nID, const tstring strType, const vector<tstring>& strTexture)
@@ -75,15 +77,15 @@ CUserInterface* CUIManager::GetCurrentUI() const
 
 void CUIManager::RunGUI(ctstring& strFileName)
 {
-	auto item = m_UIMap.find(strFileName);
-	if ( item == m_UIMap.end())
+	auto item = m_UIMap->find(strFileName);
+	if ( item == m_UIMap->end())
 	{// the UI no run
 		m_pCurrentUI = new CUserInterface();
-		m_UIMap[strFileName] = m_pCurrentUI;
+		(*m_UIMap)[strFileName] = m_pCurrentUI;
 		// TODO : build the full path
 		tstring strFullPath = strFileName;
 		m_pCurrentUI->Initialize(strFullPath, m_pDDraw, m_pLua, m_pLog);
-		SendEvent(UI_EVENT::ENTER_INTERFACE);
+		CSloongEngine::SendEvent(0,UI_EVENT::ENTER_INTERFACE);
 	}
 	else
 	{
@@ -92,18 +94,13 @@ void CUIManager::RunGUI(ctstring& strFileName)
 		if (m_pCurrentUI->GetEventHandler().empty())
 		{
 			m_pCurrentUI->Initialize(strFileName,m_pDDraw,m_pLua,m_pLog);
-			SendEvent(UI_EVENT::ENTER_INTERFACE);
+			CSloongEngine::SendEvent(0, UI_EVENT::ENTER_INTERFACE);
 		}
 		else
 		{
-			SendEvent(UI_EVENT::REENTER_INTERFACE);
+			CSloongEngine::SendEvent(0, UI_EVENT::REENTER_INTERFACE);
 		}
 	}
-}
-
-void CUIManager::SendEvent(UI_EVENT emEvent, float arg1 /*= 0.0f*/, float arg2 /*= 0.0f*/, float arg3 /*= 0.0f*/, float arg4 /*= 0.0f*/)
-{
-	//CSloongGame::SendEvent(0, emEvent);
 }
 
 void SoaringLoong::Graphics::CUIManager::DeleteItem(const UINT nID)
@@ -124,5 +121,13 @@ void SoaringLoong::Graphics::CUIManager::MoveItem(const UINT nID, const CRect& r
 
 void SoaringLoong::Graphics::CUIManager::Update()
 {
-	GetCurrentUI()->Update();
+	GetCurrentUI()->Update(m_hWnd);
+}
+
+void SoaringLoong::Graphics::CUIManager::Initialize(CDDraw* pDDraw, CLua* pLua, ILogSystem* pLog,HWND hWnd)
+{
+	m_pDDraw = pDDraw;
+	m_pLua = pLua;
+	m_pLog = pLog;
+	m_hWnd = hWnd;
 }

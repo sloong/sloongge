@@ -8,6 +8,7 @@ using SoaringLoong::Universal::CString;
 
 CString::CString()
 {
+	m_strString = new wstring();
 }
 
 string CString::UnicodeToANSI(LPCWSTR strWide)
@@ -36,27 +37,30 @@ wstring CString::ANSIToUnicode(LPCSTR strMulti)
 
 CString::CString(LPCSTR lpStr)
 {
-	m_strString = ANSIToUnicode(lpStr);
+	new(this) CString();
+	(*m_strString) = ANSIToUnicode(lpStr);
 }
 
 CString::CString(LPCWSTR lpStr)
 {
-	m_strString = lpStr;
+	new(this) CString();
+	(*m_strString) = lpStr;
 }
 
 
 CString::~CString()
 {
+	SAFE_DELETE(m_strString);
 }
 
-string CString::GetStringA()
+string CString::GetStringA() const
 {
-	return UnicodeToANSI(m_strString.c_str());
+	return UnicodeToANSI(m_strString->c_str());
 }
 
-wstring CString::GetStringW()
+wstring CString::GetStringW() const
 {
-	return m_strString;
+	return (*m_strString);
 }
 
 void SoaringLoong::Universal::CString::FormatA(LPCSTR lpStr, ...)
@@ -65,7 +69,7 @@ void SoaringLoong::Universal::CString::FormatA(LPCSTR lpStr, ...)
 	va_start(args, lpStr);
 	char szBuffer[MAX_BUFFER];
 	vsprintf_s(szBuffer, MAX_BUFFER, lpStr, args);
-	m_strString = ANSIToUnicode(szBuffer);
+	(*m_strString) = ANSIToUnicode(szBuffer);
 	va_end(args);
 }
 
@@ -76,18 +80,18 @@ void SoaringLoong::Universal::CString::FormatW(LPCWSTR lpStr, ...)
 	WCHAR szBuffer[MAX_BUFFER];
 	vswprintf_s(szBuffer, MAX_BUFFER, lpStr, args);
 	va_end(args);
-	m_strString = szBuffer;
+	(*m_strString) = szBuffer;
 }
 
 CString& SoaringLoong::Universal::CString::operator=(LPCSTR lpStr)
 {
-	m_strString = ANSIToUnicode(lpStr);
+	(*m_strString) = ANSIToUnicode(lpStr);
 	return *this;
 }
 
 CString& SoaringLoong::Universal::CString::operator=(LPCWSTR lpStr)
 {
-	m_strString = lpStr;
+	(*m_strString) = lpStr;
 	return *this;
 }
 

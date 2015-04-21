@@ -83,7 +83,6 @@
   <ItemGroup>
     <ClInclude Include="CameraClass.h" />
     <ClInclude Include="ConsoleWindow.h" />
-    <ClInclude Include="Defines.h" />
     <ClInclude Include="DInputClass.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SkyBoxClass.h" />

@@ -1,7 +1,8 @@
 #pragma once
-
+#include "SloongString.h"
 namespace SoaringLoong
 {
+	using Universal::CString;
 	class SLOONGENGINE_API CException : public exception
 	{
 	public:
@@ -15,6 +16,6 @@ namespace SoaringLoong
 
 	protected:
 		HRESULT m_hResult;
-		tstring m_strMessage;
+		CString m_strMessage;
 	};
 }

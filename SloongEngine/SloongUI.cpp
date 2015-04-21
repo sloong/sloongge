@@ -10,33 +10,35 @@ using namespace SoaringLoong::Graphics;
 
 CUserInterface::CUserInterface()
 {
+	m_ObjectsMap = new map<UINT, CObject*>;
 }
 
 
 CUserInterface::~CUserInterface()
 {
+	SAFE_DELETE(m_ObjectsMap);
 }
 
 void CUserInterface::DeleteObject(UINT nID)
 {
-	auto item = m_ObjectsMap.find(nID);
+	auto item = m_ObjectsMap->find(nID);
 
-	if ( item != m_ObjectsMap.end())
+	if (item != m_ObjectsMap->end())
 	{
 		SAFE_DELETE(item->second);
-		m_ObjectsMap.erase(item);
+		m_ObjectsMap->erase(item);
 	}
 }
 
 void CUserInterface::AddObject(UINT nID, CObject* pObject)
 {
-	m_ObjectsMap[nID] = pObject;
+	(*m_ObjectsMap)[nID] = pObject;
 }
 
 CObject* CUserInterface::FindObject(UINT nID)
 {
-	auto item = m_ObjectsMap.find(nID);
-	if (item != m_ObjectsMap.end())
+	auto item = m_ObjectsMap->find(nID);
+	if (item != m_ObjectsMap->end())
 	{
 		return item->second;
 	}
@@ -47,11 +49,11 @@ void CUserInterface::Render()
 {
 	try
 	{
-		if (m_ObjectsMap.size())
+		if (m_ObjectsMap->size())
 		{
 			m_pDDraw->DDrawFillBackSurface(RGB(0, 0, 0));
-			auto item = m_ObjectsMap.begin();
-			while (item != m_ObjectsMap.end())
+			auto item = m_ObjectsMap->begin();
+			while (item != m_ObjectsMap->end())
 			{
 				if (item->second->isDrawing())
 				{
@@ -84,13 +86,13 @@ void CUserInterface::Initialize(ctstring& strPath, CDDraw* pDDraw, CLua* pLua, I
 
 tstring CUserInterface::GetEventHandler() const
 {
-	return m_strEventHandlerName;
+	return m_strEventHandlerName.GetString();
 }
 
 void SoaringLoong::Graphics::CUserInterface::SetObjectPosition(UINT nID, const CRect& rcClient)
 {
-	auto item = m_ObjectsMap.find(nID);
-	if ( item != m_ObjectsMap.end() )
+	auto item = m_ObjectsMap->find(nID);
+	if (item != m_ObjectsMap->end())
 	{
 		item->second->SetPosition(rcClient, 0);
 	}
@@ -98,18 +100,18 @@ void SoaringLoong::Graphics::CUserInterface::SetObjectPosition(UINT nID, const C
 }
 
 
-void SoaringLoong::Graphics::CUserInterface::Update()
+void SoaringLoong::Graphics::CUserInterface::Update( HWND hWnd )
 {
 	try
 	{
-		if ( m_ObjectsMap.size())
+		if (m_ObjectsMap->size())
 		{
 			CPoint pos;
 			GetCursorPos(&pos);
-			//ScreenToClient(CSloongGame::GetAppMain()->m_hMainWnd, &pos);
+			ScreenToClient(hWnd, &pos);
 
-			auto item = m_ObjectsMap.begin();
-			while (item != m_ObjectsMap.end())
+			auto item = m_ObjectsMap->begin();
+			while (item != m_ObjectsMap->end())
 			{
 				if (item->second->isDrawing())
 				{
@@ -132,7 +134,7 @@ void SoaringLoong::Graphics::CUserInterface::Update()
 	}
 }
 
-void SoaringLoong::Graphics::CUserInterface::SetEventHandler(ctstring& strName)
+void SoaringLoong::Graphics::CUserInterface::SetEventHandler(LPCTSTR strName)
 {
 	m_strEventHandlerName = strName;
 }

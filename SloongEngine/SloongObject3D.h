@@ -48,7 +48,7 @@ namespace SoaringLoong
 			CMatrix4x4*			m_pProjectMatrix;
 			CVector4D*			m_pWorldPos;
 			CCamera*			m_pCamera;
-			vector<CPolygon3D>	m_VertexList;
+			vector<CPolygon3D>*	m_VertexList;
 		};
 	}
 }
