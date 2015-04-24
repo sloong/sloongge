@@ -20,7 +20,7 @@ public:
 	CTestPolygonSection6();
 	~CTestPolygonSection6();
 
-	virtual void Initialize();
+	virtual void Initialize(CDDraw* pDraw, DInputClass* pInput, RECT rcWindow);
 	virtual void Render();
 
 

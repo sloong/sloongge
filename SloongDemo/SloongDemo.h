@@ -7,6 +7,7 @@ using namespace SoaringLoong;
 #include "SloongModelLoader.h"
 using namespace SoaringLoong::Loader;
 
+#include "ITestRender.h"
 enum UI_EVENT
 {
 	BUTTON_UP = 0,
@@ -103,13 +104,13 @@ public:
 	LPCTSTR		m_strTitle;
 	LPCTSTR		m_strWindowClass;
 	HWND		m_hMainWnd;
-	int			m_nHeight;
-	int			m_nWidth;
 	CDDraw*		m_pDraw;
 	IUniversal*			m_pUniversal;
 	ILogSystem*			m_pLog;
 	CSloongD3D*			m_pD3D;
 	DInputClass*		m_pInput;
-	RECT				m_rcWindow;
+	CRect				m_rcWindow;
 	CSloongEngine*		m_pEngine;
+
+	ITestRender*		m_iTestRender;
 };

@@ -14,7 +14,7 @@ public:
 	CTestSinglePolygon();
 	~CTestSinglePolygon();
 
-	virtual void Initialize();
+	virtual void Initialize(CDDraw* pDraw, DInputClass* pInput, RECT rcWindow);
 	virtual void Render();
 
 	POLYF4DV1 poly1[4];

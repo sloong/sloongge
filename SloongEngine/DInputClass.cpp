@@ -62,13 +62,17 @@ void DInputClass::GetInput()
 		m_KeyboardDevice->GetDeviceState(sizeof(m_keyBuffer), (LPVOID)m_keyBuffer);
 	}
 
-	hr = m_MouseDevice->GetDeviceState(sizeof(DIMOUSESTATE), (void**)&m_MouseState);
-	//获取鼠标输入消息
-	if (hr)
+	if ( m_MouseDevice )
 	{
-		m_MouseDevice->Acquire();
-		m_MouseDevice->GetDeviceState(sizeof(DIMOUSESTATE), (void**)&m_MouseState);
+		hr = m_MouseDevice->GetDeviceState(sizeof(DIMOUSESTATE), (void**)&m_MouseState);
+		//获取鼠标输入消息
+		if (hr)
+		{
+			m_MouseDevice->Acquire();
+			m_MouseDevice->GetDeviceState(sizeof(DIMOUSESTATE), (void**)&m_MouseState);
+		}
 	}
+	
 }
 
 //-----------------------------------------------------------------------------

@@ -11,8 +11,10 @@ CTestSinglePolygonWithObject::~CTestSinglePolygonWithObject()
 {
 }
 
-void CTestSinglePolygonWithObject::Initialize()
+void CTestSinglePolygonWithObject::Initialize(CDDraw* pDraw, DInputClass* pInput, RECT rcWindow)
 {
+	m_pDraw = pDraw;
+	m_rcWindow = rcWindow;
 	// initialize a single polygon
 	auto poly = &poly1[0];
 	poly->state = POLY4DV1_STATE_ACTIVE;
@@ -57,7 +59,7 @@ void CTestSinglePolygonWithObject::Initialize()
 
 
 	POINT4D  cam_pos = { 0, 0, -200, 1 };
-	POINT4D  cam_target = { 0, 0, 5, 1 };
+	POINT4D  cam_target = { 0, 0, 0, 1 };
 	VECTOR4D cam_dir = { 0, 0, 0, 1 };
 	VECTOR4D cv = { 0, 0, 1, 1 };
 
@@ -100,6 +102,8 @@ void CTestSinglePolygonWithObject::Render()
 	}
 	m_pCam->UpdateCameraMatrix();
 
+	CPLGLoader::Reset_RENDERLIST4DV1(&rend_list);
+
 	for (int i = 0; i < ARRAYSIZE(poly1); i++)
 	{
 		CPLGLoader::Insert_POLYF4DV1_RENDERLIST4DV1(&rend_list, &poly1[i]);
@@ -108,6 +112,7 @@ void CTestSinglePolygonWithObject::Render()
 	/*****************************
 	3D流水线
 	*****************************/
+	
 	// 世界变换
 	CPLGLoader::Model_To_World_RENDERLIST4DV1(&rend_list, 2);
 

@@ -13,7 +13,7 @@ public:
 	CTestSinglePolygonWithObject();
 	~CTestSinglePolygonWithObject();
 
-	virtual void Initialize();
+	virtual void Initialize(CDDraw* pDraw, DInputClass* pInput, RECT rcWindow);
 	virtual void Render();
 
 	//OBJECT4DV1 obj;
@@ -22,6 +22,6 @@ public:
 	// Test
 	RENDERLIST4DV1 rend_list; // the render list
 	CDDraw*		m_pDraw;
-	CRect		m_rcWindow;
+	RECT		m_rcWindow;
 };
 

@@ -15,6 +15,7 @@ namespace SoaringLoong
 		namespace Polygon
 		{
 			class CPolygon3D;
+			class IPolygon;
 		}
 	}
 	using namespace Math::Vector;
@@ -42,13 +43,15 @@ namespace SoaringLoong
 			virtual void UpdateCameraVertex(const CMatrix4x4& mCamera);
 			virtual void UpdateProjectVertex(const CMatrix4x4& mProject);
 			virtual void UpdateScreenVertex(const CMatrix4x4& mScreen);
+			virtual void UpdateVertex(const CMatrix4x4& mMarix, bool bNormal);
+			virtual void AddPolygon(IPolygon* pPoly);
 		public:
 			CMatrix4x4*			m_pCameraMatrix;
 			CMatrix4x4*			m_pScreenMatrix;
 			CMatrix4x4*			m_pProjectMatrix;
 			CVector4D*			m_pWorldPos;
 			CCamera*			m_pCamera;
-			vector<CPolygon3D>*	m_VertexList;
+			vector<IPolygon*>*	m_VertexList;
 		};
 	}
 }

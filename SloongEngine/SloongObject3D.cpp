@@ -11,7 +11,6 @@ using namespace SoaringLoong::Math::Matrix;
 using namespace SoaringLoong::Math::Polygon;
 using namespace SoaringLoong::Graphics;
 
-
 SoaringLoong::Graphics3D::CObject3D::CObject3D()
 {
 	m_pWorldPos = nullptr;
@@ -20,7 +19,7 @@ SoaringLoong::Graphics3D::CObject3D::CObject3D()
 	m_pProjectMatrix = nullptr;
 	m_pScreenMatrix = nullptr;
 
-	m_VertexList = new vector<CPolygon3D>;
+	m_VertexList = new vector<IPolygon*>;
 }
 
 SoaringLoong::Graphics3D::CObject3D::~CObject3D()
@@ -44,14 +43,19 @@ void SoaringLoong::Graphics3D::CObject3D::Update()
 
 void SoaringLoong::Graphics3D::CObject3D::Render( CDDraw* pDDraw )
 {
-	//LPBYTE pBuffer = pDDraw->DDraw_Lock_Back_Surface();
+	LPBYTE pBuffer = pDDraw->DDraw_Lock_Back_Surface();
 	//pDDraw->DrawClipLine();
 	auto list = *m_VertexList;
 	auto len = list.size();
 	for (int i = 0; i < len; i++)
 	{
-		list[i].Render(pDDraw);
+		if (list[i])
+		{
+			list[i]->Render(pDDraw);
+		}
+		
 	}
+	pDDraw->DDraw_Unlock_Back_Surface();
 }
 
 void SoaringLoong::Graphics3D::CObject3D::DeleteBackface( const CCamera& pCam )
@@ -59,26 +63,25 @@ void SoaringLoong::Graphics3D::CObject3D::DeleteBackface( const CCamera& pCam )
 	auto len = m_VertexList->size();
 	for (int i = 0; i < len; i++ )
 	{
-		auto item = (*m_VertexList)[i];
-		auto vList = item.m_VectorList;
-		auto x = (*vList)[0];
-		auto y = (*vList)[1];
-		auto z = (*vList)[2];
+		
+		auto x = (*m_VertexList)[i]->GetX();
+		auto y = (*m_VertexList)[i]->GetY();
+		auto z = (*m_VertexList)[i]->GetZ();
 		CVector4D u, v, n;
 
-		u = CVector4D::Subtract(x, y);
-		v = CVector4D::Subtract(x, z);
+		u = CVector4D::Subtract(*x, *y);
+		v = CVector4D::Subtract(*x, *z);
 		n = CVector4D::Cross(u, v);
 
 		CVector4D view = { 0, 0, 1, 0 };
 		auto dp = n.Dot(pCam.N);
 		if (dp <= 0.0)
 		{
-			item.m_dwAttribute |= POLY_STATE_BACKFACE;
+			(*m_VertexList)[i]->AddAttribute(POLY_STATE_BACKFACE);
 		}
 		else
 		{
-			item.m_dwAttribute |= POLY_STATE_ACTIVE;
+			(*m_VertexList)[i]->AddAttribute(POLY_STATE_ACTIVE);
 		}
 	}
 }
@@ -91,16 +94,17 @@ void SoaringLoong::Graphics3D::CObject3D::UpdateWorldVertex(const POINT4D& mWorl
 	}
 	m_pWorldPos->Copy(mWorld);
 	auto len = m_VertexList->size();
+	// 对每一个多边形进行转换
 	for (int i = 0; i < len; i++)
 	{
-		auto& item = (*m_VertexList)[i];
-		item.m_WorldVertex->clear();
-		for (int i = 0; i < item.m_VectorList->size(); i++)
+		if ((*m_VertexList)[i])
 		{
-			item.m_WorldVertex->push_back( CVector4D::Add((*item.m_VectorList)[i], mWorld));
+			(*m_VertexList)[i]->ToWorld(mWorld);
 		}
+		
 	}
 }
+
 
 void SoaringLoong::Graphics3D::CObject3D::UpdateCameraVertex(const CMatrix4x4& mCamera)
 {
@@ -109,16 +113,7 @@ void SoaringLoong::Graphics3D::CObject3D::UpdateCameraVertex(const CMatrix4x4& m
 		m_pCameraMatrix = new CMatrix4x4();
 	}
 	m_pCameraMatrix->Copy(mCamera);
-	auto len = m_VertexList->size();
-	for (int i = 0; i < len; i++)
-	{
-		auto& item = (*m_VertexList)[i];
-		item.m_CameraVertexList->clear();
-		for (int i = 0; i < item.m_WorldVertex->size(); i++)
-		{
-			item.m_CameraVertexList->push_back( CVector4D::Multiply((*item.m_WorldVertex)[i], mCamera));
-		}
-	}
+	UpdateVertex(mCamera,false);
 }
 
 void SoaringLoong::Graphics3D::CObject3D::UpdateProjectVertex(const CMatrix4x4& mProject)
@@ -128,22 +123,7 @@ void SoaringLoong::Graphics3D::CObject3D::UpdateProjectVertex(const CMatrix4x4& 
 		m_pProjectMatrix = new CMatrix4x4();
 	}
 	m_pProjectMatrix->Copy(mProject);
-	auto len = m_VertexList->size();
-	for (int i = 0; i < len; i++)
-	{
-		auto& item = (*m_VertexList)[i];
-		item.m_ProjectVertexList->clear();
-		for (int i = 0; i < item.m_CameraVertexList->size(); i++)
-		{
-			auto& temp = CVector4D::Multiply((*item.m_CameraVertexList)[i], mProject);
-			temp.x /= temp.w;
-			temp.y /= temp.w;
-			temp.z /= temp.w;
-			temp.w = 1;
-
-			item.m_ProjectVertexList->push_back(temp);
-		}
-	}
+	UpdateVertex(mProject,true);
 }
 
 void SoaringLoong::Graphics3D::CObject3D::UpdateScreenVertex(const CMatrix4x4& mScreen)
@@ -153,20 +133,23 @@ void SoaringLoong::Graphics3D::CObject3D::UpdateScreenVertex(const CMatrix4x4& m
 		m_pScreenMatrix = new CMatrix4x4();
 	}
 	m_pScreenMatrix->Copy(mScreen);
+	UpdateVertex(mScreen,true);
+}
+
+void SoaringLoong::Graphics3D::CObject3D::UpdateVertex(const CMatrix4x4& mMarix,bool bNormal)
+{
 	auto len = m_VertexList->size();
 	for (int i = 0; i < len; i++)
 	{
-		auto& item = (*m_VertexList)[i];
-		item.m_ScreenVertexList->clear();
-		for (int i = 0; i < item.m_ProjectVertexList->size(); i++)
+		if ((*m_VertexList)[i])
 		{
-			auto& temp = CVector4D::Multiply((*item.m_ProjectVertexList)[i], mScreen);
-			temp.x /= temp.w;
-			temp.y /= temp.w;
-			temp.z /= temp.w;
-			temp.w = 1;
-
-			item.m_ScreenVertexList->push_back(temp);
+			(*m_VertexList)[i]->Transform(mMarix, bNormal);
 		}
+		
 	}
+}
+
+void SoaringLoong::Graphics3D::CObject3D::AddPolygon(IPolygon* pPoly)
+{
+	m_VertexList->push_back(pPoly);
 }

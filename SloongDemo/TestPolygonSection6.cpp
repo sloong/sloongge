@@ -16,7 +16,7 @@ CTestPolygonSection6::~CTestPolygonSection6()
 {
 }
 
-void CTestPolygonSection6::Initialize()
+void CTestPolygonSection6::Initialize(CDDraw* pDraw, DInputClass* pInput, RECT rcWindow)
 {
 
 	vscale = { 1, 1, 1, 1 }, vpos = { 0, 0, 0, 1 }, vrot = { 0, 0, 0, 1 };
@@ -28,9 +28,10 @@ void CTestPolygonSection6::Initialize()
 
 	CMath2::Build_Sin_Cos_Tables();
 
-
-
-	/*	CPLGLoader::Init_CAM4DV1(&cam,      // the camera object
+	m_pDraw = pDraw;
+	m_pInput = pInput;
+	m_rcWindow = rcWindow;
+	CPLGLoader::Init_CAM4DV1(&cam,      // the camera object
 	CAM_MODEL_EULER, // the euler model
 	&cam_pos,  // initial camera position
 	&cam_dir,  // initial camera angles
@@ -39,26 +40,26 @@ void CTestPolygonSection6::Initialize()
 	12000.0,
 	120.0,      // field of view in degrees
 	WINDOW_WIDTH,   // size of final screen viewport
-	WINDOW_HEIGHT);*/
+	WINDOW_HEIGHT);
 
 
 	CPLGLoader plgLoader(m_pDraw);
 
 	// load the master tank object
 	vscale.Initialize(0.75, 0.75, 0.75);
-	plgLoader.LoadOBJECT4DV1(&obj_tank, _T("tank2.plg"), &vscale, &vpos, &vrot);
+	plgLoader.LoadOBJECT4DV1(&obj_tank, _T("DXFile\\tank2.plg"), &vscale, &vpos, &vrot);
 
 	// load player object for 3rd person view
 	vscale.Initialize(0.75, 0.75, 0.75);
-	plgLoader.LoadOBJECT4DV1(&obj_player, _T("tank3.plg"), &vscale, &vpos, &vrot);
+	plgLoader.LoadOBJECT4DV1(&obj_player, _T("DXFile\\tank3.plg"), &vscale, &vpos, &vrot);
 
 	// load the master tower object
 	vscale.Initialize(1.0, 2.0, 1.0);
-	plgLoader.LoadOBJECT4DV1(&obj_tower, _T("tower1.plg"), &vscale, &vpos, &vrot);
+	plgLoader.LoadOBJECT4DV1(&obj_tower, _T("DXFile\\tower1.plg"), &vscale, &vpos, &vrot);
 
 	// load the master ground marker
 	vscale.Initialize(3.0, 3.0, 3.0);
-	plgLoader.LoadOBJECT4DV1(&obj_marker, _T("marker1.plg"), &vscale, &vpos, &vrot);
+	plgLoader.LoadOBJECT4DV1(&obj_marker, _T("DXFile\\marker1.plg"), &vscale, &vpos, &vrot);
 
 #define UNIVERSE_RADIUS   4000
 
@@ -315,7 +316,7 @@ void CTestPolygonSection6::Render()
 	//	DDraw_Flip();
 
 	// sync to 30ish fps
-	//	Wait_Clock(30);
+	m_pDraw->Wait_Clock(30);
 
 	// check of user is trying to exit
 	// 	if (KEY_DOWN(VK_ESCAPE) || keyboard_state[DIK_ESCAPE])

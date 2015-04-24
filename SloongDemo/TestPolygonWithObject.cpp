@@ -17,50 +17,55 @@ CTestPolygonWithObject::~CTestPolygonWithObject()
 {
 }
 
-void CTestPolygonWithObject::Initialize()
+void CTestPolygonWithObject::Initialize(CDDraw* pDraw, DInputClass* pInput, RECT rcWindow)
 {
-
+	m_pDraw = pDraw;
 	CVector4D v1[] = {
-		{ 10, 0, 10, 0 },
-		{ 10, 0, -10, 0 },
-		{ 0, 50, 0, 0 },
+		{ 1, 0, 1, 0 },
+		{ 1, 0, -1, 0 },
+		{ 0, 5, 0, 0 },
 	};
 	CVector4D v2[] = {
-		{ 10, 0, -10, 0 },
-		{ -10, 0, -10, 0 },
-		{ 0, 50, 0, 0 },
+		{ 1, 0, -1, 0 },
+		{ -1, 0, -1, 0 },
+		{ 0, 5, 0, 0 },
 	};
 	CVector4D v3[] = {
-		{ -10, 0, -10, 0 },
-		{ -10, 0, 10, 0 },
-		{ 0, 50, 0, 0 },
+		{ -1, 0, -1, 0 },
+		{ -1, 0, 1, 0 },
+		{ 0, 5, 0, 0 },
 	};
 	CVector4D v4[] = {
-		{ -10, 0, 10, 0 },
-		{ 10, 0, 10, 0 },
-		{ 0, 50, 0, 0 },
+		{ -1, 0, 1, 0 },
+		{ 1, 0, 1, 0 },
+		{ 0, 5, 0, 0 },
 	};
-	CPolygon3D poly[4];
-	poly[0].m_VectorList->push_back(v1[0]);
-	poly[0].m_VectorList->push_back(v1[1]);
-	poly[0].m_VectorList->push_back(v1[2]);
-						
-	poly[1].m_VectorList->push_back(v1[0]);
-	poly[1].m_VectorList->push_back(v1[1]);
-	poly[1].m_VectorList->push_back(v1[2]);
-						
-	poly[2].m_VectorList->push_back(v1[0]);
-	poly[2].m_VectorList->push_back(v1[1]);
-	poly[2].m_VectorList->push_back(v1[2]);
-						
-	poly[3].m_VectorList->push_back(v1[0]);
-	poly[3].m_VectorList->push_back(v1[1]);
-	poly[3].m_VectorList->push_back(v1[2]);
+	
+	poly[0] = IPolygon::Create3D();
+	poly[0]->Initialize(v1[0], v1[1], v1[2]);
+// 	poly[0].m_VectorList->push_back(v1[0]);
+// 	poly[0].m_VectorList->push_back(v1[1]);
+// 	poly[0].m_VectorList->push_back(v1[2]);
+	poly[0] = IPolygon::Create3D();
+	poly[0]->Initialize(v2[0], v2[1], v2[2]);
+// 	poly[1].m_VectorList->push_back(v1[0]);
+// 	poly[1].m_VectorList->push_back(v1[1]);
+// 	poly[1].m_VectorList->push_back(v1[2]);
+	poly[0] = IPolygon::Create3D();
+	poly[0]->Initialize(v3[0], v3[1], v3[2]);
+// 	poly[2].m_VectorList->push_back(v1[0]);
+// 	poly[2].m_VectorList->push_back(v1[1]);
+// 	poly[2].m_VectorList->push_back(v1[2]);
+	poly[0] = IPolygon::Create3D();
+	poly[0]->Initialize(v4[0], v4[1], v4[2]);
+// 	poly[3].m_VectorList->push_back(v1[0]);
+// 	poly[3].m_VectorList->push_back(v1[1]);
+// 	poly[3].m_VectorList->push_back(v1[2]);
 
-	g_obj.m_VertexList->push_back(poly[0]);
-	g_obj.m_VertexList->push_back(poly[1]);
-	g_obj.m_VertexList->push_back(poly[2]);
-	g_obj.m_VertexList->push_back(poly[3]);
+ 	g_obj.AddPolygon(poly[0]);
+	g_obj.AddPolygon(poly[1]);
+	g_obj.AddPolygon(poly[2]);
+	g_obj.AddPolygon(poly[3]);
 
 	CVector4D vPos = { 0, 0, 100, 0 };
 	CVector4D vDir = { 0, 0, 0, 0 };

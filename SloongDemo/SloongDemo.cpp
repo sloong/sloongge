@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include "IUniversal.h"
 #include "SloongDemo.h"
-
 #include "Defines.h"
 #include "SloongUIManager.h"
 #include "SloongUI.h"
@@ -19,6 +18,10 @@
 #include "DInputClass.h"
 #include "SloongCamera.h"
 #include "SloongEngine.h"
+#include "TestPolygonSection6.h"
+#include "TestPolygonWithObject.h"
+#include "TestSinglePolygon.h"
+#include "TestSinglePolygonWithObject.h"
 #pragma comment(lib,"Universal.lib")
 using namespace SoaringLoong;
 using namespace SoaringLoong::Graphics;
@@ -135,24 +138,22 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 	if (FULLSCREEN)
 	{
 		dwStyle = WS_POPUP | WS_VISIBLE;
-		m_nHeight = SCREEN_HEIGHT;
-		m_nWidth = SCREEN_WIDTH;
+		m_rcWindow.SetRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	}
 	else
 	{
 		dwStyle = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
-		m_nHeight = WINDOW_HEIGHT;
-		m_nWidth = WINDOW_WIDTH;
+		m_rcWindow.SetRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 	}
 
 	m_hMainWnd = CreateWindow(m_strWindowClass, m_strTitle, dwStyle,
-		0, 0, m_nWidth, m_nHeight, NULL, NULL, hInstance, NULL);
+		0, 0, m_rcWindow.Width(), m_rcWindow.Height(), NULL, NULL, hInstance, NULL);
 
-	RECT winRect = { 0, 0, m_nWidth, m_nHeight };
+	AdjustWindowRectEx(&m_rcWindow, GetWindowLong(m_hMainWnd, GWL_STYLE), GetMenu(m_hMainWnd) == NULL, GetWindowLong(m_hMainWnd, GWL_EXSTYLE));
 
-	AdjustWindowRectEx(&winRect, GetWindowLong(m_hMainWnd, GWL_STYLE), GetMenu(m_hMainWnd) == NULL, GetWindowLong(m_hMainWnd, GWL_EXSTYLE));
+	m_rcWindow.SetRect(0, 0, m_rcWindow.Width(), m_rcWindow.Height());
 
-	MoveWindow(m_hMainWnd, 0, 0, winRect.right - winRect.left, winRect.bottom - winRect.top, TRUE);
+	MoveWindow(m_hMainWnd, 0, 0, m_rcWindow.Width(), m_rcWindow.Height(), TRUE);
 
 	if (!m_hMainWnd)
 	{
@@ -177,13 +178,16 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 		m_pInput = new DInputClass();
 		m_pInput->Init(m_hMainWnd, m_hInst, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE); //前台，非独占模式
 		m_pDraw = new CDDraw();
-		m_pDraw->Initialize(m_hMainWnd, m_nWidth, m_nHeight, SCREEN_BPP, FULLSCREEN);
+		m_pDraw->Initialize(m_hMainWnd, m_rcWindow.Width(), m_rcWindow.Height(), SCREEN_BPP, FULLSCREEN);
 
 		g_pUIManager = new CUIManager();
 		g_pUIManager->Initialize(m_pDraw, g_pLua, m_pLog,m_hMainWnd);
 
 		g_pLua->RunScript(_T("Start.lua"));
 		CMath2::Build_Sin_Cos_Tables();
+		
+		m_iTestRender = new CTestPolygonWithObject();
+		m_iTestRender->Initialize(m_pDraw, m_pInput,m_rcWindow);
 	}
 	catch (CException& e)
 	{
@@ -432,8 +436,8 @@ void CSloongGame::Render()
 		m_pDraw->Screen_Transitions(SCREEN_DARKNESS, NULL, 0);
 
 	}
-	GetSloongUIManager()->GetCurrentUI()->Render();
-	//Section7Test3Render();
+	//GetSloongUIManager()->GetCurrentUI()->Render();
+	m_iTestRender->Render();
 	// Flip
 	m_pDraw->DDraw_Flip();
 }

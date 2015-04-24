@@ -1,8 +1,11 @@
 #pragma once
 
 #include "SloongVertex.h"
+#include "SloongMatrix.h"
+#include "SloongVector.h"
 using namespace SoaringLoong::Math::Vertex;
-
+using namespace SoaringLoong::Math::Vector;
+using namespace SoaringLoong::Math::Matrix;
 namespace SoaringLoong
 {
 	namespace Graphics
@@ -12,11 +15,6 @@ namespace SoaringLoong
 	using Graphics::CDDraw;
 	namespace Math
 	{
-		namespace Vector
-		{
-			class CVector4D;
-		}
-		using Vector::CVector4D;
 		namespace Polygon
 		{
 			typedef enum PolygonStateType
@@ -36,22 +34,25 @@ namespace SoaringLoong
 				VERTEX2DF *vlist; // pointer to vertex list
 			};
 
-			class SLOONGENGINE_API CPolygon3D
+			class SLOONGENGINE_API IPolygon
 			{
 			public:
-				CPolygon3D();
-				virtual ~CPolygon3D();
-			public:
-				HRESULT Render(CDDraw* pDraw);
-			public:
-				vector<CVector4D>*	m_VectorList;
-				vector<CVector4D>*	m_WorldVertex;
-				vector<CVector4D>*	m_CameraVertexList;
-				vector<CVector4D>*	m_ProjectVertexList;
-				vector<CVector4D>*	m_ScreenVertexList;
-				DWORD				m_dwAttribute;
-				COLORREF			m_dwColor;
+				static  IPolygon* Create3D();
+				virtual void Initialize(const CVector4D& v1, const CVector4D& v2, const CVector4D& v3) = 0;
+				virtual HRESULT Render(CDDraw* pDraw){ return S_OK; };
+
+				virtual CVector4D* GetX(){ return NULL; };
+				virtual CVector4D* GetY(){ return NULL; };
+				virtual CVector4D* GetZ(){ return NULL; };
+
+				virtual void SetAttribute(DWORD arrt){}
+				virtual void AddAttribute(DWORD arrt){}
+
+				virtual void ToWorld(const CVector4D& vWorld){}
+				virtual void Transform(const CMatrix4x4& mMatrix, bool toNormal){}
 			};
+
+			
 		}
 	}
 }

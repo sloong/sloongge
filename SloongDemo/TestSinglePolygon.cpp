@@ -11,8 +11,12 @@ CTestSinglePolygon::~CTestSinglePolygon()
 {
 }
 
-void CTestSinglePolygon::Initialize()
+void CTestSinglePolygon::Initialize(CDDraw* pDraw, DInputClass* pInput, RECT rcWindow)
 {
+	m_pDraw = pDraw;
+	m_pInput = pInput;
+	m_rcWindow = rcWindow;
+
 	// initialize a single polygon
 	auto poly = &poly1[0];
 	poly->state = POLY4DV1_STATE_ACTIVE;
