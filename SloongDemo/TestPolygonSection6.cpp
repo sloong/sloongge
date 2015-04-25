@@ -29,16 +29,7 @@ void CTestPolygonSection6::Initialize(CDDraw* pDraw, DInputClass* pInput, RECT r
 	m_pDraw = pDraw;
 	m_pInput = pInput;
 	m_rcWindow = rcWindow;
-	CPLGLoader::Init_CAM4DV1(&cam,      // the camera object
-	CAM_MODEL_EULER, // the euler model
-	&cam_pos,  // initial camera position
-	&cam_dir,  // initial camera angles
-	&cam_target,      // no target
-	200.0,      // near and far clipping planes
-	12000.0,
-	120.0,      // field of view in degrees
-	WINDOW_WIDTH,   // size of final screen viewport
-	WINDOW_HEIGHT);
+	
 	m_cam.Initialize(CAMERA_ELUER, cam_pos, cam_dir, &cam_target, CAM_ROT_SEQ_XYZ, 200, 12000, 120, WINDOW_WIDTH, WINDOW_HEIGHT);
 	//m_cam.Initialize(CAMERA_UVN, cam_pos, cam_dir, &cam_target, UVN_MODE_SPHERICAL, 200, 12000, 120, WINDOW_WIDTH, WINDOW_HEIGHT);
 
@@ -106,7 +97,6 @@ void CTestPolygonSection6::Render()
 	m_pDraw->Draw_Rectangle(0, WINDOW_HEIGHT / 2, WINDOW_WIDTH - 1, WINDOW_HEIGHT - 1, RGB(103, 62, 3), m_pDraw->GetBackSurface());
 
 	// read keyboard and other devices here
-	//DInput_Read_Keyboard();
 	m_pInput->GetInput();
 	// game logic here...
 
@@ -128,8 +118,6 @@ void CTestPolygonSection6::Render()
 	if (m_pInput->IsKeyDown(DIK_UP))
 	{
 		// move forward
-		cam.pos.x += tank_speed*CMath2::Fast_Sin(cam.dir.y);
-		cam.pos.z += tank_speed*CMath2::Fast_Cos(cam.dir.y);
 		m_cam.WorldPos.x += tank_speed*CMath2::Fast_Sin(m_cam.Direction.y);
 		m_cam.WorldPos.z += tank_speed*CMath2::Fast_Cos(m_cam.Direction.y);
 	} // end if
@@ -137,8 +125,6 @@ void CTestPolygonSection6::Render()
 	if (m_pInput->IsKeyDown(DIK_DOWN))
 	{
 		// move backward
-		cam.pos.x -= tank_speed*CMath2::Fast_Sin(cam.dir.y);
-		cam.pos.z -= tank_speed*CMath2::Fast_Cos(cam.dir.y);
 		m_cam.WorldPos.x -= tank_speed*CMath2::Fast_Sin(m_cam.Direction.y);
 		m_cam.WorldPos.z -= tank_speed*CMath2::Fast_Cos(m_cam.Direction.y);
 	} // end if
@@ -146,7 +132,6 @@ void CTestPolygonSection6::Render()
 	// rotate
 	if (m_pInput->IsKeyDown(DIK_RIGHT))
 	{
-		cam.dir.y += 3;
 		m_cam.Direction.y += 3;
 
 		// add a little turn to object
@@ -157,7 +142,6 @@ void CTestPolygonSection6::Render()
 
 	if (m_pInput->IsKeyDown(DIK_LEFT))
 	{
-		cam.dir.y -= 3;
 		m_cam.Direction.y -= 3;
 
 		// add a little turn to object
@@ -176,7 +160,6 @@ void CTestPolygonSection6::Render()
 	} // end else
 
 	// generate camera matrix
-	CPLGLoader::Build_CAM4DV1_Matrix_Euler(&cam, CAM_ROT_SEQ_ZYX);
 	m_cam.UpdateCameraMatrix();
 
 	// insert the tanks in the world
@@ -197,7 +180,7 @@ void CTestPolygonSection6::Render()
 		obj_tank.world_pos.z = tanks[index].z;
 
 		// attempt to cull object   
-		if (!CPLGLoader::Cull_OBJECT4DV1(&obj_tank, &cam, CULL_OBJECT_XYZ_PLANES))
+		if (!CPLGLoader::Cull_OBJECT4DV1(&obj_tank, &m_cam, CULL_OBJECT_XYZ_PLANES))
 		{
 			// if we get here then the object is visible at this world position
 			// so we can insert it into the rendering list
@@ -215,16 +198,12 @@ void CTestPolygonSection6::Render()
 	CPLGLoader::Reset_OBJECT4DV1(&obj_player);
 
 	// set position of tank
-	obj_player.world_pos.x = cam.pos.x + 300 * CMath2::Fast_Sin(cam.dir.y);
-	obj_player.world_pos.y = cam.pos.y - 70;
-	obj_player.world_pos.z = cam.pos.z + 300 * CMath2::Fast_Cos(cam.dir.y);
-//	obj_player.world_pos.x = cam.WorldPos.x + 300 * CMath2::Fast_Sin(cam.Direction.y);
-//	obj_player.world_pos.y = cam.WorldPos.y - 70;
-//	obj_player.world_pos.z = cam.WorldPos.z + 300 * CMath2::Fast_Cos(cam.Direction.y);
+	obj_player.world_pos.x = m_cam.WorldPos.x + 300 * CMath2::Fast_Sin(m_cam.Direction.y);
+	obj_player.world_pos.y = m_cam.WorldPos.y - 70;
+	obj_player.world_pos.z = m_cam.WorldPos.z + 300 * CMath2::Fast_Cos(m_cam.Direction.y);
 
 	// generate rotation matrix around y axis
-	CPLGLoader::Build_XYZ_Rotation_MATRIX4X4(0, cam.dir.y + turning, 0, &mrot);
-	//CPLGLoader::Build_XYZ_Rotation_MATRIX4X4(0, cam.Direction.y + turning, 0, &mrot);
+	CPLGLoader::Build_XYZ_Rotation_MATRIX4X4(0, m_cam.Direction.y + turning, 0, &mrot);
 
 	// rotate the local coords of the object
 	CPLGLoader::Transform_OBJECT4DV1(&obj_player, &mrot, TRANSFORM_LOCAL_TO_TRANS, 1);
@@ -254,7 +233,7 @@ void CTestPolygonSection6::Render()
 		obj_tower.world_pos.z = towers[index].z;
 
 		// attempt to cull object   
-		if (!CPLGLoader::Cull_OBJECT4DV1(&obj_tower, &cam, CULL_OBJECT_XYZ_PLANES))
+		if (!CPLGLoader::Cull_OBJECT4DV1(&obj_tower, &m_cam, CULL_OBJECT_XYZ_PLANES))
 		{
 			// if we get here then the object is visible at this world position
 			// so we can insert it into the rendering list
@@ -293,7 +272,7 @@ void CTestPolygonSection6::Render()
 		obj_marker.world_pos.z = RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_z*POINT_SIZE;
 
 		// attempt to cull object   
-		if (!CPLGLoader::Cull_OBJECT4DV1(&obj_marker, &cam, CULL_OBJECT_XYZ_PLANES))
+		if (!CPLGLoader::Cull_OBJECT4DV1(&obj_marker, &m_cam, CULL_OBJECT_XYZ_PLANES))
 		{
 			// if we get here then the object is visible at this world position
 			// so we can insert it into the rendering list
@@ -310,7 +289,6 @@ void CTestPolygonSection6::Render()
 	CPLGLoader::Remove_Backfaces_RENDERLIST4DV1(&rend_list, &m_cam);
 
 	// apply world to camera transform
-	//CPLGLoader::World_To_Camera_RENDERLIST4DV1(&rend_list, &cam.mcam);
 	CPLGLoader::World_To_Camera_RENDERLIST4DV1(&rend_list, &m_cam.MatrixCamera);
 
 	// apply camera to perspective transformation
@@ -320,8 +298,7 @@ void CTestPolygonSection6::Render()
 	CPLGLoader::Perspective_To_Screen_RENDERLIST4DV1(&rend_list, &m_cam);
 
 	sprintf_s(work_string, 256, "pos:[%f, %f, %f] heading:[%f] elev:[%f]",
-	cam.pos.x, cam.pos.y, cam.pos.z, cam.dir.y, cam.dir.x);
-		//cam.WorldPos.x, cam.WorldPos.y, cam.WorldPos.z, cam.Direction.y, cam.Direction.x);
+		m_cam.WorldPos.x, m_cam.WorldPos.y, m_cam.WorldPos.z, m_cam.Direction.y, m_cam.Direction.x);
 
 	CString str(work_string);
 	m_pDraw->DrawText(str.GetString().c_str(), 0, WINDOW_HEIGHT - 20, RGB(0, 255, 0), m_pDraw->GetBackSurface());
@@ -338,15 +315,6 @@ void CTestPolygonSection6::Render()
 	// unlock the back buffer
 	m_pDraw->DDraw_Unlock_Back_Surface();
 
-	// flip the surfaces
-	//	DDraw_Flip();
-
 	// sync to 30ish fps
 	m_pDraw->Wait_Clock(30);
-
-	// check of user is trying to exit
-	// 	if (KEY_DOWN(VK_ESCAPE) || keyboard_state[DIK_ESCAPE])
-	// 	{
-	// 		PostMessage(main_window_handle, WM_DESTROY, 0, 0);
-	// 	} // end if
 }

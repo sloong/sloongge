@@ -690,121 +690,6 @@ void CPLGLoader::Build_XYZ_Rotation_MATRIX4X4(float theta_x, // euler angles
 
 ///////////////////////////////////////////////////////////
 
-void Build_Model_To_World_MATRIX4X4(VECTOR4D_PTR vpos, MATRIX4X4_PTR m)
-{
-	// this function builds up a general local to world 
-	// transformation matrix that is really nothing more than a translation
-	// of the origin by the amount specified in vpos
-
-	m->Initialize( 1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		vpos->x, vpos->y, vpos->z, 1);
-
-} // end Build_Model_To_World_MATRIX4X4
-
-//////////////////////////////////////////////////////////
-
-void Build_Camera_To_Perspective_MATRIX4X4(CAM4DV1_PTR cam, MATRIX4X4_PTR m)
-{
-	// this function builds up a camera to perspective transformation
-	// matrix, in most cases the camera would have a 2x2 normalized
-	// view plane with a 90 degree FOV, since the point of the having
-	// this matrix must be to also have a perspective to screen (viewport)
-	// matrix that scales the normalized coordinates, also the matrix
-	// assumes that you are working in 4D homogenous coordinates and at 
-	// some point there will be a 4D->3D conversion, it might be immediately
-	// after this transform is applied to vertices, or after the perspective
-	// to screen transform
-
-	m->Initialize( cam->view_dist, 0, 0, 0,
-		0, cam->view_dist*cam->aspect_ratio, 0, 0,
-		0, 0, 1, 1,
-		0, 0, 0, 0);
-
-} // end Build_Camera_To_Perspective_MATRIX4X4
-
-///////////////////////////////////////////////////////////
-
-void Build_Perspective_To_Screen_4D_MATRIX4X4(CAM4DV1_PTR cam, MATRIX4X4_PTR m)
-{
-	// this function builds up a perspective to screen transformation
-	// matrix, the function assumes that you want to perform the
-	// transform in homogeneous coordinates and at raster time there will be 
-	// a 4D->3D homogenous conversion and of course only the x,y points
-	// will be considered for the 2D rendering, thus you would use this
-	// function's matrix is your perspective coordinates were still 
-	// in homgeneous form whene this matrix was applied, additionally
-	// the point of this matrix to to scale and translate the perspective
-	// coordinates to screen coordinates, thus the matrix is built up
-	// assuming that the perspective coordinates are in normalized form for
-	// a (2x2)/aspect_ratio viewplane, that is, x: -1 to 1, y:-1/aspect_ratio to 1/aspect_ratio
-
-	float alpha = (0.5*cam->viewport_width - 0.5);
-	float beta = (0.5*cam->viewport_height - 0.5);
-
-	m->Initialize( alpha, 0, 0, 0,
-		0, -beta, 0, 0,
-		alpha, beta, 1, 0,
-		0, 0, 0, 1);
-
-} // end Build_Perspective_To_Screen_4D_MATRIX4X4()
-
-//////////////////////////////////////////////////////////
-
-void Build_Perspective_To_Screen_MATRIX4X4(CAM4DV1_PTR cam, MATRIX4X4_PTR m)
-{
-	// this function builds up a perspective to screen transformation
-	// matrix, the function assumes that you want to perform the
-	// transform in 2D/3D coordinates, that is, you have already converted
-	// the perspective coordinates from homogenous 4D to 3D before applying
-	// this matrix, additionally
-	// the point of this matrix to to scale and translate the perspective
-	// coordinates to screen coordinates, thus the matrix is built up
-	// assuming that the perspective coordinates are in normalized form for
-	// a 2x2 viewplane, that is, x: -1 to 1, y:-1 to 1 
-	// the only difference between this function and the version that
-	// assumes the coordinates are still in homogenous format is the
-	// last column doesn't force w=z, in fact the z, and w results
-	// are irrelevent since we assume that BEFORE this matrix is applied
-	// all points are already converted from 4D->3D
-
-	float alpha = (0.5*cam->viewport_width - 0.5);
-	float beta = (0.5*cam->viewport_height - 0.5);
-
-	m->Initialize( alpha, 0, 0, 0,
-		0, -beta, 0, 0,
-		alpha, beta, 1, 0,
-		0, 0, 0, 1);
-
-} // end Build_Perspective_To_Screen_MATRIX4X4()
-
-///////////////////////////////////////////////////////////
-
-void Build_Camera_To_Screen_MATRIX4X4(CAM4DV1_PTR cam, MATRIX4X4_PTR m)
-{
-	// this function creates a single matrix that performs the
-	// entire camera->perspective->screen transform, the only
-	// important thing is that the camera must be created with
-	// a viewplane specified to be the size of the viewport
-	// furthermore, after this transform is applied the the vertex
-	// must be converted from 4D homogeneous to 3D, technically
-	// the z is irrelevant since the data would be used for the
-	// screen, but still the division by w is needed no matter
-	// what
-
-	float alpha = (0.5*cam->viewport_width - 0.5);
-	float beta = (0.5*cam->viewport_height - 0.5);
-
-	m->Initialize( cam->view_dist, 0, 0, 0,
-		0, -cam->view_dist, 0, 0,
-		alpha, beta, 1, 1,
-		0, 0, 0, 0);
-
-} // end Build_Camera_To_Screen_MATRIX4X4()
-
-///////////////////////////////////////////////////////////
-
 void CPLGLoader::Transform_OBJECT4DV1(OBJECT4DV1_PTR obj, // object to transform
 	MATRIX4X4_PTR mt,   // transformation matrix
 	int coord_select,   // selects coords to transform
@@ -982,90 +867,6 @@ void CPLGLoader::Model_To_World_OBJECT4DV1(OBJECT4DV1_PTR obj, int coord_select)
 ////////////////////////////////////////////////////////////
 
 int CPLGLoader::Cull_OBJECT4DV1(OBJECT4DV1_PTR obj,  // object to cull
-	CAM4DV1_PTR cam,     // camera to cull relative to
-	int cull_flags)     // clipping planes to consider
-{
-	// NOTE: is matrix based
-	// this function culls an entire object from the viewing
-	// frustrum by using the sent camera information and object
-	// the cull_flags determine what axes culling should take place
-	// x, y, z or all which is controlled by ORing the flags
-	// together
-	// if the object is culled its state is modified thats all
-	// this function assumes that both the camera and the object
-	// are valid!
-
-	// step 1: transform the center of the object's bounding
-	// sphere into camera space
-
-	POINT4D sphere_pos; // hold result of transforming center of bounding sphere
-
-	// transform point
-	sphere_pos = cam->mcam.Multiply(obj->world_pos);
-
-	// step 2:  based on culling flags remove the object
-	if (cull_flags & CULL_OBJECT_Z_PLANE)
-	{
-		// cull only based on z clipping planes
-
-		// test far plane
-		if (((sphere_pos.z - obj->max_radius) > cam->far_clip_z) ||
-			((sphere_pos.z + obj->max_radius) < cam->near_clip_z))
-		{
-			SET_BIT(obj->state, OBJECT4DV1_STATE_CULLED);
-			return(1);
-		} // end if
-
-	} // end if
-
-	if (cull_flags & CULL_OBJECT_X_PLANE)
-	{
-		// cull only based on x clipping planes
-		// we could use plane equations, but simple similar triangles
-		// is easier since this is really a 2D problem
-		// if the view volume is 90 degrees the the problem is trivial
-		// buts lets assume its not
-
-		// test the the right and left clipping planes against the leftmost and rightmost
-		// points of the bounding sphere
-		float z_test = (0.5)*cam->viewplane_width*sphere_pos.z / cam->view_dist;
-
-		if (((sphere_pos.x - obj->max_radius) > z_test) || // right side
-			((sphere_pos.x + obj->max_radius) < -z_test))  // left side, note sign change
-		{
-			SET_BIT(obj->state, OBJECT4DV1_STATE_CULLED);
-			return(1);
-		} // end if
-	} // end if
-
-	if (cull_flags & CULL_OBJECT_Y_PLANE)
-	{
-		// cull only based on y clipping planes
-		// we could use plane equations, but simple similar triangles
-		// is easier since this is really a 2D problem
-		// if the view volume is 90 degrees the the problem is trivial
-		// buts lets assume its not
-
-		// test the the top and bottom clipping planes against the bottommost and topmost
-		// points of the bounding sphere
-		float z_test = (0.5)*cam->viewplane_height*sphere_pos.z / cam->view_dist;
-
-		if (((sphere_pos.y - obj->max_radius) > z_test) || // top side
-			((sphere_pos.y + obj->max_radius) < -z_test))  // bottom side, note sign change
-		{
-			SET_BIT(obj->state, OBJECT4DV1_STATE_CULLED);
-			return(1);
-		} // end if
-
-	} // end if
-
-	// return failure to cull
-	return(0);
-
-} // end Cull_OBJECT4DV1
-
- 
-int CPLGLoader::Cull_OBJECT4DV1(OBJECT4DV1_PTR obj,  // object to cull
 	CCamera* cam,     // camera to cull relative to
 	int cull_flags)     // clipping planes to consider
 {
@@ -1150,7 +951,7 @@ int CPLGLoader::Cull_OBJECT4DV1(OBJECT4DV1_PTR obj,  // object to cull
 
 ////////////////////////////////////////////////////////////
 
-void Remove_Backfaces_OBJECT4DV1(OBJECT4DV1_PTR obj, CAM4DV1_PTR cam)
+void Remove_Backfaces_OBJECT4DV1(OBJECT4DV1_PTR obj, CCamera* cam)
 {
 	// NOTE: this is not a matrix based function
 	// this function removes the backfaces from an object's
@@ -1202,7 +1003,7 @@ void Remove_Backfaces_OBJECT4DV1(OBJECT4DV1_PTR obj, CAM4DV1_PTR cam)
 
 		// now create eye vector to viewpoint
 		VECTOR4D view;
-		view.VECTOR4D_Build(&obj->vlist_trans[vindex_0], &cam->pos, &view);
+		view.VECTOR4D_Build(&obj->vlist_trans[vindex_0], &cam->WorldPos, &view);
 
 		// and finally, compute the dot product
 		float dp = n.Dot(view);
@@ -1214,58 +1015,6 @@ void Remove_Backfaces_OBJECT4DV1(OBJECT4DV1_PTR obj, CAM4DV1_PTR cam)
 	} // end for poly
 
 } // end Remove_Backfaces_OBJECT4DV1
-
-////////////////////////////////////////////////////////////
-
-void CPLGLoader::Remove_Backfaces_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list, CAM4DV1_PTR cam)
-{
-	// NOTE: this is not a matrix based function
-	// this function removes the backfaces from polygon list
-	// the function does this based on the polygon list data
-	// tvlist along with the camera position (only)
-	// note that only the backface state is set in each polygon
-
-	for (int poly = 0; poly < rend_list->num_polys; poly++)
-	{
-		// acquire current polygon
-		POLYF4DV1_PTR curr_poly = rend_list->poly_ptrs[poly];
-
-		// is this polygon valid?
-		// test this polygon if and only if it's not clipped, not culled,
-		// active, and visible and not 2 sided. Note we test for backface in the event that
-		// a previous call might have already determined this, so why work
-		// harder!
-		if ((curr_poly == NULL) || !(curr_poly->state & POLY4DV1_STATE_ACTIVE) ||
-			(curr_poly->state & POLY4DV1_STATE_CLIPPED) ||
-			(curr_poly->attr  & POLY4DV1_ATTR_2SIDED) ||
-			(curr_poly->state & POLY4DV1_STATE_BACKFACE))
-			continue; // move onto next poly
-
-		// we need to compute the normal of this polygon face, and recall
-		// that the vertices are in cw order, u = p0->p1, v=p0->p2, n=uxv
-		VECTOR4D u, v, n;
-
-		// build u, v
-		u.VECTOR4D_Build(&curr_poly->tvlist[0], &curr_poly->tvlist[1], &u);
-		v.VECTOR4D_Build(&curr_poly->tvlist[0], &curr_poly->tvlist[2], &v);
-
-		// compute cross product
-		n = CVector4D::Cross(u, v);
-
-		// now create eye vector to viewpoint
-		VECTOR4D view;
-		view.VECTOR4D_Build(&curr_poly->tvlist[0], &cam->pos, &view);
-
-		// and finally, compute the dot product
-		float dp = n.Dot(view);
-
-		// if the sign is > 0 then visible, 0 = scathing, < 0 invisible
-		if (dp <= 0.0)
-			SET_BIT(curr_poly->state, POLY4DV1_STATE_BACKFACE);
-
-	} // end for poly
-
-} // end Remove_Backfaces_RENDERLIST4DV1
 
 void CPLGLoader::Remove_Backfaces_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list, CCamera* cam)
 {
@@ -1319,7 +1068,7 @@ void CPLGLoader::Remove_Backfaces_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list, C
 
 ////////////////////////////////////////////////////////////
 
-void World_To_Camera_OBJECT4DV1(OBJECT4DV1_PTR obj, CAM4DV1_PTR cam)
+void World_To_Camera_OBJECT4DV1(OBJECT4DV1_PTR obj, CCamera* cam)
 {
 	// NOTE: this is a matrix based function
 	// this function transforms the world coordinates of an object
@@ -1345,14 +1094,14 @@ void World_To_Camera_OBJECT4DV1(OBJECT4DV1_PTR obj, CAM4DV1_PTR cam)
 // 
 // 		// store result back
 // 		presult.VECTOR4D_COPY(&obj->vlist_trans[vertex], &presult);
-		obj->vlist_trans[vertex].Multiply(cam->mcam);
+		obj->vlist_trans[vertex].Multiply(cam->MatrixCamera);
 	} // end for vertex
 
 } // end World_To_Camera_OBJECT4DV1
 
 ////////////////////////////////////////////////////////////
 
-void Camera_To_Perspective_OBJECT4DV1(OBJECT4DV1_PTR obj, CAM4DV1_PTR cam)
+void Camera_To_Perspective_OBJECT4DV1(OBJECT4DV1_PTR obj, CCamera* cam)
 {
 	// NOTE: this is not a matrix based function
 	// this function transforms the camera coordinates of an object
@@ -1376,8 +1125,8 @@ void Camera_To_Perspective_OBJECT4DV1(OBJECT4DV1_PTR obj, CAM4DV1_PTR cam)
 		float z = obj->vlist_trans[vertex].z;
 
 		// transform the vertex by the view parameters in the camera
-		obj->vlist_trans[vertex].x = cam->view_dist*obj->vlist_trans[vertex].x / z;
-		obj->vlist_trans[vertex].y = cam->view_dist*obj->vlist_trans[vertex].y*cam->aspect_ratio / z;
+		obj->vlist_trans[vertex].x = cam->ViewDistance*obj->vlist_trans[vertex].x / z;
+		obj->vlist_trans[vertex].y = cam->ViewDistance*obj->vlist_trans[vertex].y*cam->AspectRatio / z;
 		// z = z, so no change
 
 		// not that we are NOT dividing by the homogenous w coordinate since
@@ -1389,7 +1138,7 @@ void Camera_To_Perspective_OBJECT4DV1(OBJECT4DV1_PTR obj, CAM4DV1_PTR cam)
 
 //////////////////////////////////////////////////////////////
 
-void Camera_To_Perspective_Screen_OBJECT4DV1(OBJECT4DV1_PTR obj, CAM4DV1_PTR cam)
+void Camera_To_Perspective_Screen_OBJECT4DV1(OBJECT4DV1_PTR obj, CCamera* cam)
 {
 	// NOTE: this is not a matrix based function
 	// this function transforms the camera coordinates of an object
@@ -1411,8 +1160,8 @@ void Camera_To_Perspective_Screen_OBJECT4DV1(OBJECT4DV1_PTR obj, CAM4DV1_PTR cam
 	// generated from this function ARE screen coordinates and ready for
 	// rendering
 
-	float alpha = (0.5*cam->viewport_width - 0.5);
-	float beta = (0.5*cam->viewport_height - 0.5);
+	float alpha = (0.5*cam->ScreenWidth - 0.5);
+	float beta = (0.5*cam->ScreenHeight - 0.5);
 
 	// transform each vertex in the object to perspective screen coordinates
 	// assumes the object has already been transformed to camera
@@ -1422,8 +1171,8 @@ void Camera_To_Perspective_Screen_OBJECT4DV1(OBJECT4DV1_PTR obj, CAM4DV1_PTR cam
 		float z = obj->vlist_trans[vertex].z;
 
 		// transform the vertex by the view parameters in the camera
-		obj->vlist_trans[vertex].x = cam->view_dist*obj->vlist_trans[vertex].x / z;
-		obj->vlist_trans[vertex].y = cam->view_dist*obj->vlist_trans[vertex].y / z;
+		obj->vlist_trans[vertex].x = cam->ViewDistance*obj->vlist_trans[vertex].x / z;
+		obj->vlist_trans[vertex].y = cam->ViewDistance*obj->vlist_trans[vertex].y / z;
 		// z = z, so no change
 
 		// not that we are NOT dividing by the homogenous w coordinate since
@@ -1442,7 +1191,7 @@ void Camera_To_Perspective_Screen_OBJECT4DV1(OBJECT4DV1_PTR obj, CAM4DV1_PTR cam
 
 //////////////////////////////////////////////////////////////
 
-void Perspective_To_Screen_OBJECT4DV1(OBJECT4DV1_PTR obj, CAM4DV1_PTR cam)
+void Perspective_To_Screen_OBJECT4DV1(OBJECT4DV1_PTR obj, CCamera* cam)
 {
 	// NOTE: this is not a matrix based function
 	// this function transforms the perspective coordinates of an object
@@ -1464,8 +1213,8 @@ void Perspective_To_Screen_OBJECT4DV1(OBJECT4DV1_PTR obj, CAM4DV1_PTR cam)
 	// assumes the object has already been transformed to perspective
 	// coordinates and the result is in vlist_trans[]
 
-	float alpha = (0.5*cam->viewport_width - 0.5);
-	float beta = (0.5*cam->viewport_height - 0.5);
+	float alpha = (0.5*cam->ScreenWidth - 0.5);
+	float beta = (0.5*cam->ScreenHeight - 0.5);
 
 	for (int vertex = 0; vertex < obj->num_vertices; vertex++)
 	{
@@ -1715,68 +1464,6 @@ void Convert_From_Homogeneous4D_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list)
 
 } // end Convert_From_Homogeneous4D_RENDERLIST4DV1
 
-/////////////////////////////////////////////////////////////////////////
-
-void CPLGLoader::World_To_Camera_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list,
-	CAM4DV1_PTR cam)
-{
-	World_To_Camera_RENDERLIST4DV1(rend_list, &cam->mcam);
-
-} // end World_To_Camera_RENDERLIST4DV1
-
-///////////////////////////////////////////////////////////////
-
-void CPLGLoader::Camera_To_Perspective_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list,CAM4DV1_PTR cam)
-{
-	// NOTE: this is not a matrix based function
-	// 这不是一个基于矩阵的函数
-	// this function transforms each polygon in the global render list
-	// 这个函数转换每一个多边形在全局渲染列表中
-	// into perspective coordinates, based on the sent camera object, 
-	// 到透视图坐标，基于设置的相机对象
-	// you would use this function instead of the object based function
-	// 你应该使用这个函数代替这个对象的基函数
-	// if you decided earlier in the pipeline to turn each object into 
-	// 如果你最初决定
-	// a list of polygons and then add them to the global render list
-
-	// transform each polygon in the render list into camera coordinates
-	// assumes the render list has already been transformed to world
-	// coordinates and the result is in tvlist[] of each polygon object
-
-	for (int poly = 0; poly < rend_list->num_polys; poly++)
-	{
-		// acquire current polygon
-		POLYF4DV1_PTR curr_poly = rend_list->poly_ptrs[poly];
-
-		// is this polygon valid?
-		// transform this polygon if and only if it's not clipped, not culled,
-		// active, and visible, note however the concept of "backface" is 
-		// irrelevant in a wire frame engine though
-		if ((curr_poly == NULL) || !(curr_poly->state & POLY4DV1_STATE_ACTIVE) ||
-			(curr_poly->state & POLY4DV1_STATE_CLIPPED) ||
-			(curr_poly->state & POLY4DV1_STATE_BACKFACE))
-			continue; // move onto next poly
-
-		// all good, let's transform 
-		for (int vertex = 0; vertex < 3; vertex++)
-		{
-			float z = curr_poly->tvlist[vertex].z;
-
-			// transform the vertex by the view parameters in the camera
-			curr_poly->tvlist[vertex].x = cam->view_dist*curr_poly->tvlist[vertex].x / z;
-			curr_poly->tvlist[vertex].y = cam->view_dist*curr_poly->tvlist[vertex].y*cam->aspect_ratio / z;
-			// z = z, so no change
-
-			// not that we are NOT dividing by the homogenous w coordinate since
-			// we are not using a matrix operation for this version of the function 
-
-		} // end for vertex
-
-	} // end for poly
-
-} // end Camera_To_Perspective_RENDERLIST4DV1
-
 void CPLGLoader::Camera_To_Perspective_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list, CCamera* cam)
 {
 	// NOTE: this is not a matrix based function
@@ -1831,7 +1518,7 @@ void CPLGLoader::Camera_To_Perspective_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_li
 ////////////////////////////////////////////////////////////////
 
 void Camera_To_Perspective_Screen_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list,
-	CAM4DV1_PTR cam)
+	CCamera* cam)
 {
 	// NOTE: this is not a matrix based function
 	// this function transforms the camera coordinates of an object
@@ -1860,8 +1547,8 @@ void Camera_To_Perspective_Screen_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list,
 			(curr_poly->state & POLY4DV1_STATE_BACKFACE))
 			continue; // move onto next poly
 
-		float alpha = (0.5*cam->viewport_width - 0.5);
-		float beta = (0.5*cam->viewport_height - 0.5);
+		float alpha = (0.5*cam->ScreenWidth - 0.5);
+		float beta = (0.5*cam->ScreenHeight - 0.5);
 
 		// all good, let's transform 
 		for (int vertex = 0; vertex < 3; vertex++)
@@ -1869,8 +1556,8 @@ void Camera_To_Perspective_Screen_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list,
 			float z = curr_poly->tvlist[vertex].z;
 
 			// transform the vertex by the view parameters in the camera
-			curr_poly->tvlist[vertex].x = cam->view_dist*curr_poly->tvlist[vertex].x / z;
-			curr_poly->tvlist[vertex].y = cam->view_dist*curr_poly->tvlist[vertex].y / z;
+			curr_poly->tvlist[vertex].x = cam->ViewDistance*curr_poly->tvlist[vertex].x / z;
+			curr_poly->tvlist[vertex].y = cam->ViewDistance*curr_poly->tvlist[vertex].y / z;
 			// z = z, so no change
 
 			// not that we are NOT dividing by the homogenous w coordinate since
@@ -1888,58 +1575,6 @@ void Camera_To_Perspective_Screen_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list,
 	} // end for poly
 
 } // end Camera_To_Perspective_Screen_RENDERLIST4DV1
-
-//////////////////////////////////////////////////////////////
-
-void CPLGLoader::Perspective_To_Screen_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list,
-	CAM4DV1_PTR cam)
-{
-	// NOTE: this is not a matrix based function
-	// this function transforms the perspective coordinates of the render
-	// list into screen coordinates, based on the sent viewport in the camera
-	// assuming that the viewplane coordinates were normalized
-	// you would use this function instead of the object based function
-	// if you decided earlier in the pipeline to turn each object into 
-	// a list of polygons and then add them to the global render list
-	// you would only call this function if you previously performed
-	// a normalized perspective transform
-
-	// transform each polygon in the render list from perspective to screen 
-	// coordinates assumes the render list has already been transformed 
-	// to normalized perspective coordinates and the result is in tvlist[]
-	for (int poly = 0; poly < rend_list->num_polys; poly++)
-	{
-		// acquire current polygon
-		POLYF4DV1_PTR curr_poly = rend_list->poly_ptrs[poly];
-
-		// is this polygon valid?
-		// transform this polygon if and only if it's not clipped, not culled,
-		// active, and visible, note however the concept of "backface" is 
-		// irrelevant in a wire frame engine though
-		if ((curr_poly == NULL) || !(curr_poly->state & POLY4DV1_STATE_ACTIVE) ||
-			(curr_poly->state & POLY4DV1_STATE_CLIPPED) ||
-			(curr_poly->state & POLY4DV1_STATE_BACKFACE))
-			continue; // move onto next poly
-
-		float alpha = (0.5*cam->viewport_width - 0.5);
-		float beta = (0.5*cam->viewport_height - 0.5);
-
-		// all good, let's transform 
-		for (int vertex = 0; vertex < 3; vertex++)
-		{
-
-			// the vertex is in perspective normalized coords from -1 to 1
-			// on each axis, simple scale them and invert y axis and project
-			// to screen
-
-			// transform the vertex by the view parameters in the camera
-			curr_poly->tvlist[vertex].x = alpha + alpha*curr_poly->tvlist[vertex].x;
-			curr_poly->tvlist[vertex].y = beta - beta *curr_poly->tvlist[vertex].y;
-		} // end for vertex
-
-	} // end for poly
-
-} // end Perspective_To_Screen_RENDERLIST4DV1
 
 void CPLGLoader::Perspective_To_Screen_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list,
 	CCamera* cam)
@@ -2444,331 +2079,3 @@ void CPLGLoader::Draw_RENDERLIST4DV1_Wire16(RENDERLIST4DV1_PTR rend_list,
 	} // end for poly
 
 } // end Draw_RENDERLIST4DV1_Wire
-void CPLGLoader::Build_CAM4DV1_Matrix_Euler(CAM4DV1_PTR cam, int cam_rot_seq)
-{
-	// this creates a camera matrix based on Euler angles 
-	// and stores it in the sent camera object
-	// if you recall from chapter 6 to create the camera matrix
-	// we need to create a transformation matrix that looks like:
-
-	// Mcam = mt(-1) * my(-1) * mx(-1) * mz(-1)
-	// that is the inverse of the camera translation matrix mutilplied
-	// by the inverses of yxz, in that order, however, the order of
-	// the rotation matrices is really up to you, so we aren't going
-	// to force any order, thus its programmable based on the value
-	// of cam_rot_seq which can be any value CAM_ROT_SEQ_XYZ where 
-	// XYZ can be in any order, YXZ, ZXY, etc.
-
-	MATRIX4X4 mt_inv,  // inverse camera translation matrix
-		mx_inv,  // inverse camera x axis rotation matrix
-		my_inv,  // inverse camera y axis rotation matrix
-		mz_inv,  // inverse camera z axis rotation matrix
-		mrot,    // concatenated inverse rotation matrices
-		mtmp;    // temporary working matrix
-
-
-	// step 1: create the inverse translation matrix for the camera
-	// position
-	mt_inv.Initialize( 1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		-cam->pos.x, -cam->pos.y, -cam->pos.z, 1);
-
-	// step 2: create the inverse rotation sequence for the camera
-	// rember either the transpose of the normal rotation matrix or
-	// plugging negative values into each of the rotations will result
-	// in an inverse matrix
-
-	// first compute all 3 rotation matrices
-
-	// extract out euler angles
-	float theta_x = cam->dir.x;
-	float theta_y = cam->dir.y;
-	float theta_z = cam->dir.z;
-
-	// compute the sine and cosine of the angle x
-	float cos_theta = CMath2::Fast_Cos(theta_x);  // no change since cos(-x) = cos(x)
-	float sin_theta = -CMath2::Fast_Sin(theta_x); // sin(-x) = -sin(x)
-
-	// set the matrix up 
-	mx_inv.Initialize( 1, 0, 0, 0,
-		0, cos_theta, sin_theta, 0,
-		0, -sin_theta, cos_theta, 0,
-		0, 0, 0, 1);
-
-	// compute the sine and cosine of the angle y
-	cos_theta = CMath2::Fast_Cos(theta_y);  // no change since cos(-x) = cos(x)
-	sin_theta = -CMath2::Fast_Sin(theta_y); // sin(-x) = -sin(x)
-
-	// set the matrix up 
-	my_inv.Initialize( cos_theta, 0, -sin_theta, 0,
-		0, 1, 0, 0,
-		sin_theta, 0, cos_theta, 0,
-		0, 0, 0, 1);
-
-	// compute the sine and cosine of the angle z
-	cos_theta = CMath2::Fast_Cos(theta_z);  // no change since cos(-x) = cos(x)
-	sin_theta = -CMath2::Fast_Sin(theta_z); // sin(-x) = -sin(x)
-
-	// set the matrix up 
-	mz_inv.Initialize( cos_theta, sin_theta, 0, 0,
-		-sin_theta, cos_theta, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1);
-
-	// now compute inverse camera rotation sequence
-	switch (cam_rot_seq)
-	{
-	case CAM_ROT_SEQ_XYZ:
-	{
-							mtmp.Multiply(&mx_inv, &my_inv);
-							mrot.Multiply(&mtmp, &mz_inv);
-	} break;
-
-	case CAM_ROT_SEQ_YXZ:
-	{
-							mtmp.Multiply(&my_inv, &mx_inv);
-							mrot.Multiply(&mtmp, &mz_inv);
-	} break;
-
-	case CAM_ROT_SEQ_XZY:
-	{
-							mtmp.Multiply(&mx_inv, &mz_inv);
-							mrot.Multiply(&mtmp, &my_inv);
-	} break;
-
-	case CAM_ROT_SEQ_YZX:
-	{
-							mtmp.Multiply(&my_inv, &mz_inv);
-							mrot.Multiply(&mtmp, &mx_inv);
-	} break;
-
-	case CAM_ROT_SEQ_ZYX:
-	{
-							mtmp.Multiply(&mz_inv, &my_inv);
-							mrot.Multiply(&mtmp, &mx_inv);
-	} break;
-
-	case CAM_ROT_SEQ_ZXY:
-	{
-							mtmp.Multiply(&mz_inv, &mx_inv);
-							mrot.Multiply(&mtmp, &my_inv);
-
-	} break;
-
-	default: break;
-	} // end switch
-
-	// now mrot holds the concatenated product of inverse rotation matrices
-	// multiply the inverse translation matrix against it and store in the 
-	// camera objects' camera transform matrix we are done!
-	cam->mcam.Multiply(&mt_inv, &mrot);
-
-} // end Build_CAM4DV1_Matrix_Euler
-
-/////////////////////////////////////////////////////////////
-
-void Build_CAM4DV1_Matrix_UVN(CAM4DV1_PTR cam, int mode)
-{
-	// this creates a camera matrix based on a look at vector n,
-	// look up vector v, and a look right (or left) u
-	// and stores it in the sent camera object, all values are
-	// extracted out of the camera object itself
-	// mode selects how uvn is computed
-	// UVN_MODE_SIMPLE - low level simple model, use the target and view reference point
-	// UVN_MODE_SPHERICAL - spherical mode, the x,y components will be used as the
-	//     elevation and heading of the view vector respectively
-	//     along with the view reference point as the position
-	//     as usual
-
-	MATRIX4X4 mt_inv,  // inverse camera translation matrix
-		mt_uvn,  // the final uvn matrix
-		mtmp;    // temporary working matrix
-
-	// step 1: create the inverse translation matrix for the camera
-	// position
-	mt_inv.Initialize( 1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		-cam->pos.x, -cam->pos.y, -cam->pos.z, 1);
-
-
-	// step 2: determine how the target point will be computed
-	if (mode == UVN_MODE_SPHERICAL)
-	{
-		// use spherical construction
-		// target needs to be recomputed
-
-		// extract elevation and heading 
-		float phi = cam->dir.x; // elevation
-		float theta = cam->dir.y; // heading
-
-		// compute trig functions once
-		float sin_phi = CMath2::Fast_Sin(phi);
-		float cos_phi = CMath2::Fast_Cos(phi);
-
-		float sin_theta = CMath2::Fast_Sin(theta);
-		float cos_theta = CMath2::Fast_Cos(theta);
-
-		// now compute the target point on a unit sphere x,y,z
-		cam->target.x = -1 * sin_phi*sin_theta;
-		cam->target.y = 1 * cos_phi;
-		cam->target.z = 1 * sin_phi*cos_theta;
-	} // end else
-
-	// at this point, we have the view reference point, the target and that's
-	// all we need to recompute u,v,n
-	// Step 1: n = <target position - view reference point>
-	cam->pos.VECTOR4D_Build(&cam->pos, &cam->target, &cam->n);
-
-	// Step 2: Let v = <0,1,0>
-	cam->v.Initialize( 0, 1, 0);
-
-	// Step 3: u = (v x n)
-	cam->u = CVector4D::Cross(cam->v,cam->n);
-
-	// Step 4: v = (n x u)
-	cam->v = CVector4D::Cross(cam->n, cam->u);
-
-	// Step 5: normalize all vectors
-	cam->u.Normalize();
-	cam->v.Normalize();
-	cam->n.Normalize();
-
-
-	// build the UVN matrix by placing u,v,n as the columns of the matrix
-	mt_uvn.Initialize( cam->u.x, cam->v.x, cam->n.x, 0,
-		cam->u.y, cam->v.y, cam->n.y, 0,
-		cam->u.z, cam->v.z, cam->n.z, 0,
-		0, 0, 0, 1);
-
-	// now multiply the translation matrix and the uvn matrix and store in the 
-	// final camera matrix mcam
-	cam->mcam.Multiply(&mt_inv, &mt_uvn);
-
-} // end Build_CAM4DV1_Matrix_UVN
-
-/////////////////////////////////////////////////////////////
-
-void CPLGLoader::Init_CAM4DV1(CAM4DV1_PTR cam,       // the camera object
-	int cam_attr,          // attributes
-	POINT4D_PTR cam_pos,   // initial camera position
-	VECTOR4D_PTR cam_dir,  // initial camera angles
-	POINT4D_PTR cam_target, // UVN target
-	float near_clip_z,     // near and far clipping planes
-	float far_clip_z,
-	float fov,             // field of view in degrees
-	float viewport_width,  // size of final screen viewport
-	float viewport_height)
-{
-	// this function initializes the camera object cam, the function
-	// doesn't do a lot of error checking or sanity checking since 
-	// I want to allow you to create projections as you wish, also 
-	// I tried to minimize the number of parameters the functions needs
-
-	// first set up parms that are no brainers
-	cam->attr = cam_attr;              // camera attributes
-
-	cam->pos.Copy(*cam_pos); // positions
-	cam->dir.Copy(*cam_dir); // direction vector or angles for
-	// euler camera
-	// for UVN camera
-	cam->u.Initialize( 1, 0, 0);  // set to +x
-	cam->v.Initialize( 0, 1, 0);  // set to +y
-	cam->n.Initialize( 0, 0, 1);  // set to +z        
-
-	if (cam_target != NULL)
-		cam->target.Copy( *cam_target); // UVN target
-	else
-		cam->target.VECTOR4D_ZERO(&cam->target);
-
-	cam->near_clip_z = near_clip_z;     // near z=constant clipping plane
-	cam->far_clip_z = far_clip_z;      // far z=constant clipping plane
-
-	cam->viewport_width = viewport_width;   // dimensions of viewport
-	cam->viewport_height = viewport_height;
-
-	cam->viewport_center_x = (viewport_width - 1) / 2; // center of viewport
-	cam->viewport_center_y = (viewport_height - 1) / 2;
-
-	cam->aspect_ratio = (float)viewport_width / (float)viewport_height;
-
-	// set all camera matrices to identity matrix
-	cam->mcam.Zero();
-	cam->mper.Zero();
-	cam->mscr.Zero();
-
-	// set independent vars
-	cam->fov = fov;
-
-	// set the viewplane dimensions up, they will be 2 x (2/ar)
-	cam->viewplane_width = 2.0;
-	cam->viewplane_height = 2.0 / cam->aspect_ratio;
-
-	// now we know fov and we know the viewplane dimensions plug into formula and
-	// solve for view distance parameters
-#define DEG_TO_RAD(ang) ((ang)*PI/180.0)
-#define RAD_TO_DEG(rads) ((rads)*180.0/PI)
-	float tan_fov_div2 = tan(DEG_TO_RAD(fov / 2));
-
-	cam->view_dist = (0.5)*(cam->viewplane_width)*tan_fov_div2;
-
-	// test for 90 fov first since it's easy :)
-	if (fov == 90.0)
-	{
-		// set up the clipping planes -- easy for 90 degrees!
-		POINT3D pt_origin; // point on the plane
-		pt_origin.Initialize( 0, 0, 0);
-
-		VECTOR3D vn; // normal to plane
-
-		// right clipping plane 
-		vn.Initialize( 1, 0, -1); // x=z plane
-		cam->rt_clip_plane.Initialize(pt_origin, vn, 1);
-
-		// left clipping plane
-		vn.Initialize(-1, 0, -1); // -x=z plane
-		cam->lt_clip_plane.Initialize(pt_origin, vn, 1);
-
-		// top clipping plane
-		vn.Initialize( 0, 1, -1); // y=z plane
-		cam->tp_clip_plane.Initialize(pt_origin, vn, 1);
-
-		// bottom clipping plane
-		vn.Initialize( 0, -1, -1); // -y=z plane
-		cam->bt_clip_plane.Initialize(pt_origin, vn, 1);
-	} // end if d=1
-	else
-	{
-		// now compute clipping planes yuck!
-		POINT3D pt_origin; // point on the plane
-		pt_origin.Initialize( 0, 0, 0);
-
-		VECTOR3D vn; // normal to plane
-
-		// since we don't have a 90 fov, computing the normals
-		// are a bit tricky, there are a number of geometric constructions
-		// that solve the problem, but I'm going to solve for the
-		// vectors that represent the 2D projections of the frustrum planes
-		// on the x-z and y-z planes and then find perpendiculars to them
-
-		// right clipping plane, check the math on graph paper 
-		vn.Initialize( cam->view_dist, 0, -cam->viewplane_width / 2.0);
-		cam->rt_clip_plane.Initialize( pt_origin, vn, 1);
-
-		// left clipping plane, we can simply reflect the right normal about
-		// the z axis since the planes are symetric about the z axis
-		// thus invert x only
-		vn.Initialize(-cam->view_dist, 0, -cam->viewplane_width / 2.0);
-		cam->lt_clip_plane.Initialize(pt_origin, vn, 1);
-
-		// top clipping plane, same construction
-		vn.Initialize( 0, cam->view_dist, -cam->viewplane_width / 2.0);
-		cam->tp_clip_plane.Initialize( pt_origin, vn, 1);
-
-		// bottom clipping plane, same inversion
-		vn.Initialize( 0, -cam->view_dist, -cam->viewplane_width / 2.0);
-		cam->bt_clip_plane.Initialize( pt_origin, vn, 1);
-	} // end else
-
-} // end Init_CAM4DV1

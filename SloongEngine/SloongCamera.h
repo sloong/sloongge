@@ -45,7 +45,7 @@ namespace SoaringLoong
 			VECTOR4D Direction; // 相机的朝向，相机默认的朝向
 			CAMERA_TYPE emType; // 相机类型
 			VECTOR4D U, V, N; // UVN相机的u,v,n向量
-			POINT4D UVNTarget; // UVN相机的目标点
+			POINT4D Target; // UVN相机的目标点
 			int nMode;
 			double ViewDistance; // 视距
 			double FOV; // 视野角度

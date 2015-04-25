@@ -22,7 +22,6 @@ public:
 	CDDraw*		m_pDraw;
 	DInputClass*		m_pInput;
 	RENDERLIST4DV1 rend_list; // the render list
-	CAM4DV1        cam;       // the single camera
 	CRect		m_rcWindow;
 };
 

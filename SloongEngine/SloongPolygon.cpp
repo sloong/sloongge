@@ -99,6 +99,21 @@ void CPolygon3D::ToWorld(const CVector4D& vWorld)
 	{
 		m_RenderList[i] = (CVector4D::Add((m_VectorList)[i], vWorld));
 	}
+
+
+// 	void Build_Model_To_World_MATRIX4X4(VECTOR4D_PTR vpos, MATRIX4X4_PTR m)
+// 	{
+// 		// this function builds up a general local to world 
+// 		// transformation matrix that is really nothing more than a translation
+// 		// of the origin by the amount specified in vpos
+// 
+// 		m->Initialize(1, 0, 0, 0,
+// 			0, 1, 0, 0,
+// 			0, 0, 1, 0,
+// 			vpos->x, vpos->y, vpos->z, 1);
+// 
+// 	} // end Build_Model_To_World_MATRIX4X4
+
 }
 
 void CPolygon3D::Transform(const CMatrix4x4& mMatrix, bool bNormal)

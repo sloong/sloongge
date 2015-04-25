@@ -133,7 +133,7 @@ void CTestSinglePolygon::Render()
 
 	// apply camera to perspective transformation
 	// 应用相机坐标到透视的转换
-	CPLGLoader::Camera_To_Perspective_RENDERLIST4DV1(&rend_list, &cam);
+	CPLGLoader::Camera_To_Perspective_RENDERLIST4DV1(&rend_list, m_pCam);
 
 	// apply screen transform
 	//	CPLGLoader::Perspective_To_Screen_RENDERLIST4DV1(&rend_list, &cam);

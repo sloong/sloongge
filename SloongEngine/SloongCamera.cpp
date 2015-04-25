@@ -27,73 +27,45 @@ void SoaringLoong::Graphics3D::CCamera::Initialize(CAMERA_TYPE emType, const POI
 	// 设置类型
 	this->emType = emType;
 	// 设置位置和朝向
-	this->WorldPos = Position;
-	this->Direction = Direction;
-// 	cam->pos.Copy(*cam_pos); // positions
-// 	cam->dir.Copy(*cam_dir); // direction vector or angles for
+	this->WorldPos = Position;// positions
+	this->Direction = Direction;// direction vector or angles for
 	// euler camera
 	// for UVN camera
 	this->U.Initialize(1, 0, 0);
 	this->V.Initialize(0, 1, 0);
 	this->N.Initialize(0, 0, 1);
-// 	cam->u.Initialize(1, 0, 0);  // set to +x
-// 	cam->v.Initialize(0, 1, 0);  // set to +y
-// 	cam->n.Initialize(0, 0, 1);  // set to +z        
 
 	this->nMode = nMode;
 	// 设置相机目标点
 	if ( Target )
 	{
-		this->UVNTarget = Target;
+		this->Target = Target;
 	}
 	else
 	{
-		this->UVNTarget.Zero();
+		this->Target.Zero();
 	}
-// 	if (cam_target != NULL)
-// 		cam->target.Copy(*cam_target); // UVN target
-// 	else
-// 		cam->target.VECTOR4D_ZERO(&cam->target);
-
-
 
 	// 计算裁剪面和屏幕参数
-	this->NearZ = NearZ;
-	this->FarZ = FarZ;
-	this->ScreenWidth = ScreenWidth;
+	this->NearZ = NearZ; // near z=constant clipping plane
+	this->FarZ = farZ;// far z=constant clipping plane
+	this->ScreenWidth = ScreenWidth;// dimensions of viewport
 	this->ScreenHeight = ScreenHeight;
-	this->ScreenCenterX = (ScreenWidth - 1) / 2;
+	this->ScreenCenterX = (ScreenWidth - 1) / 2;// center of viewport
 	this->ScreenCenterY = (ScreenHeight - 1) / 2;
 	this->AspectRatio = ScreenWidth / ScreenHeight;
-// 	cam->near_clip_z = near_clip_z;     // near z=constant clipping plane
-// 	cam->far_clip_z = far_clip_z;      // far z=constant clipping plane
-// 
-// 	cam->viewport_width = viewport_width;   // dimensions of viewport
-// 	cam->viewport_height = viewport_height;
-// 
-// 	cam->viewport_center_x = (viewport_width - 1) / 2; // center of viewport
-// 	cam->viewport_center_y = (viewport_height - 1) / 2;
-// 
-// 	cam->aspect_ratio = (float)viewport_width / (float)viewport_height;
 
 	// set all camera matrices to identity matrix
 	this->MatrixCamera.Zero();
 	this->MatrixProjection.Zero();
 	this->MatrixScreen.Zero();
-// 	cam->mcam.Zero();
-// 	cam->mper.Zero();
-// 	cam->mscr.Zero();
 
 	// set independent vars
 	this->FOV = FOV;
-//	cam->fov = fov;
-
 	// set the viewplane dimensions up, they will be 2 x (2/ar)
 
 	this->ViewPlaneWidth = 2.0;
 	this->ViewPlaneHeight = 2.0 / this->AspectRatio;
-// 	cam->viewplane_width = 2.0;
-// 	cam->viewplane_height = 2.0 / cam->aspect_ratio;
 
 	// now we know fov and we know the viewplane dimensions plug into formula and
 	// solve for view distance parameters
@@ -101,8 +73,6 @@ void SoaringLoong::Graphics3D::CCamera::Initialize(CAMERA_TYPE emType, const POI
 	
 	// 根据FOV和视平面计算d
 	this->ViewDistance = (0.5) * (this->ViewPlaneWidth) * tan(AngleToRadian(FOV / 2));
-// 	float tan_fov_div2 = tan(DEG_TO_RAD(fov / 2));
-// 	cam->view_dist = (0.5)*(cam->viewplane_width)*tan_fov_div2;
 
 	// test for 90 fov first since it's easy :)
 	// 所有裁剪面都过原点
@@ -128,27 +98,18 @@ void SoaringLoong::Graphics3D::CCamera::Initialize(CAMERA_TYPE emType, const POI
 		// 下裁剪面
 		vn.Initialize(0, -1, -1);
 		this->ClipPlaneDown.Initialize(Pos, vn, true);
-		// right clipping plane 
-// 		vn.Initialize(1, 0, -1); // x=z plane
-// 		cam->rt_clip_plane.Initialize(pt_origin, vn, 1);
-// 
-// 		// left clipping plane
-// 		vn.Initialize(-1, 0, -1); // -x=z plane
-// 		cam->lt_clip_plane.Initialize(pt_origin, vn, 1);
-// 
-// 		// top clipping plane
-// 		vn.Initialize(0, 1, -1); // y=z plane
-// 		cam->tp_clip_plane.Initialize(pt_origin, vn, 1);
-// 
-// 		// bottom clipping plane
-// 		vn.Initialize(0, -1, -1); // -y=z plane
-// 		cam->bt_clip_plane.Initialize(pt_origin, vn, 1);
 	} // end if d=1
 	else
 	{
 		// 如果视野不是90度，则在算某个裁剪面的法向量时，先去视平面上四个角上在该平面上的两个角作为该裁剪面上的两个向量，然后求叉乘，即可
 		// 下面的法向量vn直接使用了结果
+		// since we don't have a 90 fov, computing the normals
+		// are a bit tricky, there are a number of geometric constructions
+		// that solve the problem, but I'm going to solve for the
+		// vectors that represent the 2D projections of the frustrum planes
+		// on the x-z and y-z planes and then find perpendiculars to them
 
+		// right clipping plane, check the math on graph paper 
 		double dwTempWidth = ((this->ViewPlaneWidth) / 2.0);
 		// 右裁剪面
 		vn.Initialize(this->ViewDistance, 0, -dwTempWidth);
@@ -165,29 +126,6 @@ void SoaringLoong::Graphics3D::CCamera::Initialize(CAMERA_TYPE emType, const POI
 		// 下裁剪面
 		vn.Initialize(0, -this->ViewDistance, -dwTempWidth);
 		this->ClipPlaneDown.Initialize(Pos, vn, true);
-		// since we don't have a 90 fov, computing the normals
-		// are a bit tricky, there are a number of geometric constructions
-		// that solve the problem, but I'm going to solve for the
-		// vectors that represent the 2D projections of the frustrum planes
-		// on the x-z and y-z planes and then find perpendiculars to them
-
-		// right clipping plane, check the math on graph paper 
-// 		vn.Initialize(cam->view_dist, 0, -cam->viewplane_width / 2.0);
-// 		cam->rt_clip_plane.Initialize(pt_origin, vn, 1);
-// 
-// 		// left clipping plane, we can simply reflect the right normal about
-// 		// the z axis since the planes are symetric about the z axis
-// 		// thus invert x only
-// 		vn.Initialize(-cam->view_dist, 0, -cam->viewplane_width / 2.0);
-// 		cam->lt_clip_plane.Initialize(pt_origin, vn, 1);
-// 
-// 		// top clipping plane, same construction
-// 		vn.Initialize(0, cam->view_dist, -cam->viewplane_width / 2.0);
-// 		cam->tp_clip_plane.Initialize(pt_origin, vn, 1);
-// 
-// 		// bottom clipping plane, same inversion
-// 		vn.Initialize(0, -cam->view_dist, -cam->viewplane_width / 2.0);
-// 		cam->bt_clip_plane.Initialize(pt_origin, vn, 1);
 	} // end else
 }
 
@@ -357,15 +295,15 @@ void SoaringLoong::Graphics3D::CCamera::UpdateCameraMatrix()
 			float cos_theta = CMath2::Fast_Cos(theta);
 
 			// now compute the target point on a unit sphere x,y,z
-			this->UVNTarget.x = -1 * sin_phi*sin_theta;
-			this->UVNTarget.y = 1 * cos_phi;
-			this->UVNTarget.z = 1 * sin_phi*cos_theta;
+			this->Target.x = -1 * sin_phi*sin_theta;
+			this->Target.y = 1 * cos_phi;
+			this->Target.z = 1 * sin_phi*cos_theta;
 		} // end else
 
 		// at this point, we have the view reference point, the target and that's
 		// all we need to recompute u,v,n
 		// Step 1: n = <target position - view reference point>
-		this->WorldPos.VECTOR4D_Build(&this->WorldPos, &this->UVNTarget, &this->N);
+		this->WorldPos.VECTOR4D_Build(&this->WorldPos, &this->Target, &this->N);
 
 		// Step 2: Let v = <0,1,0>
 		this->V.Initialize(0, 1, 0);
@@ -393,82 +331,47 @@ void SoaringLoong::Graphics3D::CCamera::UpdateCameraMatrix()
 		this->MatrixCamera.Multiply(&mt_inv, &mt_uvn);
 
 	}
-	/*CVector4D vMove(-WorldPos.x, -WorldPos.y, -WorldPos.z);
-	CMatrix4x4 mMove;
-	mMove.BuildMoveMatrix(vMove);
-
-	switch (emType)
-	{
-	case SoaringLoong::Graphics3D::CAMERA_ELUER:
-	{
-		CMatrix4x4 mRotation;
-		mRotation.BuildRotateMartix(-this->Direction.x, -this->Direction.y, -this->Direction.z);
-		this->MatrixCamera.Multiply(&mMove, &mRotation);
-	}break;
-	case SoaringLoong::Graphics3D::CAMERA_UVN:
-	{
-		if (this->bUVNTargetNeedCompute)
-		{
-			// 方向角，仰角
-			double phi = this->Direction.x;
-			double theta = this->Direction.y;
-
-			double sin_phi = CMathBase::Fast_Sin(phi);
-			double cos_phi = CMathBase::Fast_Cos(phi);
-			double sin_theta = CMathBase::Fast_Sin(theta);
-			double cos_theta = CMathBase::Fast_Cos(theta);
-
-			this->UVNTarget.x = -1 * sin_phi * sin_theta;
-			this->UVNTarget.y = 1 * cos_phi;
-			this->UVNTarget.z = 1 * sin_phi * cos_theta;
-		}
-
-		// 临时的UVN
-		CVector4D u, v, n;
-
-		n = CVector4D::Subtract(this->UVNTarget, this->WorldPos);
-		v = this->V;
-
-		// 应为N和V可以组成一个平面，所以可求法向量U  
-		u = CVector4D::Cross(v, n);
-
-		// 因为V和N可能不垂直，所以反求V，使得V和U、N都垂直  
-		v = CVector4D::Cross(n, u);
-
-		this->U.VECTOR4D_Normalize(&u);
-		this->V.VECTOR4D_Normalize(&v);
-		this->N.VECTOR4D_Normalize(&n);
-
-		// UVN变换矩阵  
-		CMatrix4x4 mUVN;
-		mUVN.Initialize(
-			U.x, V.x, N.x, 0,
-			U.y, V.y, N.y, 0,
-			U.z, V.z, N.z, 0,
-			0, 0, 0, 1);
-
-		MatrixCamera.Multiply(&mMove, &mUVN);
-
-	}break;
-	default:
-		break;
-	}*/
 }
 
 void SoaringLoong::Graphics3D::CCamera::UpdateProjectMatrix()
 {
+	// this function builds up a camera to perspective transformation
+	// matrix, in most cases the camera would have a 2x2 normalized
+	// view plane with a 90 degree FOV, since the point of the having
+	// this matrix must be to also have a perspective to screen (viewport)
+	// matrix that scales the normalized coordinates, also the matrix
+	// assumes that you are working in 4D homogenous coordinates and at 
+	// some point there will be a 4D->3D conversion, it might be immediately
+	// after this transform is applied to vertices, or after the perspective
+	// to screen transform
+
 	MatrixProjection.Initialize(
 		ViewDistance, 0, 0, 0,
-		0, -ViewDistance, 0, 0,
+		0, ViewDistance*AspectRatio, 0, 0,
 		0, 0, 1, 1,
 		0, 0, 0, 0); 
 }
 
 void SoaringLoong::Graphics3D::CCamera::UpdateScreenMatrix()
 {
+	// this function builds up a perspective to screen transformation
+	// matrix, the function assumes that you want to perform the
+	// transform in homogeneous coordinates and at raster time there will be 
+	// a 4D->3D homogenous conversion and of course only the x,y points
+	// will be considered for the 2D rendering, thus you would use this
+	// function's matrix is your perspective coordinates were still 
+	// in homgeneous form whene this matrix was applied, additionally
+	// the point of this matrix to to scale and translate the perspective
+	// coordinates to screen coordinates, thus the matrix is built up
+	// assuming that the perspective coordinates are in normalized form for
+	// a (2x2)/aspect_ratio viewplane, that is, x: -1 to 1, y:-1/aspect_ratio to 1/aspect_ratio
+
+	float alpha = (0.5*ScreenWidth - 0.5);
+	float beta = (0.5*ScreenHeight - 0.5);
+
 	MatrixScreen.Initialize(
-		ScreenWidth / 2, 0, 0, 0,
-		0, ScreenWidth / 2, 0, 0,
-		0, 0, 1, 0,
+		alpha, 0, 0, 0,
+		0, -beta, 0, 0,
+		alpha, beta, 1, 0,
 		0, 0, 0, 1);
 }

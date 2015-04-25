@@ -35,7 +35,6 @@ public:
 	POINT4D        towers[96], tanks[24]; 
 	DInputClass*		m_pInput;
 	RENDERLIST4DV1 rend_list;
-	CAM4DV1        cam;       // the single camera
 	CCamera        m_cam;       // the single camera
 	RECT				m_rcWindow;
 };
