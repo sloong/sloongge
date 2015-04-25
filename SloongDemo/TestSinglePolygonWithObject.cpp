@@ -64,7 +64,7 @@ void CTestSinglePolygonWithObject::Initialize(CDDraw* pDraw, DInputClass* pInput
 	VECTOR4D cv = { 0, 0, 1, 1 };
 
 	m_pCam = new CCamera();
-	m_pCam->Initialize(CAMERA_TYPE::CAMERA_ELUER, cam_pos, cam_dir, &cam_target, &cv, false, 5, 50, 90, WINDOW_WIDTH, WINDOW_HEIGHT);
+	m_pCam->Initialize(CAMERA_TYPE::CAMERA_ELUER, cam_pos, cam_dir, &cam_target, CAM_ROT_SEQ_ZYX, 5, 50, 90, WINDOW_WIDTH, WINDOW_HEIGHT);
 	m_pCam->UpdateCameraMatrix();
 
 	// 缓存透视和屏幕变换矩阵
@@ -126,7 +126,7 @@ void CTestSinglePolygonWithObject::Render()
 	CPLGLoader::World_To_Camera_RENDERLIST4DV1(&rend_list, &m_pCam->MatrixCamera);
 
 	// 投影变换
-	CPLGLoader::Camera_To_Perspective_RENDERLIST4DV1(&rend_list, m_pCam);
+	//CPLGLoader::Camera_To_Perspective_RENDERLIST4DV1(&rend_list, m_pCam);
 
 	// 视口变换
 	CPLGLoader::Perspective_To_Screen_RENDERLIST4DV1(&rend_list, m_pCam);

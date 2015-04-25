@@ -186,7 +186,7 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 		g_pLua->RunScript(_T("Start.lua"));
 		CMath2::Build_Sin_Cos_Tables();
 		
-		m_iTestRender = new CTestPolygonWithObject();
+		m_iTestRender = new CTestPolygonSection6();
 		m_iTestRender->Initialize(m_pDraw, m_pInput,m_rcWindow);
 	}
 	catch (CException& e)

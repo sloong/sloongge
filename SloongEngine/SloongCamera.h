@@ -2,6 +2,18 @@
 #include "SloongVector.h"
 #include "SloongPlane.h"
 #include "SloongMatrix.h"
+
+// defines for camera rotation sequences
+#define CAM_ROT_SEQ_XYZ  0
+#define CAM_ROT_SEQ_YXZ  1
+#define CAM_ROT_SEQ_XZY  2
+#define CAM_ROT_SEQ_YZX  3
+#define CAM_ROT_SEQ_ZYX  4
+#define CAM_ROT_SEQ_ZXY  5
+
+#define UVN_MODE_SIMPLE            0 
+#define UVN_MODE_SPHERICAL         1
+
 namespace SoaringLoong
 {
 	using namespace Math;
@@ -22,7 +34,7 @@ namespace SoaringLoong
 
 		public:
 			virtual void Initialize(CAMERA_TYPE emType, const POINT4D& Position, const POINT4D& Direction, LPPOINT4D Target,
-								LPVECTOR4D v, bool NeedTarget, double NearZ, double farZ, double FOV, double ScreenWidth, double ScreenHeight );
+								int nMode, double NearZ, double farZ, double FOV, double ScreenWidth, double ScreenHeight );
 
 			virtual void UpdateCameraMatrix();
 			virtual void UpdateProjectMatrix();
@@ -34,7 +46,7 @@ namespace SoaringLoong
 			CAMERA_TYPE emType; // 相机类型
 			VECTOR4D U, V, N; // UVN相机的u,v,n向量
 			POINT4D UVNTarget; // UVN相机的目标点
-			bool bUVNTargetNeedCompute; // UVN相机的目标点是否需要根据朝向计算，UVNTarget已给定 
+			int nMode;
 			double ViewDistance; // 视距
 			double FOV; // 视野角度
 			double NearZ; // 近裁剪距离

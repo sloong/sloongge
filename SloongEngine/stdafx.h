@@ -141,9 +141,6 @@ using std::list;
 #define EPSILON_E5 (float)(1E-5)
 #define EPSILON_E6 (float)(1E-6)
 
-// some math macros
-#define DEG_TO_RAD(ang) ((ang)*PI/180.0)
-#define RAD_TO_DEG(rads) ((rads)*180.0/PI)
 
 #define RAND_RANGE(x,y) ( (x) + (rand()%((y)-(x)+1)))
 

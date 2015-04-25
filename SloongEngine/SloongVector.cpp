@@ -572,32 +572,32 @@ VECTOR4D CVector4D::Cross(const CVector4D& va, const CVector4D& vb)
 
 //////////////////////////////////////////////////////////////
 
-float CVector4D::VECTOR4D_Length(VECTOR4D_PTR va)
+float CVector4D::Length()
 {
 	// computes the magnitude of a vector, slow
 
-	return(sqrtf(va->x*va->x + va->y*va->y + va->z*va->z));
+	return(sqrtf(this->x*this->x + this->y*this->y + this->z*this->z));
 
 } // end VECTOR4D_Length
 
 ///////////////////////////////////////////////////////////////
 
-float CVector4D::VECTOR4D_Length_Fast(VECTOR4D_PTR va)
+float CVector4D::Length_Fast()
 {
 	// computes the magnitude of a vector using an approximation
 	// very fast
-	return(Fast_Distance_3D(va->x, va->y, va->z));
+	return(Fast_Distance_3D(this->x, this->y, this->z));
 
 } // end VECTOR4D_Length_Fast
 
 ///////////////////////////////////////////////////////////////
 
-void CVector4D::VECTOR4D_Normalize(VECTOR4D_PTR va)
+void CVector4D::Normalize()
 {
 	// normalizes the sent vector and returns the result
-
+	
 	// compute length
-	float length = sqrtf(va->x*va->x + va->y*va->y + va->z*va->z);
+	float length = Length();
 
 	// test for zero length vector
 	// if found return zero vector
@@ -607,23 +607,23 @@ void CVector4D::VECTOR4D_Normalize(VECTOR4D_PTR va)
 	float length_inv = 1.0 / length;
 
 	// compute normalized version of vector
-	va->x *= length_inv;
-	va->y *= length_inv;
-	va->z *= length_inv;
-	va->w = 1;
+	this->x *= length_inv;
+	this->y *= length_inv;
+	this->z *= length_inv;
+	this->w = 1;
 
 } // end VECTOR4D_Normalize
 
 ///////////////////////////////////////////////////////////////
 
-void CVector4D::VECTOR4D_Normalize(VECTOR4D_PTR va, VECTOR4D_PTR vn)
+void CVector4D::Normalize(VECTOR4D_PTR va)
 {
 	// normalizes the sent vector and returns the result in vn
 
-	VECTOR4D_ZERO(vn);
+	Zero();
 
 	// compute length
-	float length = sqrt(va->x*va->x + va->y*va->y + va->z*va->z);
+	float length = Length();
 
 	// test for zero length vector
 	// if found return zero vector
@@ -633,10 +633,10 @@ void CVector4D::VECTOR4D_Normalize(VECTOR4D_PTR va, VECTOR4D_PTR vn)
 	float length_inv = 1.0 / length;
 
 	// compute normalized version of vector
-	vn->x = va->x*length_inv;
-	vn->y = va->y*length_inv;
-	vn->z = va->z*length_inv;
-	vn->w = 1;
+	this->x = va->x*length_inv;
+	this->y = va->y*length_inv;
+	this->z = va->z*length_inv;
+	this->w = 1;
 
 } // end VECTOR4D_Normalize
 
@@ -648,7 +648,7 @@ float CVector4D::VECTOR4D_CosTh(VECTOR4D_PTR va, VECTOR4D_PTR vb)
 	// two vectors. Note, we could compute the actual angle,
 	// many many times, in further calcs we will want ultimately
 	// compute cos of the angle, so why not just leave it!
-	return(CVector4D::Dot(*va, *vb) / (VECTOR4D_Length(va)*VECTOR4D_Length(vb)));
+	return(CVector4D::Dot(*va, *vb) / (va->Length()*vb->Length()));
 
 } // end VECTOR4D_CosTh
 

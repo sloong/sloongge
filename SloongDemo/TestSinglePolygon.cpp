@@ -66,7 +66,7 @@ void CTestSinglePolygon::Initialize(CDDraw* pDraw, DInputClass* pInput, RECT rcW
 	VECTOR4D cv = { 0, 0, 1, 1 };
 
 	m_pCam = new CCamera();
-	m_pCam->Initialize(CAMERA_TYPE::CAMERA_ELUER, cam_pos, cam_dir, &cam_target, &cv, false, 5, 50, 90, WINDOW_WIDTH, WINDOW_HEIGHT);
+	m_pCam->Initialize(CAMERA_TYPE::CAMERA_ELUER, cam_pos, cam_dir, &cam_target, CAM_ROT_SEQ_ZYX, 5, 50, 90, WINDOW_WIDTH, WINDOW_HEIGHT);
 	m_pCam->UpdateCameraMatrix();
 
 	// initialize the camera with 90 FOV, normalized coordinates

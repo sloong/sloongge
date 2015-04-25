@@ -4,6 +4,7 @@
 #include "SloongVector.h"
 #include "SloongCamera.h"
 #include "SloongPolygon.h"
+#include "DInputClass.h"
 using namespace SoaringLoong::Graphics3D;
 using namespace SoaringLoong::Vector;
 using namespace SoaringLoong::Polygon;
@@ -22,5 +23,6 @@ public:
 	CCamera*			m_pCam;
 	CDDraw*		m_pDraw;
 	IPolygon* poly[4];
+	DInputClass* m_pInput;
 };
 

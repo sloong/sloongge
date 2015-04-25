@@ -26,8 +26,6 @@ void CTestPolygonSection6::Initialize(CDDraw* pDraw, DInputClass* pInput, RECT r
 	POINT4D  cam_target = { 0, 0, 0, 1 };
 	VECTOR4D cam_dir = { 0, 0, 0, 1 };
 
-	CMath2::Build_Sin_Cos_Tables();
-
 	m_pDraw = pDraw;
 	m_pInput = pInput;
 	m_rcWindow = rcWindow;
@@ -41,7 +39,8 @@ void CTestPolygonSection6::Initialize(CDDraw* pDraw, DInputClass* pInput, RECT r
 	120.0,      // field of view in degrees
 	WINDOW_WIDTH,   // size of final screen viewport
 	WINDOW_HEIGHT);
-
+	m_cam.Initialize(CAMERA_ELUER, cam_pos, cam_dir, &cam_target, CAM_ROT_SEQ_XYZ, 200, 12000, 120, WINDOW_WIDTH, WINDOW_HEIGHT);
+	//m_cam.Initialize(CAMERA_UVN, cam_pos, cam_dir, &cam_target, UVN_MODE_SPHERICAL, 200, 12000, 120, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	CPLGLoader plgLoader(m_pDraw);
 
@@ -82,12 +81,11 @@ void CTestPolygonSection6::Initialize(CDDraw* pDraw, DInputClass* pInput, RECT r
 		towers[index].y = 0; // obj_tower.max_radius;
 		towers[index].z = RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS);
 	} // end for
-
 }
 
 void CTestPolygonSection6::Render()
 {
-
+	m_pDraw->Start_Clock();
 	static MATRIX4X4 mrot;   // general rotation matrix
 
 	// these are used to create a circling camera
@@ -117,11 +115,14 @@ void CTestPolygonSection6::Render()
 
 	// allow user to move camera
 #define TANK_SPEED        15
+	tank_speed = TANK_SPEED;
 	// turbo
 	if (m_pInput->IsKeyDown(DIK_SPACE))
-		tank_speed = 5 * TANK_SPEED;
-	else
-		tank_speed = TANK_SPEED;
+	{
+		m_cam.WorldPos.y += 15;
+	}
+		
+		
 
 	// forward/backward
 	if (m_pInput->IsKeyDown(DIK_UP))
@@ -129,6 +130,8 @@ void CTestPolygonSection6::Render()
 		// move forward
 		cam.pos.x += tank_speed*CMath2::Fast_Sin(cam.dir.y);
 		cam.pos.z += tank_speed*CMath2::Fast_Cos(cam.dir.y);
+		m_cam.WorldPos.x += tank_speed*CMath2::Fast_Sin(m_cam.Direction.y);
+		m_cam.WorldPos.z += tank_speed*CMath2::Fast_Cos(m_cam.Direction.y);
 	} // end if
 
 	if (m_pInput->IsKeyDown(DIK_DOWN))
@@ -136,12 +139,15 @@ void CTestPolygonSection6::Render()
 		// move backward
 		cam.pos.x -= tank_speed*CMath2::Fast_Sin(cam.dir.y);
 		cam.pos.z -= tank_speed*CMath2::Fast_Cos(cam.dir.y);
+		m_cam.WorldPos.x -= tank_speed*CMath2::Fast_Sin(m_cam.Direction.y);
+		m_cam.WorldPos.z -= tank_speed*CMath2::Fast_Cos(m_cam.Direction.y);
 	} // end if
 
 	// rotate
 	if (m_pInput->IsKeyDown(DIK_RIGHT))
 	{
 		cam.dir.y += 3;
+		m_cam.Direction.y += 3;
 
 		// add a little turn to object
 		if ((turning += 2) > 15)
@@ -152,6 +158,7 @@ void CTestPolygonSection6::Render()
 	if (m_pInput->IsKeyDown(DIK_LEFT))
 	{
 		cam.dir.y -= 3;
+		m_cam.Direction.y -= 3;
 
 		// add a little turn to object
 		if ((turning -= 2) < -15)
@@ -170,6 +177,7 @@ void CTestPolygonSection6::Render()
 
 	// generate camera matrix
 	CPLGLoader::Build_CAM4DV1_Matrix_Euler(&cam, CAM_ROT_SEQ_ZYX);
+	m_cam.UpdateCameraMatrix();
 
 	// insert the tanks in the world
 	for (index = 0; index < NUM_TANKS; index++)
@@ -210,9 +218,13 @@ void CTestPolygonSection6::Render()
 	obj_player.world_pos.x = cam.pos.x + 300 * CMath2::Fast_Sin(cam.dir.y);
 	obj_player.world_pos.y = cam.pos.y - 70;
 	obj_player.world_pos.z = cam.pos.z + 300 * CMath2::Fast_Cos(cam.dir.y);
+//	obj_player.world_pos.x = cam.WorldPos.x + 300 * CMath2::Fast_Sin(cam.Direction.y);
+//	obj_player.world_pos.y = cam.WorldPos.y - 70;
+//	obj_player.world_pos.z = cam.WorldPos.z + 300 * CMath2::Fast_Cos(cam.Direction.y);
 
 	// generate rotation matrix around y axis
 	CPLGLoader::Build_XYZ_Rotation_MATRIX4X4(0, cam.dir.y + turning, 0, &mrot);
+	//CPLGLoader::Build_XYZ_Rotation_MATRIX4X4(0, cam.Direction.y + turning, 0, &mrot);
 
 	// rotate the local coords of the object
 	CPLGLoader::Transform_OBJECT4DV1(&obj_player, &mrot, TRANSFORM_LOCAL_TO_TRANS, 1);
@@ -230,6 +242,12 @@ void CTestPolygonSection6::Render()
 		// reset the object (this only matters for backface and object removal)
 		CPLGLoader::Reset_OBJECT4DV1(&obj_tower);
 
+		// generate rotation matrix around y axis
+		CPLGLoader::Build_XYZ_Rotation_MATRIX4X4(0, towers[index].w, 0, &mrot);
+
+		// rotate the local coords of the object
+		CPLGLoader::Transform_OBJECT4DV1(&obj_tower, &mrot, TRANSFORM_LOCAL_TO_TRANS, 1);
+
 		// set position of tower
 		obj_tower.world_pos.x = towers[index].x;
 		obj_tower.world_pos.y = towers[index].y;
@@ -241,7 +259,7 @@ void CTestPolygonSection6::Render()
 			// if we get here then the object is visible at this world position
 			// so we can insert it into the rendering list
 			// perform local/model to world transform
-			CPLGLoader::Model_To_World_OBJECT4DV1(&obj_tower, 0);
+			CPLGLoader::Model_To_World_OBJECT4DV1(&obj_tower, TRANSFORM_TRANS_ONLY);
 
 			// insert the object into render list
 			CPLGLoader::Insert_OBJECT4DV1_RENDERLIST4DV1(&rend_list, &obj_tower, 0);
@@ -263,6 +281,12 @@ void CTestPolygonSection6::Render()
 		// reset the object (this only matters for backface and object removal)
 		CPLGLoader::Reset_OBJECT4DV1(&obj_marker);
 
+		// generate rotation matrix around y axis
+		CPLGLoader::Build_XYZ_Rotation_MATRIX4X4(0, 1, 0, &mrot);
+
+		// rotate the local coords of the object
+		CPLGLoader::Transform_OBJECT4DV1(&obj_marker, &mrot, TRANSFORM_LOCAL_TO_TRANS, 1);
+
 		// set position of tower
 		obj_marker.world_pos.x = RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_x*POINT_SIZE;
 		obj_marker.world_pos.y = obj_marker.max_radius;
@@ -283,19 +307,21 @@ void CTestPolygonSection6::Render()
 	} // end for
 
 	// remove backfaces
-	CPLGLoader::Remove_Backfaces_RENDERLIST4DV1(&rend_list, &cam);
+	CPLGLoader::Remove_Backfaces_RENDERLIST4DV1(&rend_list, &m_cam);
 
 	// apply world to camera transform
-	CPLGLoader::World_To_Camera_RENDERLIST4DV1(&rend_list, &cam);
+	//CPLGLoader::World_To_Camera_RENDERLIST4DV1(&rend_list, &cam.mcam);
+	CPLGLoader::World_To_Camera_RENDERLIST4DV1(&rend_list, &m_cam.MatrixCamera);
 
 	// apply camera to perspective transformation
-	CPLGLoader::Camera_To_Perspective_RENDERLIST4DV1(&rend_list, &cam);
+	CPLGLoader::Camera_To_Perspective_RENDERLIST4DV1(&rend_list, &m_cam);
 
 	// apply screen transform
-	CPLGLoader::Perspective_To_Screen_RENDERLIST4DV1(&rend_list, &cam);
+	CPLGLoader::Perspective_To_Screen_RENDERLIST4DV1(&rend_list, &m_cam);
 
 	sprintf_s(work_string, 256, "pos:[%f, %f, %f] heading:[%f] elev:[%f]",
-		cam.pos.x, cam.pos.y, cam.pos.z, cam.dir.y, cam.dir.x);
+	cam.pos.x, cam.pos.y, cam.pos.z, cam.dir.y, cam.dir.x);
+		//cam.WorldPos.x, cam.WorldPos.y, cam.WorldPos.z, cam.Direction.y, cam.Direction.x);
 
 	CString str(work_string);
 	m_pDraw->DrawText(str.GetString().c_str(), 0, WINDOW_HEIGHT - 20, RGB(0, 255, 0), m_pDraw->GetBackSurface());

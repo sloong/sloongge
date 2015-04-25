@@ -20,6 +20,7 @@ CTestPolygonWithObject::~CTestPolygonWithObject()
 void CTestPolygonWithObject::Initialize(CDDraw* pDraw, DInputClass* pInput, RECT rcWindow)
 {
 	m_pDraw = pDraw;
+	m_pInput = pInput;
 	CVector4D v1[] = {
 		{ 1, 0, 1, 0 },
 		{ 1, 0, -1, 0 },
@@ -71,7 +72,7 @@ void CTestPolygonWithObject::Initialize(CDDraw* pDraw, DInputClass* pInput, RECT
 	CVector4D vDir = { 0, 0, 0, 0 };
 
 	m_pCam = new CCamera();
-	m_pCam->Initialize(CAMERA_UVN, vPos, vDir, NULL, NULL, NULL, 5, 50, 90, SCREEN_WIDTH, SCREEN_HEIGHT);
+	m_pCam->Initialize(CAMERA_UVN, vPos, vDir, NULL, UVN_MODE_SIMPLE, 5, 50, 90, SCREEN_WIDTH, SCREEN_HEIGHT);
 	m_pCam->UpdateCameraMatrix();
 	m_pCam->UpdateProjectMatrix();
 	m_pCam->UpdateScreenMatrix();
@@ -85,9 +86,44 @@ void CTestPolygonWithObject::Initialize(CDDraw* pDraw, DInputClass* pInput, RECT
 
 void CTestPolygonWithObject::Render()
 {
+	m_pInput->GetInput();
+	if (m_pInput->IsKeyDown(DIK_SPACE))
+	{
+		m_pCam->WorldPos.y += 10;
+	}
+
+	if (m_pInput->IsKeyDown(DIK_NUMPAD0))
+	{
+		m_pCam->WorldPos.y -= 10;
+	}
+
+	if (m_pInput->IsKeyDown(DIK_UP))
+	{
+		// move forward
+		m_pCam->WorldPos.z += 10;
+
+	} // end if
+
+	if (m_pInput->IsKeyDown(DIK_DOWN))
+	{
+		// move backward
+		m_pCam->WorldPos.z -= 10;
+
+	} // end if
+
+	// rotate
+	if (m_pInput->IsKeyDown(DIK_RIGHT))
+	{
+		m_pCam->WorldPos.x += 3;
+	} // end if
+
+	if (m_pInput->IsKeyDown(DIK_LEFT))
+	{
+		m_pCam->WorldPos.x -= 3;
+	} // end if
 	m_pCam->UpdateCameraMatrix();
-	m_pCam->UpdateProjectMatrix();
-	m_pCam->UpdateScreenMatrix();
+// 	m_pCam->UpdateProjectMatrix();
+// 	m_pCam->UpdateScreenMatrix();
 
 	g_obj.Update();
 	g_obj.Render(m_pDraw);

@@ -174,6 +174,11 @@ namespace SoaringLoong
 					(v)->x = (v)->y = (v)->z = 0.0; (v)->w = 1.0;
 				}
 
+				inline void Zero()
+				{
+					(this)->x = (this)->y = (this)->z = 0.0; (this)->w = 1.0;
+				}
+
 				inline void Initialize(float x, float y, float z)
 				{
 					(this)->x = (x); (this)->y = (y); (this)->z = (z); (this)->w = 1.0;
@@ -229,7 +234,10 @@ namespace SoaringLoong
 				void Subtract(const CVector4D& va);
 				float Dot(const CVector4D& va);
 				//void VECTOR4D_Cross(CVector4D* va, CVector4D* vb, CVector4D* vn);
-
+				void Normalize();
+				void Normalize(CVector4D* va);
+				float Length();
+				float Length_Fast();
 			public:
 				
 				
@@ -237,10 +245,8 @@ namespace SoaringLoong
 				void VECTOR4D_Scale(float k, CVector4D* va);
 				void VECTOR4D_Scale(float k, CVector4D* va, CVector4D* vscaled);
 				
-				float VECTOR4D_Length(CVector4D* va);
-				float VECTOR4D_Length_Fast(CVector4D* va);
-				void VECTOR4D_Normalize(CVector4D* va);
-				void VECTOR4D_Normalize(CVector4D* va, CVector4D* vn);
+				
+				
 				void VECTOR4D_Build(CVector4D* init, CVector4D* term, CVector4D* result);
 				float VECTOR4D_CosTh(CVector4D* va, CVector4D* vb);
 				void VECTOR4D_Print(CVector4D* va, char *name);

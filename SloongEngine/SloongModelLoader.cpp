@@ -390,7 +390,7 @@ void SoaringLoong::Loader::CPLGLoader::World_To_Camera_RENDERLIST4DV1(RENDERLIST
 
 	} // end for poly
 }
-
+/*
 void SoaringLoong::Loader::CPLGLoader::Perspective_To_Screen_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list, CCamera* cam)
 {
 	for (int i = 0; i < rend_list->num_polys; i++ )
@@ -411,28 +411,7 @@ void SoaringLoong::Loader::CPLGLoader::Perspective_To_Screen_RENDERLIST4DV1(REND
 		
 
 	}
-}
-
-void SoaringLoong::Loader::CPLGLoader::Camera_To_Perspective_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list, CCamera* cam)
-{
-	for (int i = 0; i < rend_list->num_polys; i++)
-	{
-
-		for (int v = 0; v < 3; v++)
-		{
-			rend_list->poly_data[i].tvlist[v].Multiply(cam->MatrixProjection);
-		}
-		for (int j = 0; j < 3; j++)
-		{
-			rend_list->poly_data[i].tvlist[j].x /= rend_list->poly_data[i].tvlist[j].w;
-			rend_list->poly_data[i].tvlist[j].y /= rend_list->poly_data[i].tvlist[j].w;
-			rend_list->poly_data[i].tvlist[j].z /= rend_list->poly_data[i].tvlist[j].w;
-			rend_list->poly_data[i].tvlist[j].w = 1;
-		}
-
-
-	}
-}
+}*/
 
 
 
@@ -1085,6 +1064,90 @@ int CPLGLoader::Cull_OBJECT4DV1(OBJECT4DV1_PTR obj,  // object to cull
 
 } // end Cull_OBJECT4DV1
 
+ 
+int CPLGLoader::Cull_OBJECT4DV1(OBJECT4DV1_PTR obj,  // object to cull
+	CCamera* cam,     // camera to cull relative to
+	int cull_flags)     // clipping planes to consider
+{
+	// NOTE: is matrix based
+	// this function culls an entire object from the viewing
+	// frustrum by using the sent camera information and object
+	// the cull_flags determine what axes culling should take place
+	// x, y, z or all which is controlled by ORing the flags
+	// together
+	// if the object is culled its state is modified thats all
+	// this function assumes that both the camera and the object
+	// are valid!
+
+	// step 1: transform the center of the object's bounding
+	// sphere into camera space
+
+	POINT4D sphere_pos; // hold result of transforming center of bounding sphere
+
+	// transform point
+	sphere_pos = cam->MatrixCamera.Multiply(obj->world_pos);
+
+	// step 2:  based on culling flags remove the object
+	if (cull_flags & CULL_OBJECT_Z_PLANE)
+	{
+		// cull only based on z clipping planes
+
+		// test far plane
+		if (((sphere_pos.z - obj->max_radius) > cam->FarZ) ||
+			((sphere_pos.z + obj->max_radius) < cam->NearZ))
+		{
+			SET_BIT(obj->state, OBJECT4DV1_STATE_CULLED);
+			return(1);
+		} // end if
+
+	} // end if
+
+	if (cull_flags & CULL_OBJECT_X_PLANE)
+	{
+		// cull only based on x clipping planes
+		// we could use plane equations, but simple similar triangles
+		// is easier since this is really a 2D problem
+		// if the view volume is 90 degrees the the problem is trivial
+		// buts lets assume its not
+
+		// test the the right and left clipping planes against the leftmost and rightmost
+		// points of the bounding sphere
+		float z_test = (0.5)*cam->ViewPlaneWidth*sphere_pos.z / cam->ViewDistance;
+
+		if (((sphere_pos.x - obj->max_radius) > z_test) || // right side
+			((sphere_pos.x + obj->max_radius) < -z_test))  // left side, note sign change
+		{
+			SET_BIT(obj->state, OBJECT4DV1_STATE_CULLED);
+			return(1);
+		} // end if
+	} // end if
+
+	if (cull_flags & CULL_OBJECT_Y_PLANE)
+	{
+		// cull only based on y clipping planes
+		// we could use plane equations, but simple similar triangles
+		// is easier since this is really a 2D problem
+		// if the view volume is 90 degrees the the problem is trivial
+		// buts lets assume its not
+
+		// test the the top and bottom clipping planes against the bottommost and topmost
+		// points of the bounding sphere
+		float z_test = (0.5)*cam->ViewPlaneHeight*sphere_pos.z / cam->ViewDistance;
+
+		if (((sphere_pos.y - obj->max_radius) > z_test) || // top side
+			((sphere_pos.y + obj->max_radius) < -z_test))  // bottom side, note sign change
+		{
+			SET_BIT(obj->state, OBJECT4DV1_STATE_CULLED);
+			return(1);
+		} // end if
+
+	} // end if
+
+	// return failure to cull
+	return(0);
+
+} // end Cull_OBJECT4DV1
+
 ////////////////////////////////////////////////////////////
 
 void Remove_Backfaces_OBJECT4DV1(OBJECT4DV1_PTR obj, CAM4DV1_PTR cam)
@@ -1192,6 +1255,56 @@ void CPLGLoader::Remove_Backfaces_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list, C
 		// now create eye vector to viewpoint
 		VECTOR4D view;
 		view.VECTOR4D_Build(&curr_poly->tvlist[0], &cam->pos, &view);
+
+		// and finally, compute the dot product
+		float dp = n.Dot(view);
+
+		// if the sign is > 0 then visible, 0 = scathing, < 0 invisible
+		if (dp <= 0.0)
+			SET_BIT(curr_poly->state, POLY4DV1_STATE_BACKFACE);
+
+	} // end for poly
+
+} // end Remove_Backfaces_RENDERLIST4DV1
+
+void CPLGLoader::Remove_Backfaces_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list, CCamera* cam)
+{
+	// NOTE: this is not a matrix based function
+	// this function removes the backfaces from polygon list
+	// the function does this based on the polygon list data
+	// tvlist along with the camera position (only)
+	// note that only the backface state is set in each polygon
+
+	for (int poly = 0; poly < rend_list->num_polys; poly++)
+	{
+		// acquire current polygon
+		POLYF4DV1_PTR curr_poly = rend_list->poly_ptrs[poly];
+
+		// is this polygon valid?
+		// test this polygon if and only if it's not clipped, not culled,
+		// active, and visible and not 2 sided. Note we test for backface in the event that
+		// a previous call might have already determined this, so why work
+		// harder!
+		if ((curr_poly == NULL) || !(curr_poly->state & POLY4DV1_STATE_ACTIVE) ||
+			(curr_poly->state & POLY4DV1_STATE_CLIPPED) ||
+			(curr_poly->attr  & POLY4DV1_ATTR_2SIDED) ||
+			(curr_poly->state & POLY4DV1_STATE_BACKFACE))
+			continue; // move onto next poly
+
+		// we need to compute the normal of this polygon face, and recall
+		// that the vertices are in cw order, u = p0->p1, v=p0->p2, n=uxv
+		VECTOR4D u, v, n;
+
+		// build u, v
+		u.VECTOR4D_Build(&curr_poly->tvlist[0], &curr_poly->tvlist[1], &u);
+		v.VECTOR4D_Build(&curr_poly->tvlist[0], &curr_poly->tvlist[2], &v);
+
+		// compute cross product
+		n = CVector4D::Cross(u, v);
+
+		// now create eye vector to viewpoint
+		VECTOR4D view;
+		view.VECTOR4D_Build(&curr_poly->tvlist[0], &cam->WorldPos, &view);
 
 		// and finally, compute the dot product
 		float dp = n.Dot(view);
@@ -1651,10 +1764,59 @@ void CPLGLoader::Camera_To_Perspective_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_li
 			float z = curr_poly->tvlist[vertex].z;
 
 			// transform the vertex by the view parameters in the camera
-			//curr_poly->tvlist[vertex].x = cam->view_dist*curr_poly->tvlist[vertex].x / z;
-			//curr_poly->tvlist[vertex].y = cam->view_dist*curr_poly->tvlist[vertex].y*cam->aspect_ratio / z;
-			curr_poly->tvlist[vertex].x = curr_poly->tvlist[vertex].x / z;
-			curr_poly->tvlist[vertex].y = -curr_poly->tvlist[vertex].y / z;
+			curr_poly->tvlist[vertex].x = cam->view_dist*curr_poly->tvlist[vertex].x / z;
+			curr_poly->tvlist[vertex].y = cam->view_dist*curr_poly->tvlist[vertex].y*cam->aspect_ratio / z;
+			// z = z, so no change
+
+			// not that we are NOT dividing by the homogenous w coordinate since
+			// we are not using a matrix operation for this version of the function 
+
+		} // end for vertex
+
+	} // end for poly
+
+} // end Camera_To_Perspective_RENDERLIST4DV1
+
+void CPLGLoader::Camera_To_Perspective_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list, CCamera* cam)
+{
+	// NOTE: this is not a matrix based function
+	// 这不是一个基于矩阵的函数
+	// this function transforms each polygon in the global render list
+	// 这个函数转换每一个多边形在全局渲染列表中
+	// into perspective coordinates, based on the sent camera object, 
+	// 到透视图坐标，基于设置的相机对象
+	// you would use this function instead of the object based function
+	// 你应该使用这个函数代替这个对象的基函数
+	// if you decided earlier in the pipeline to turn each object into 
+	// 如果你最初决定
+	// a list of polygons and then add them to the global render list
+
+	// transform each polygon in the render list into camera coordinates
+	// assumes the render list has already been transformed to world
+	// coordinates and the result is in tvlist[] of each polygon object
+
+	for (int poly = 0; poly < rend_list->num_polys; poly++)
+	{
+		// acquire current polygon
+		POLYF4DV1_PTR curr_poly = rend_list->poly_ptrs[poly];
+
+		// is this polygon valid?
+		// transform this polygon if and only if it's not clipped, not culled,
+		// active, and visible, note however the concept of "backface" is 
+		// irrelevant in a wire frame engine though
+		if ((curr_poly == NULL) || !(curr_poly->state & POLY4DV1_STATE_ACTIVE) ||
+			(curr_poly->state & POLY4DV1_STATE_CLIPPED) ||
+			(curr_poly->state & POLY4DV1_STATE_BACKFACE))
+			continue; // move onto next poly
+
+		// all good, let's transform 
+		for (int vertex = 0; vertex < 3; vertex++)
+		{
+			float z = curr_poly->tvlist[vertex].z;
+
+			// transform the vertex by the view parameters in the camera
+			curr_poly->tvlist[vertex].x = cam->ViewDistance*curr_poly->tvlist[vertex].x / z;
+			curr_poly->tvlist[vertex].y = cam->ViewDistance*curr_poly->tvlist[vertex].y*cam->AspectRatio / z;
 			// z = z, so no change
 
 			// not that we are NOT dividing by the homogenous w coordinate since
@@ -1761,6 +1923,56 @@ void CPLGLoader::Perspective_To_Screen_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_li
 
 		float alpha = (0.5*cam->viewport_width - 0.5);
 		float beta = (0.5*cam->viewport_height - 0.5);
+
+		// all good, let's transform 
+		for (int vertex = 0; vertex < 3; vertex++)
+		{
+
+			// the vertex is in perspective normalized coords from -1 to 1
+			// on each axis, simple scale them and invert y axis and project
+			// to screen
+
+			// transform the vertex by the view parameters in the camera
+			curr_poly->tvlist[vertex].x = alpha + alpha*curr_poly->tvlist[vertex].x;
+			curr_poly->tvlist[vertex].y = beta - beta *curr_poly->tvlist[vertex].y;
+		} // end for vertex
+
+	} // end for poly
+
+} // end Perspective_To_Screen_RENDERLIST4DV1
+
+void CPLGLoader::Perspective_To_Screen_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list,
+	CCamera* cam)
+{
+	// NOTE: this is not a matrix based function
+	// this function transforms the perspective coordinates of the render
+	// list into screen coordinates, based on the sent viewport in the camera
+	// assuming that the viewplane coordinates were normalized
+	// you would use this function instead of the object based function
+	// if you decided earlier in the pipeline to turn each object into 
+	// a list of polygons and then add them to the global render list
+	// you would only call this function if you previously performed
+	// a normalized perspective transform
+
+	// transform each polygon in the render list from perspective to screen 
+	// coordinates assumes the render list has already been transformed 
+	// to normalized perspective coordinates and the result is in tvlist[]
+	for (int poly = 0; poly < rend_list->num_polys; poly++)
+	{
+		// acquire current polygon
+		POLYF4DV1_PTR curr_poly = rend_list->poly_ptrs[poly];
+
+		// is this polygon valid?
+		// transform this polygon if and only if it's not clipped, not culled,
+		// active, and visible, note however the concept of "backface" is 
+		// irrelevant in a wire frame engine though
+		if ((curr_poly == NULL) || !(curr_poly->state & POLY4DV1_STATE_ACTIVE) ||
+			(curr_poly->state & POLY4DV1_STATE_CLIPPED) ||
+			(curr_poly->state & POLY4DV1_STATE_BACKFACE))
+			continue; // move onto next poly
+
+		float alpha = (0.5*cam->ScreenWidth - 0.5);
+		float beta = (0.5*cam->ScreenHeight - 0.5);
 
 		// all good, let's transform 
 		for (int vertex = 0; vertex < 3; vertex++)
@@ -2232,9 +2444,6 @@ void CPLGLoader::Draw_RENDERLIST4DV1_Wire16(RENDERLIST4DV1_PTR rend_list,
 	} // end for poly
 
 } // end Draw_RENDERLIST4DV1_Wire
-
-/////////////////////////////////////////////////////////////
-
 void CPLGLoader::Build_CAM4DV1_Matrix_Euler(CAM4DV1_PTR cam, int cam_rot_seq)
 {
 	// this creates a camera matrix based on Euler angles 
@@ -2422,9 +2631,9 @@ void Build_CAM4DV1_Matrix_UVN(CAM4DV1_PTR cam, int mode)
 	cam->v = CVector4D::Cross(cam->n, cam->u);
 
 	// Step 5: normalize all vectors
-	cam->v.VECTOR4D_Normalize(&cam->u);
-	cam->v.VECTOR4D_Normalize(&cam->v);
-	cam->v.VECTOR4D_Normalize(&cam->n);
+	cam->u.Normalize();
+	cam->v.Normalize();
+	cam->n.Normalize();
 
 
 	// build the UVN matrix by placing u,v,n as the columns of the matrix
@@ -2498,6 +2707,8 @@ void CPLGLoader::Init_CAM4DV1(CAM4DV1_PTR cam,       // the camera object
 
 	// now we know fov and we know the viewplane dimensions plug into formula and
 	// solve for view distance parameters
+#define DEG_TO_RAD(ang) ((ang)*PI/180.0)
+#define RAD_TO_DEG(rads) ((rads)*180.0/PI)
 	float tan_fov_div2 = tan(DEG_TO_RAD(fov / 2));
 
 	cam->view_dist = (0.5)*(cam->viewplane_width)*tan_fov_div2;

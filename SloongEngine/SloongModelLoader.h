@@ -94,7 +94,7 @@
 #define CULL_OBJECT_Z_PLANE           0x0004 // cull on the z clipping planes
 #define CULL_OBJECT_XYZ_PLANES        (CULL_OBJECT_X_PLANE | CULL_OBJECT_Y_PLANE | CULL_OBJECT_Z_PLANE)
 
-// defines for camera rotation sequences
+
 #define CAM_ROT_SEQ_XYZ  0
 #define CAM_ROT_SEQ_YXZ  1
 #define CAM_ROT_SEQ_XZY  2
@@ -277,7 +277,6 @@ namespace SoaringLoong
 				float viewport_height);
 
 			static void Reset_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list);
-
 			static void Build_CAM4DV1_Matrix_Euler(CAM4DV1_PTR cam, int cam_rot_seq);
 
 			static void Reset_OBJECT4DV1(OBJECT4DV1_PTR obj);
@@ -296,13 +295,16 @@ namespace SoaringLoong
 				CAM4DV1_PTR cam,     // camera to cull relative to
 				int cull_flags);
 
+			static int Cull_OBJECT4DV1(OBJECT4DV1_PTR obj,  // object to cull
+				CCamera* cam,     // camera to cull relative to
+				int cull_flags);
 			static void Model_To_World_OBJECT4DV1(OBJECT4DV1_PTR obj, int coord_select);
 
 			static int Insert_OBJECT4DV1_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list,
 				OBJECT4DV1_PTR obj,
 				int insert_local);
-
 			static void Remove_Backfaces_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list, CAM4DV1_PTR cam);
+			static void Remove_Backfaces_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list, CCamera* cam);
 
 			static void World_To_Camera_RENDERLIST4DV1(RENDERLIST4DV1_PTR rend_list,
 				CAM4DV1_PTR cam);
