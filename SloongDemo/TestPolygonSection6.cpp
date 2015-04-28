@@ -2,8 +2,6 @@
 #include "TestPolygonSection6.h"
 #include "SloongMath2.h"
 using namespace SoaringLoong::Math;
-#include "SloongModelLoader.h"
-using namespace SoaringLoong::Loader;
 #include "Defines.h"
 #include "SloongString.h"
 using namespace SoaringLoong::Universal;
@@ -33,23 +31,26 @@ void CTestPolygonSection6::Initialize(CDDraw* pDraw, DInputClass* pInput, RECT r
 	m_cam.Initialize(CAMERA_ELUER, cam_pos, cam_dir, &cam_target, CAM_ROT_SEQ_XYZ, 200, 12000, 120, WINDOW_WIDTH, WINDOW_HEIGHT);
 	//m_cam.Initialize(CAMERA_UVN, cam_pos, cam_dir, &cam_target, UVN_MODE_SPHERICAL, 200, 12000, 120, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-	CPLGLoader plgLoader(m_pDraw);
+	obj_tank = new CObject3D(m_pDraw);
+	obj_marker = new CObject3D(m_pDraw);
+	obj_player = new CObject3D(m_pDraw);
+	obj_tower = new CObject3D(m_pDraw);
 
 	// load the master tank object
-	vscale.Initialize(0.75, 0.75, 0.75);
-	plgLoader.LoadOBJECT4DV1(&obj_tank, _T("DXFile\\tank2.plg"), &vscale, &vpos, &vrot);
+ 	vscale.Initialize(0.75, 0.75, 0.75);
+ 	obj_tank->LoadPLGMode(_T("DXFile\\tank2.plg"), vscale, vpos, vrot);
 
 	// load player object for 3rd person view
 	vscale.Initialize(0.75, 0.75, 0.75);
-	plgLoader.LoadOBJECT4DV1(&obj_player, _T("DXFile\\tank3.plg"), &vscale, &vpos, &vrot);
+	obj_player->LoadPLGMode(_T("DXFile\\tank3.plg"), vscale, vpos, vrot);
 
 	// load the master tower object
 	vscale.Initialize(1.0, 2.0, 1.0);
-	plgLoader.LoadOBJECT4DV1(&obj_tower, _T("DXFile\\tower1.plg"), &vscale, &vpos, &vrot);
+	obj_tower->LoadPLGMode(_T("DXFile\\tower1.plg"), vscale, vpos, vrot);
 
 	// load the master ground marker
 	vscale.Initialize(3.0, 3.0, 3.0);
-	plgLoader.LoadOBJECT4DV1(&obj_marker, _T("DXFile\\marker1.plg"), &vscale, &vpos, &vrot);
+	obj_marker->LoadPLGMode(_T("DXFile\\marker1.plg"), vscale, vpos, vrot);
 
 #define UNIVERSE_RADIUS   4000
 
@@ -100,20 +101,20 @@ void CTestPolygonSection6::Render()
 	m_pInput->GetInput();
 	// game logic here...
 
-	// reset the render list
-	CPLGLoader::Reset_RENDERLIST4DV1(&rend_list);
-
 	// allow user to move camera
 #define TANK_SPEED        15
 	tank_speed = TANK_SPEED;
+	if (m_pInput->IsKeyDown(DIK_ESCAPE) || KEY_DOWN(VK_ESCAPE))
+	{
+		PostQuitMessage(0);
+		return;
+	}
+
 	// turbo
 	if (m_pInput->IsKeyDown(DIK_SPACE))
 	{
 		m_cam.WorldPos.y += 15;
 	}
-		
-		
-
 	// forward/backward
 	if (m_pInput->IsKeyDown(DIK_UP))
 	{
@@ -162,90 +163,86 @@ void CTestPolygonSection6::Render()
 	// generate camera matrix
 	m_cam.UpdateCameraMatrix();
 
+	obj_player->Reset();
+
+	
+	obj_player->SetWorldPosition(CVector4D(
+		m_cam.WorldPos.x + 300 * CMath2::Fast_Sin(m_cam.Direction.y), 
+		m_cam.WorldPos.y - 70, 
+		m_cam.WorldPos.z + 300 * CMath2::Fast_Cos(m_cam.Direction.y)));
+
+	mrot.BuildRotateMatrix(0, m_cam.Direction.y + turning, 0);
+
+	obj_player->Transform(mrot, TRANS_MODE::LocalToTrans, true);
+
+	obj_player->ToWorld(TransOnly);
+
+	obj_player->ToCamera(&m_cam);
+	obj_player->ToProject(&m_cam);
+	obj_player->PerspectiveToScreen(&m_cam);
+	//obj_player->CameraToPerspectiveScreen(&m_cam);
+	obj_player->Render(m_pDraw);
+
 	// insert the tanks in the world
 	for (index = 0; index < NUM_TANKS; index++)
 	{
 		// reset the object (this only matters for backface and object removal)
-		CPLGLoader::Reset_OBJECT4DV1(&obj_tank);
+		
+		obj_tank->Reset();
 
 		// generate rotation matrix around y axis
-		CPLGLoader::Build_XYZ_Rotation_MATRIX4X4(0, tanks[index].w, 0, &mrot);
+		mrot.BuildRotateMatrix(0, tanks[index].w, 0);
 
 		// rotate the local coords of the object
-		CPLGLoader::Transform_OBJECT4DV1(&obj_tank, &mrot, TRANSFORM_LOCAL_TO_TRANS, 1);
-
+		obj_tank->Transform(mrot, TRANS_MODE::LocalToTrans, true);
+		
 		// set position of tank
-		obj_tank.world_pos.x = tanks[index].x;
-		obj_tank.world_pos.y = tanks[index].y;
-		obj_tank.world_pos.z = tanks[index].z;
-
-		// attempt to cull object   
-		if (!CPLGLoader::Cull_OBJECT4DV1(&obj_tank, &m_cam, CULL_OBJECT_XYZ_PLANES))
+		obj_tank->SetWorldPosition(CVector4D(tanks[index].x, tanks[index].y, tanks[index].z));
+		obj_tank->Cull(&m_cam, CULL_ON_XYZ_PLANES);
+		if (obj_tank->Visible())
 		{
-			// if we get here then the object is visible at this world position
-			// so we can insert it into the rendering list
-			// perform local/model to world transform
-			CPLGLoader::Model_To_World_OBJECT4DV1(&obj_tank, TRANSFORM_TRANS_ONLY);
+			obj_tank->ToWorld(TRANS_MODE::TransOnly);
+			//obj_tank->RemoveBackface(&m_cam);
+			obj_tank->ToCamera(&m_cam);
+			obj_tank->ToProject(&m_cam);
+			obj_tank->PerspectiveToScreen(&m_cam);
+			//obj_tanke->CameraToPerspectiveScreen(&m_cam);
+			obj_tank->Render(m_pDraw);
 
-			// insert the object into render list
-			CPLGLoader::Insert_OBJECT4DV1_RENDERLIST4DV1(&rend_list, &obj_tank, 0);
-		} // end if
-
+		}
+		
 	} // end for
 
-	// insert the player into the world
-	// reset the object (this only matters for backface and object removal)
-	CPLGLoader::Reset_OBJECT4DV1(&obj_player);
-
-	// set position of tank
-	obj_player.world_pos.x = m_cam.WorldPos.x + 300 * CMath2::Fast_Sin(m_cam.Direction.y);
-	obj_player.world_pos.y = m_cam.WorldPos.y - 70;
-	obj_player.world_pos.z = m_cam.WorldPos.z + 300 * CMath2::Fast_Cos(m_cam.Direction.y);
-
-	// generate rotation matrix around y axis
-	CPLGLoader::Build_XYZ_Rotation_MATRIX4X4(0, m_cam.Direction.y + turning, 0, &mrot);
-
-	// rotate the local coords of the object
-	CPLGLoader::Transform_OBJECT4DV1(&obj_player, &mrot, TRANSFORM_LOCAL_TO_TRANS, 1);
-
-	// perform world transform
-	CPLGLoader::Model_To_World_OBJECT4DV1(&obj_player, TRANSFORM_TRANS_ONLY);
-
-	// insert the object into render list
-	CPLGLoader::Insert_OBJECT4DV1_RENDERLIST4DV1(&rend_list, &obj_player, 0);
-
-
-	// insert the towers in the world
 	for (index = 0; index < NUM_TOWERS; index++)
 	{
 		// reset the object (this only matters for backface and object removal)
-		CPLGLoader::Reset_OBJECT4DV1(&obj_tower);
+
+		obj_tower->Reset();
 
 		// generate rotation matrix around y axis
-		CPLGLoader::Build_XYZ_Rotation_MATRIX4X4(0, towers[index].w, 0, &mrot);
+		mrot.BuildRotateMatrix(0, towers[index].w, 0);
 
 		// rotate the local coords of the object
-		CPLGLoader::Transform_OBJECT4DV1(&obj_tower, &mrot, TRANSFORM_LOCAL_TO_TRANS, 1);
+		obj_tower->Transform(mrot, TRANS_MODE::LocalToTrans, true);
 
-		// set position of tower
-		obj_tower.world_pos.x = towers[index].x;
-		obj_tower.world_pos.y = towers[index].y;
-		obj_tower.world_pos.z = towers[index].z;
-
-		// attempt to cull object   
-		if (!CPLGLoader::Cull_OBJECT4DV1(&obj_tower, &m_cam, CULL_OBJECT_XYZ_PLANES))
+		// set position of tank
+		obj_tower->SetWorldPosition(towers[index]);
+		obj_tower->Cull(&m_cam, CULL_ON_XYZ_PLANES);
+		if (obj_tower->Visible())
 		{
-			// if we get here then the object is visible at this world position
-			// so we can insert it into the rendering list
-			// perform local/model to world transform
-			CPLGLoader::Model_To_World_OBJECT4DV1(&obj_tower, TRANSFORM_TRANS_ONLY);
+			obj_tower->ToWorld(TRANS_MODE::TransOnly);
+			//obj_tower->RemoveBackface(&m_cam);
+			obj_tower->ToCamera(&m_cam);
+			obj_tower->ToProject(&m_cam);
+			obj_tower->PerspectiveToScreen(&m_cam);
+			//obj_tanke->CameraToPerspectiveScreen(&m_cam);
+			obj_tower->Render(m_pDraw);
 
-			// insert the object into render list
-			CPLGLoader::Insert_OBJECT4DV1_RENDERLIST4DV1(&rend_list, &obj_tower, 0);
-		} // end if
+		}
 
 	} // end for
 
+	
 	// seed number generator so that modulation of markers is always the same
 	srand(13);
 
@@ -258,44 +255,37 @@ void CTestPolygonSection6::Render()
 	for (int index_z = 0; index_z < NUM_POINTS_Z; index_z++)
 	{
 		// reset the object (this only matters for backface and object removal)
-		CPLGLoader::Reset_OBJECT4DV1(&obj_marker);
+		obj_marker->Reset();
 
 		// generate rotation matrix around y axis
-		CPLGLoader::Build_XYZ_Rotation_MATRIX4X4(0, 1, 0, &mrot);
+		mrot.BuildRotateMatrix(0, 1, 0);
 
 		// rotate the local coords of the object
-		CPLGLoader::Transform_OBJECT4DV1(&obj_marker, &mrot, TRANSFORM_LOCAL_TO_TRANS, 1);
+		obj_marker->Transform(mrot, LocalToTrans, true);
 
 		// set position of tower
-		obj_marker.world_pos.x = RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_x*POINT_SIZE;
-		obj_marker.world_pos.y = obj_marker.max_radius;
-		obj_marker.world_pos.z = RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_z*POINT_SIZE;
+		obj_marker->SetWorldPosition(CVector4D(
+			RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_x*POINT_SIZE,
+		obj_marker->m_fMaxRadius,
+		RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_z*POINT_SIZE));
 
 		// attempt to cull object   
-		if (!CPLGLoader::Cull_OBJECT4DV1(&obj_marker, &m_cam, CULL_OBJECT_XYZ_PLANES))
+		obj_marker->Cull(&m_cam, CULL_MODE::CULL_ON_XYZ_PLANES);
+		if (obj_marker->Visible())
 		{
 			// if we get here then the object is visible at this world position
 			// so we can insert it into the rendering list
 			// perform local/model to world transform
-			CPLGLoader::Model_To_World_OBJECT4DV1(&obj_marker, 0);
+			obj_marker->ToWorld(TRANS_MODE::TransOnly);
 
-			// insert the object into render list
-			CPLGLoader::Insert_OBJECT4DV1_RENDERLIST4DV1(&rend_list, &obj_marker, 0);
+			obj_marker->ToCamera(&m_cam);
+			obj_marker->ToProject(&m_cam);
+			obj_marker->PerspectiveToScreen(&m_cam);
+			obj_marker->Render(m_pDraw);
 		} // end if
 
 	} // end for
-
-	// remove backfaces
-	CPLGLoader::Remove_Backfaces_RENDERLIST4DV1(&rend_list, &m_cam);
-
-	// apply world to camera transform
-	CPLGLoader::World_To_Camera_RENDERLIST4DV1(&rend_list, &m_cam.MatrixCamera);
-
-	// apply camera to perspective transformation
-	CPLGLoader::Camera_To_Perspective_RENDERLIST4DV1(&rend_list, &m_cam);
-
-	// apply screen transform
-	CPLGLoader::Perspective_To_Screen_RENDERLIST4DV1(&rend_list, &m_cam);
+	
 
 	sprintf_s(work_string, 256, "pos:[%f, %f, %f] heading:[%f] elev:[%f]",
 		m_cam.WorldPos.x, m_cam.WorldPos.y, m_cam.WorldPos.z, m_cam.Direction.y, m_cam.Direction.x);
@@ -308,9 +298,6 @@ void CTestPolygonSection6::Render()
 
 	// lock the back buffer
 	LPBYTE pBackBuffer = m_pDraw->DDraw_Lock_Back_Surface();
-
-	// render the object
-	CPLGLoader::Draw_RENDERLIST4DV1_Wire16(&rend_list, pBackBuffer, m_pDraw->GetBackPitch(), m_rcWindow);
 
 	// unlock the back buffer
 	m_pDraw->DDraw_Unlock_Back_Surface();

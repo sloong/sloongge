@@ -13,15 +13,11 @@
 #include "ConsoleWindow.h"
 #include "SloongSprite.h"
 #include "SloongD3D.h"
-#include "SloongModelLoader.h"
 #include "SloongString.h"
 #include "DInputClass.h"
 #include "SloongCamera.h"
 #include "SloongEngine.h"
 #include "TestPolygonSection6.h"
-#include "TestPolygonWithObject.h"
-#include "TestSinglePolygon.h"
-#include "TestSinglePolygonWithObject.h"
 #pragma comment(lib,"Universal.lib")
 using namespace SoaringLoong;
 using namespace SoaringLoong::Graphics;
@@ -184,7 +180,6 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 		g_pUIManager->Initialize(m_pDraw, g_pLua, m_pLog,m_hMainWnd);
 
 		g_pLua->RunScript(_T("Start.lua"));
-		CMath2::Build_Sin_Cos_Tables();
 		
 		m_iTestRender = new CTestPolygonSection6();
 		m_iTestRender->Initialize(m_pDraw, m_pInput,m_rcWindow);
@@ -426,7 +421,7 @@ CUIManager* CSloongGame::GetSloongUIManager()
 
 void CSloongGame::Render()
 {
-	GetSloongUIManager()->Update();
+	//GetSloongUIManager()->Update();
 	m_pDraw->DDrawFillBackSurface(0);
 
 	if (KEY_DOWN(VK_ESCAPE))

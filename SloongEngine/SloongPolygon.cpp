@@ -13,39 +13,45 @@ public:
 	CPolygon3D();
 	virtual ~CPolygon3D();
 public:
-	void	Initialize(const CVector4D& v1, const CVector4D& v2, const CVector4D& v3);
+	void	Initialize(int n1, int n2, int n3, VectorList* pLocalList, VectorList* pTransList);
 	HRESULT Render(CDDraw* pDraw);
-	CVector4D* GetX();
-	CVector4D* GetY();
-	CVector4D* GetZ();
+	void	GetIndex(int& x, int& y, int& z);
 
-	void SetAttribute(DWORD arrt);
-	void AddAttribute(DWORD arrt);
+	void	SetAttribute(DWORD arrt);
+	void	AddAttribute(DWORD arrt);
+	DWORD	GetAttribute();
 
-	void ToWorld(const CVector4D& vWorld);
-	void Transform(const CMatrix4x4& mMatrix, bool toNormal);
+	void	ToWorld(const CVector4D& vWorld);
+	void	Transform(const CMatrix4x4& mMatrix, bool toNormal);
+
+	void	SetColor(COLORREF color);
+	COLORREF GetColor();
+
+	void SetStatus(DWORD dwStatus);
+	void AddStatus(DWORD dwStatus);
+	void DeleteStatus(DWORD dwStatus);
+	DWORD GetStatus();
 public:
 	DWORD				m_dwAttribute;
+	DWORD				m_dwStatus;
 	COLORREF			m_dwColor;
-	vector<CVector4D>	m_VectorList;
-	vector<CVector4D>	m_RenderList;
+	int					m_n1, m_n2, m_n3;
+	VectorList*			m_pLocalList;
+	VectorList*			m_pTransList;
 };
 
 
 HRESULT CPolygon3D::Render(CDDraw* pDraw)
 {
-	int index = 0;
-	auto vList = m_RenderList;
-	for (index = 0; index < vList.size() - 1; index++)
-	{
-		// draw line from ith to ith+1 vertex
-		pDraw->DrawClipLine((int)vList[index].x,
-			(int)vList[index].y,
-			(int)vList[index + 1].x,
-			(int)vList[index + 1].y,
-			RGB(255,255,255));
+	auto list = *m_pTransList;
+	auto x = list[m_n1];
+	auto y = list[m_n2];
+	auto z = list[m_n3];
 
-	} // end for
+	pDraw->DrawClipLine(x->x, x->y, y->x, y->y, m_dwColor);
+	pDraw->DrawClipLine(y->x, y->y, z->x, z->y, m_dwColor);
+	pDraw->DrawClipLine(x->x, x->y, z->x, z->y, m_dwColor);
+
 	return S_OK;
 }
 
@@ -59,26 +65,13 @@ CPolygon3D::~CPolygon3D()
 
 }
 
-void CPolygon3D::Initialize(const CVector4D& v1, const CVector4D& v2, const CVector4D& v3)
+void CPolygon3D::Initialize(int n1, int n2, int n3, VectorList* pLocalList, VectorList* pTransList)
 {
-	m_VectorList.push_back(v1);
-	m_VectorList.push_back(v2);
-	m_VectorList.push_back(v3);
-}
-
-SoaringLoong::Math::CVector4D* CPolygon3D::GetX()
-{
-	return &m_VectorList[0];
-}
-
-SoaringLoong::Math::CVector4D* CPolygon3D::GetY()
-{
-	return &m_VectorList[1];
-}
-
-SoaringLoong::Math::CVector4D* CPolygon3D::GetZ()
-{
-	return &m_VectorList[2];
+	m_n1 = (n1);
+	m_n2 = (n2);
+	m_n3 = (n3);
+	m_pLocalList = pLocalList;
+	m_pTransList = pTransList;
 }
 
 void CPolygon3D::SetAttribute(DWORD arrt)
@@ -93,12 +86,11 @@ void CPolygon3D::AddAttribute(DWORD arrt)
 
 void CPolygon3D::ToWorld(const CVector4D& vWorld)
 {
-	m_RenderList = m_VectorList;
 	// 对多边形的每一个点进行转换
-	for (int i = 0; i < m_VectorList.size(); i++)
-	{
-		m_RenderList[i] = (CVector4D::Add((m_VectorList)[i], vWorld));
-	}
+// 	for (int i = 0; i < ARRAYSIZE(m_VectorList); i++)
+// 	{
+// 		m_RenderList[i] = (CVector4D::Add((m_VectorList)[i], vWorld));
+// 	}
 
 
 // 	void Build_Model_To_World_MATRIX4X4(VECTOR4D_PTR vpos, MATRIX4X4_PTR m)
@@ -118,19 +110,61 @@ void CPolygon3D::ToWorld(const CVector4D& vWorld)
 
 void CPolygon3D::Transform(const CMatrix4x4& mMatrix, bool bNormal)
 {
-	for (int i = 0; i < m_VectorList.size(); i++)
-	{
-		auto temp = (CVector4D::Multiply((m_VectorList)[i], mMatrix));
-		if (bNormal && temp.w != 1 && temp.x > 0 &&  temp.y >0 && temp.z > 0)
-		{
-			temp.x /= temp.w;
-			temp.y /= temp.w;
-			temp.z /= temp.w;
-			temp.w = 1;
-		}
+// 	for (int i = 0; i < ARRAYSIZE(m_VectorList); i++)
+// 	{
+// 		auto temp = (CVector4D::Multiply((m_VectorList)[i], mMatrix));
+// 		if (bNormal && temp.w != 1 && temp.x > 0 &&  temp.y >0 && temp.z > 0)
+// 		{
+// 			temp.x /= temp.w;
+// 			temp.y /= temp.w;
+// 			temp.z /= temp.w;
+// 			temp.w = 1;
+// 		}
+// 
+// 		(m_RenderList)[i] = temp;
+// 	}
+}
 
-		(m_RenderList)[i] = temp;
-	}
+void CPolygon3D::SetColor(COLORREF color)
+{
+	m_dwColor = color;
+}
+
+COLORREF CPolygon3D::GetColor()
+{
+	return m_dwColor;
+}
+
+void CPolygon3D::SetStatus(DWORD dwStatus)
+{
+	m_dwStatus = dwStatus;
+}
+
+DWORD CPolygon3D::GetStatus()
+{
+	return m_dwStatus;
+}
+
+DWORD CPolygon3D::GetAttribute()
+{
+	return m_dwAttribute;
+}
+
+void CPolygon3D::GetIndex(int& x, int& y, int& z)
+{
+	x = m_n1;
+	y = m_n2;
+	z = m_n3;
+}
+
+void CPolygon3D::AddStatus(DWORD dwStatus)
+{
+	m_dwStatus |= dwStatus;
+}
+
+void CPolygon3D::DeleteStatus(DWORD dwStatus)
+{
+	m_dwStatus &= (~dwStatus);
 }
 
 SLOONGENGINE_API IPolygon* SoaringLoong::Math::Polygon::IPolygon::Create3D()

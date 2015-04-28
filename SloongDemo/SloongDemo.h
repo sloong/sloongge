@@ -4,8 +4,6 @@
 #include "resource.h"
 using namespace SoaringLoong;
 #pragma comment(lib,"SloongEngine.lib")
-#include "SloongModelLoader.h"
-using namespace SoaringLoong::Loader;
 
 #include "ITestRender.h"
 enum UI_EVENT

@@ -6,6 +6,30 @@
 using namespace SoaringLoong::Math::Vertex;
 using namespace SoaringLoong::Math::Vector;
 using namespace SoaringLoong::Math::Matrix;
+
+
+// states of polygons and faces
+#define POLY4DV1_STATE_ACTIVE             0x0001
+#define POLY4DV1_STATE_CLIPPED            0x0002
+#define POLY4DV1_STATE_BACKFACE           0x0004
+
+
+// attributes of polygons and polygon faces
+#define POLY4DV1_ATTR_2SIDED              0x0001
+#define POLY4DV1_ATTR_TRANSPARENT         0x0002
+#define POLY4DV1_ATTR_8BITCOLOR           0x0004
+#define POLY4DV1_ATTR_RGB16               0x0008
+#define POLY4DV1_ATTR_RGB24               0x0010
+
+#define POLY4DV1_ATTR_SHADE_MODE_PURE       0x0020
+#define POLY4DV1_ATTR_SHADE_MODE_CONSTANT   0x0020 // (alias)
+#define POLY4DV1_ATTR_SHADE_MODE_FLAT       0x0040
+#define POLY4DV1_ATTR_SHADE_MODE_GOURAUD    0x0080
+#define POLY4DV1_ATTR_SHADE_MODE_PHONG      0x0100
+#define POLY4DV1_ATTR_SHADE_MODE_FASTPHONG  0x0100 // (alias)
+#define POLY4DV1_ATTR_SHADE_MODE_TEXTURE    0x0200 
+
+
 namespace SoaringLoong
 {
 	namespace Graphics
@@ -34,22 +58,30 @@ namespace SoaringLoong
 				VERTEX2DF *vlist; // pointer to vertex list
 			};
 
+			typedef vector<CVector4D*> VectorList;
 			class SLOONGENGINE_API IPolygon
 			{
 			public:
 				static  IPolygon* Create3D();
-				virtual void Initialize(const CVector4D& v1, const CVector4D& v2, const CVector4D& v3) = 0;
-				virtual HRESULT Render(CDDraw* pDraw){ return S_OK; };
+				virtual void Initialize(int n1, int n2, int n3, VectorList* pLocalList, VectorList* pTransList) = 0;
+				virtual HRESULT Render(CDDraw* pDraw) = 0;
 
-				virtual CVector4D* GetX(){ return NULL; };
-				virtual CVector4D* GetY(){ return NULL; };
-				virtual CVector4D* GetZ(){ return NULL; };
+				virtual void GetIndex( int& x, int& y, int& z) = 0;
 
-				virtual void SetAttribute(DWORD arrt){}
-				virtual void AddAttribute(DWORD arrt){}
+				virtual void SetAttribute(DWORD arrt) = 0;
+				virtual void AddAttribute(DWORD arrt) = 0;
+				virtual DWORD GetAttribute() = 0;
 
-				virtual void ToWorld(const CVector4D& vWorld){}
-				virtual void Transform(const CMatrix4x4& mMatrix, bool toNormal){}
+				virtual void ToWorld(const CVector4D& vWorld) = 0;
+				virtual void Transform(const CMatrix4x4& mMatrix, bool toNormal) = 0;
+
+				virtual void SetColor(COLORREF color) = 0;
+				virtual COLORREF GetColor() = 0;
+
+				virtual void SetStatus(DWORD dwStatus) = 0;
+				virtual void AddStatus(DWORD dwStatus) = 0;
+				virtual void DeleteStatus(DWORD dwStatus) = 0;
+				virtual DWORD GetStatus() = 0;
 			};
 
 			

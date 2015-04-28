@@ -8,6 +8,7 @@ namespace SoaringLoong
 	public:
 		CException(LPCTSTR lpStr);
 		CException(LPCTSTR lpStr, HRESULT hRes);
+		CException(CString strMessage);
 		~CException();
 
 	public:

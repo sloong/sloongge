@@ -35,19 +35,6 @@ wstring CString::ANSIToUnicode(LPCSTR strMulti)
 	return strResult;
 }
 
-CString::CString(LPCSTR lpStr)
-{
-	new(this) CString();
-	(*m_strString) = ANSIToUnicode(lpStr);
-}
-
-CString::CString(LPCWSTR lpStr)
-{
-	new(this) CString();
-	(*m_strString) = lpStr;
-}
-
-
 CString::~CString()
 {
 	SAFE_DELETE(m_strString);
@@ -93,5 +80,23 @@ CString& SoaringLoong::Universal::CString::operator=(LPCWSTR lpStr)
 {
 	(*m_strString) = lpStr;
 	return *this;
+}
+
+SoaringLoong::Universal::CString::CString(LPCSTR lpStr, ...)
+{
+	new(this) CString();
+	va_list args;
+	va_start(args, lpStr);
+	FormatA(lpStr, args);
+	va_end(args);
+}
+
+SoaringLoong::Universal::CString::CString(LPCWSTR lpStr, ...)
+{
+	new(this) CString();
+	va_list args;
+	va_start(args, lpStr);
+	FormatW(lpStr, args);
+	va_end(args);
 }
 

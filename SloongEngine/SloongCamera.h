@@ -57,9 +57,9 @@ namespace SoaringLoong
 			double ScreenCenterX, ScreenCenterY; // 屏幕中心坐标
 			double AspectRatio; // 宽高比
 
-			MATRIX4X4 MatrixCamera; // 相机变换矩阵
-			MATRIX4X4 MatrixProjection; // 透视投影变换矩阵
-			MATRIX4X4 MatrixScreen; // 屏幕变换矩阵
+			CMatrix4x4 MatrixCamera; // 相机变换矩阵
+			CMatrix4x4 MatrixProjection; // 透视投影变换矩阵
+			CMatrix4x4 MatrixScreen; // 屏幕变换矩阵
 
 		};
 	}

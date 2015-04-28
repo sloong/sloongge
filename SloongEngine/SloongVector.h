@@ -205,31 +205,31 @@ namespace SoaringLoong
 
 				inline CVector4D& operator=(const CVector4D& Src)
 				{
-					(this)->x = Src.x;
-					(this)->y = Src.y;
-					(this)->z = Src.z;
-					(this)->w = Src.w;
-					return (*this);
+					return operator=(&Src);
 				}
 
-				inline CVector4D& operator=(CVector4D* pSrc)
+				inline CVector4D& operator=(const CVector4D* Src)
 				{
-					(this)->x = (pSrc)->x;
-					(this)->y = (pSrc)->y;
-					(this)->z = (pSrc)->z;
-					(this)->w = (pSrc)->w;
+					(this)->x = Src->x;
+					(this)->y = Src->y;
+					(this)->z = Src->z;
+					(this)->w = Src->w;
 					return (*this);
 				}
 
 			public:
 				static CVector4D Add( const CVector4D& va, const CVector4D& vb);
+				static CVector4D Add( const CVector4D* va, const CVector4D* vb);
 				static CVector4D Multiply(const CVector4D& vector, const CMatrix4x4& matrix);
+				static CVector4D Multiply(const CVector4D* vector, const CMatrix4x4* matrix);
 				static CVector4D Subtract(const CVector4D& va, const CVector4D& vb);
+				static CVector4D Subtract(const CVector4D* va, const CVector4D* vb);
 				static CVector4D Cross(const CVector4D& va, const CVector4D& vb);
 				static float Dot(const CVector4D& va, const CVector4D& vb);
 
 			public:
 				void Add(const CVector4D& va);
+				void Add(const CVector4D* va);
 				void Multiply(const CMatrix4x4& matrix);
 				void Subtract(const CVector4D& va);
 				float Dot(const CVector4D& va);
@@ -245,9 +245,6 @@ namespace SoaringLoong
 				void VECTOR4D_Scale(float k, CVector4D* va);
 				void VECTOR4D_Scale(float k, CVector4D* va, CVector4D* vscaled);
 				
-				
-				
-				void VECTOR4D_Build(CVector4D* init, CVector4D* term, CVector4D* result);
 				float VECTOR4D_CosTh(CVector4D* va, CVector4D* vb);
 				void VECTOR4D_Print(CVector4D* va, char *name);
 			} CPoint4D, VECTOR4D, POINT4D, *VECTOR4D_PTR, *LPVECTOR4D, *POINT4D_PTR, *LPPOINT4D;

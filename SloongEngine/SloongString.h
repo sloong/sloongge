@@ -8,8 +8,8 @@ namespace SoaringLoong
 		{
 		public:
 			CString();
-			CString(LPCSTR lpStr);
-			CString(LPCWSTR lpStr);
+			CString(LPCSTR lpStr, ...);
+			CString(LPCWSTR lpStr, ...);
 			~CString();
 
 			CString& operator=(LPCSTR lpStr);

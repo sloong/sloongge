@@ -455,49 +455,18 @@ void CVector3D::VECTOR3D_Print(VECTOR3D_PTR va, char *name = "v")
 
 } // end VECTOR3D_Print
 
-
-
-
-void CVector4D::VECTOR4D_Build(VECTOR4D_PTR init, VECTOR4D_PTR term, VECTOR4D_PTR result)
-{
-	// build a 4d vector
-	result->x = term->x - init->x;
-	result->y = term->y - init->y;
-	result->z = term->z - init->z;
-	result->w = 1;
-
-} // end VECTOR4D_Build
-
 ////////////////////////////////////////////////////////////
 
-VECTOR4D CVector4D::Add(const CVector4D& va, const CVector4D& vb)
+CVector4D CVector4D::Add(const CVector4D& va, const CVector4D& vb)
 {
-	// this function adds va+vb and returns the result on 
-	// the stack
-	VECTOR4D vsum;
-
-	vsum.x = va.x + vb.x;
-	vsum.y = va.y + vb.y;
-	vsum.z = va.z + vb.z;
-	vsum.w = 1;
-
-	// return result
-	return(vsum);
-
+	return Add(&va, &vb);
 } // end VECTOR4D_Add
 
 ////////////////////////////////////////////////////////////
 
 CVector4D CVector4D::Subtract(const CVector4D& va, const CVector4D& vb)
 {
-	// this function subtracts va-vb and return it in vdiff
-	// the stack
-	CVector4D vTemp;
-	vTemp.x = va.x - vb.x;
-	vTemp.y = va.y - vb.y;
-	vTemp.z = va.z - vb.z;
-	vTemp.w = 1;
-	return vTemp;
+	return Subtract(&va, &vb);
 } // end VECTOR4D_Sub
 
 ////////////////////////////////////////////////////////////
@@ -685,14 +654,40 @@ SoaringLoong::Math::Vector::CVector4D::CVector4D(const CVector4D& vSrc)
 
 void SoaringLoong::Math::Vector::CVector4D::Add(const CVector4D& va)
 {
-	// this function adds va+vb and return it in vsum
-	this->x += va.x;
-	this->y += va.y;
-	this->z += va.z;
-	this->w = 1;
+	Copy(Add(this, &va));
+}
+
+void SoaringLoong::Math::Vector::CVector4D::Add(const CVector4D* va)
+{
+	Copy( Add(this, va));
+}
+
+CVector4D CVector4D::Add( const CVector4D* va, const CVector4D* vb)
+{
+	// this function adds va+vb and returns the result on 
+	// the stack
+	VECTOR4D vsum;
+
+	vsum.x = va->x + vb->x;
+	vsum.y = va->y + vb->y;
+	vsum.z = va->z + vb->z;
+	vsum.w = 1;
+
+	// return result
+	return(vsum);
 }
 
 CVector4D SoaringLoong::Math::Vector::CVector4D::Multiply(const CVector4D& vector, const CMatrix4x4& matrix)
+{
+	return Multiply(&vector, &matrix);
+}
+
+void SoaringLoong::Math::Vector::CVector4D::Multiply(const CMatrix4x4& matrix)
+{
+	*this = Multiply(*this, matrix);
+}
+
+CVector4D SoaringLoong::Math::Vector::CVector4D::Multiply(const CVector4D* vector, const CMatrix4x4* matrix)
 {
 	// this function multiplies a VECTOR4D against a 
 	// 4x4 matrix - ma*mb and stores the result in mprod
@@ -708,7 +703,7 @@ CVector4D SoaringLoong::Math::Vector::CVector4D::Multiply(const CVector4D& vecto
 		for (int row = 0; row < 4; row++)
 		{
 			// add in next product pair
-			sum += (vector.M[row] * matrix.M[row][col]);
+			sum += (vector->M[row] * matrix->M[row][col]);
 		} // end for index
 
 		// insert resulting col element
@@ -718,12 +713,19 @@ CVector4D SoaringLoong::Math::Vector::CVector4D::Multiply(const CVector4D& vecto
 	return pTemp;
 }
 
-void SoaringLoong::Math::Vector::CVector4D::Multiply(const CMatrix4x4& matrix)
-{
-	*this = Multiply(*this, matrix);
-}
-
 float SoaringLoong::Math::Vector::CVector4D::Dot(const CVector4D& va)
 {
 	return Dot(*this, va);
+}
+
+CVector4D SoaringLoong::Math::Vector::CVector4D::Subtract(const CVector4D* va, const CVector4D* vb)
+{
+	// this function subtracts va-vb and return it in vdiff
+	// the stack
+	CVector4D vTemp;
+	vTemp.x = va->x - vb->x;
+	vTemp.y = va->y - vb->y;
+	vTemp.z = va->z - vb->z;
+	vTemp.w = 1;
+	return vTemp;
 }

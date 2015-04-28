@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SloongMathBase.h"
 namespace SoaringLoong
 {
 	namespace Math
@@ -88,6 +89,8 @@ namespace SoaringLoong
 				void Mat_Add_2X2(CMatrix2x2* ma, CMatrix2x2* mb, CMatrix2x2* msum);
 				int Mat_Inverse_2X2(CMatrix2x2* m, CMatrix2x2* mi);
 				int Solve_2X2_System(CMatrix2x2* A, MATRIX1X2_PTR X, MATRIX1X2_PTR B);
+				void Copy(const CMatrix2x2& mSrc);
+				void Copy(const CMatrix2x2* mSrc);
 			} MATRIX2X2, *LPMATRIX2X2, *MATRIX2X2_PTR;
 
 			typedef class SLOONGENGINE_API CMatrix3x2
@@ -161,6 +164,8 @@ namespace SoaringLoong
 				float Mat_Det_3X3(CMatrix3x3* m);
 				int Solve_3X3_System(CMatrix3x3* A, MATRIX1X3_PTR X, MATRIX1X3_PTR B);
 				int Mat_Mul_3X3(CMatrix3x3* ma,	CMatrix3x3* mb,	CMatrix3x3* mprod);
+				void Copy(const CMatrix3x3& mSrc);
+				void Copy(const CMatrix3x3* mSrc);
 			}MATRIX3X3, *LPMATRIX3X3, *MATRIX3X3_PTR;
 
 			typedef class SLOONGENGINE_API CMatrix4x3
@@ -195,7 +200,7 @@ namespace SoaringLoong
 				
 			} MATRIX4X3, *LPMATRIX4X3, *MATRIX4X3_PTR;
 
-			typedef class SLOONGENGINE_API CMatrix4x4
+			typedef class SLOONGENGINE_API CMatrix4x4 : CMathBase
 			{
 			public:
 				CMatrix4x4();
@@ -255,7 +260,8 @@ namespace SoaringLoong
 				void Multiply(CMatrix4x4* ma, CMatrix4x4* mb);
 
 				CVector3D Multiply( const CVector3D& va);
-				CVector4D Multiply( const CVector4D& va);
+				CVector4D Multiply( const CVector4D& va) const;
+				CVector4D Multiply( const CVector4D* va) const;
 			public:
 
 				void Mat_Add_4X4(CMatrix4x4* ma, CMatrix4x4* mb, CMatrix4x4* msum);
@@ -269,7 +275,7 @@ namespace SoaringLoong
 				
 
 				void BuildMoveMatrix(const CVector4D& vMove);
-				void BuildRotateMartix(double angleX, double angleY, double angleZ);
+				void BuildRotateMatrix(double x, double y, double z);
 			} MATRIX4X4, *LPMATRIX4X4, *MATRIX4X4_PTR;
 		}
 	}

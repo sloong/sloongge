@@ -172,7 +172,7 @@ int SoaringLoong::Math::Matrix::CMatrix3x3::Solve_3X3_System(CMatrix3x3* A, MATR
 	// solve for x /////////////////
 
 	// copy A into working matrix
-	MAT_COPY_3X3(A, &work_mat);
+	work_mat.Copy(A);
 
 	// swap out column 0 (x column)
 	work_mat.MAT_COLUMN_SWAP_3X3(&work_mat, 0, B);
@@ -186,7 +186,7 @@ int SoaringLoong::Math::Matrix::CMatrix3x3::Solve_3X3_System(CMatrix3x3* A, MATR
 	// solve for y /////////////////
 
 	// copy A into working matrix
-	MAT_COPY_3X3(A, &work_mat);
+	work_mat.Copy(A);
 
 	// swap out column 1 (y column)
 	work_mat.MAT_COLUMN_SWAP_3X3(&work_mat, 1, B);
@@ -200,7 +200,7 @@ int SoaringLoong::Math::Matrix::CMatrix3x3::Solve_3X3_System(CMatrix3x3* A, MATR
 	// solve for z /////////////////
 
 	// copy A into working matrix
-	MAT_COPY_3X3(A, &work_mat);
+	work_mat.Copy(A);
 
 	// swap out column 2 (z column)
 	work_mat.MAT_COLUMN_SWAP_3X3(&work_mat, 2, B);
@@ -213,6 +213,18 @@ int SoaringLoong::Math::Matrix::CMatrix3x3::Solve_3X3_System(CMatrix3x3* A, MATR
 
 	// return success
 	return(1);
+}
+
+void SoaringLoong::Math::Matrix::CMatrix3x3::Copy(const CMatrix3x3& mSrc)
+{
+	Copy(&mSrc);
+}
+
+void SoaringLoong::Math::Matrix::CMatrix3x3::Copy(const CMatrix3x3* mSrc)
+{
+	M00 = mSrc->M00; M01 = mSrc->M10; M02 = mSrc->M20;
+	M10 = mSrc->M01; M11 = mSrc->M11; M12 = mSrc->M21;
+	M20 = mSrc->M02; M21 = mSrc->M12; M22 = mSrc->M22;
 }
 
 void SoaringLoong::Math::Matrix::CMatrix4x4::Initialize(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33)
@@ -341,9 +353,14 @@ CVector3D SoaringLoong::Math::Matrix::CMatrix4x4::Multiply( const CVector3D& va 
 	return vTemp;
 }
 
-CVector4D SoaringLoong::Math::Matrix::CMatrix4x4::Multiply( const CVector4D& va )
+CVector4D SoaringLoong::Math::Matrix::CMatrix4x4::Multiply( const CVector4D& va ) const
 {
 	return CVector4D::Multiply(va,*this);
+}
+
+SoaringLoong::Math::Vector::CVector4D SoaringLoong::Math::Matrix::CMatrix4x4::Multiply(const CVector4D* va) const
+{
+	return CVector4D::Multiply(va, this);
 }
 
 void SoaringLoong::Math::Matrix::CMatrix4x3::Mat_Mul_VECTOR4D_4X3(VECTOR4D_PTR va, CMatrix4x3* mb, VECTOR4D_PTR vprod)
@@ -434,47 +451,217 @@ void SoaringLoong::Math::Matrix::CMatrix4x4::BuildMoveMatrix(const CVector4D& vM
 		vMove.x, vMove.y, vMove.z, 1);
 }
 
-void SoaringLoong::Math::Matrix::CMatrix4x4::BuildRotateMartix(double angleX, double angleY, double angleZ)
+void SoaringLoong::Math::Matrix::CMatrix4x4::BuildRotateMatrix(double x, double y, double z)
 {
-	CMatrix4x4 mx, my, mz;
-	double sinTemp, cosTemp;
+	// this helper function takes a set if euler angles and computes
+	// a rotation matrix from them, usefull for object and camera
+	// work, also  we will do a little testing in the function to determine
+	// the rotations that need to be performed, since there's no
+	// reason to perform extra matrix multiplies if the angles are
+	// zero!
 
-	if (angleX > EPSILON_E5)
+	MATRIX4X4 mx, my, mz, mtmp;       // working matrices
+	float sin_theta = 0, cos_theta = 0;   // used to initialize matrices
+	int rot_seq = 0;                  // 1 for x, 2 for y, 4 for z
+
+	// step 0: fill in with identity matrix
+	Zero();
+
+	// step 1: based on zero and non-zero rotation angles, determine
+	// rotation sequence
+	if (fabs(x) > EPSILON_E5) // x
+		rot_seq = rot_seq | 1;
+
+	if (fabs(y) > EPSILON_E5) // y
+		rot_seq = rot_seq | 2;
+
+	if (fabs(z) > EPSILON_E5) // z
+		rot_seq = rot_seq | 4;
+
+	// now case on sequence
+	switch (rot_seq)
 	{
-		sinTemp = CMathBase::Fast_Sin(angleX);
-		cosTemp = CMathBase::Fast_Cos(angleX);
-
-		mx.Initialize(1, 0, 0, 0,
-			0, cosTemp, sinTemp, 0,
-			0, -sinTemp, cosTemp, 0,
-			0, 0, 0, 1);
-	}
-	if (angleY > EPSILON_E5)
+	case 0: // no rotation
 	{
-		sinTemp = CMathBase::Fast_Sin(angleY);
-		cosTemp = CMathBase::Fast_Cos(angleY);
+				// what a waste!
+				return;
+	} break;
 
-		my.Initialize(cosTemp, 0, -sinTemp, 0,
-			0, 1, 0, 0,
-			sinTemp, 0, cosTemp, 0,
-			0, 0, 0, 1);
-	}
-	if (angleZ > EPSILON_E5)
+	case 1: // x rotation
 	{
-		sinTemp = CMathBase::Fast_Sin(angleZ);
-		cosTemp = CMathBase::Fast_Cos(angleZ);
+				// compute the sine and cosine of the angle
+				cos_theta = Fast_Cos(x);
+				sin_theta = Fast_Sin(x);
 
-		mz.Initialize(cosTemp, sinTemp, 0, 0,
-			-sinTemp, cosTemp, 0, 0,
-			0, 0, 1, 0,
-			0, 0, 0, 1);
-	}
+				// set the matrix up 
+				Initialize(1, 0, 0, 0,
+					0, cos_theta, sin_theta, 0,
+					0, -sin_theta, cos_theta, 0,
+					0, 0, 0, 1);
 
-	// 变换矩阵相乘，获得最终变换矩阵
-	CMatrix4x4 mTemp;
-	mTemp.Multiply(&mx, &my);
-	this->Multiply(&mTemp, &mz);
+				return;
+
+	} break;
+
+	case 2: // y rotation
+	{
+				// compute the sine and cosine of the angle
+				cos_theta = CMath2::Fast_Cos(y);
+				sin_theta = CMath2::Fast_Sin(y);
+
+				// set the matrix up 
+				Initialize(cos_theta, 0, -sin_theta, 0,
+					0, 1, 0, 0,
+					sin_theta, 0, cos_theta, 0,
+					0, 0, 0, 1);
+
+				return;
+
+	} break;
+
+	case 3: // xy rotation
+	{
+				// compute the sine and cosine of the angle for x
+				cos_theta = Fast_Cos(x);
+				sin_theta = Fast_Sin(x);
+
+				// set the matrix up 
+				mx.Initialize(1, 0, 0, 0,
+					0, cos_theta, sin_theta, 0,
+					0, -sin_theta, cos_theta, 0,
+					0, 0, 0, 1);
+
+				// compute the sine and cosine of the angle for y
+				cos_theta = Fast_Cos(y);
+				sin_theta = Fast_Sin(y);
+
+				// set the matrix up 
+				my.Initialize(cos_theta, 0, -sin_theta, 0,
+					0, 1, 0, 0,
+					sin_theta, 0, cos_theta, 0,
+					0, 0, 0, 1);
+
+				// concatenate matrices 
+				Multiply(&mx, &my);
+				return;
+
+	} break;
+
+	case 4: // z rotation
+	{
+				// compute the sine and cosine of the angle
+				cos_theta = Fast_Cos(z);
+				sin_theta = Fast_Sin(z);
+
+				// set the matrix up 
+				Initialize(cos_theta, sin_theta, 0, 0,
+					-sin_theta, cos_theta, 0, 0,
+					0, 0, 1, 0,
+					0, 0, 0, 1);
+
+				return;
+
+	} break;
+
+	case 5: // xz rotation
+	{
+				// compute the sine and cosine of the angle x
+				cos_theta = Fast_Cos(x);
+				sin_theta = Fast_Sin(x);
+
+				// set the matrix up 
+				mx.Initialize(1, 0, 0, 0,
+					0, cos_theta, sin_theta, 0,
+					0, -sin_theta, cos_theta, 0,
+					0, 0, 0, 1);
+
+				// compute the sine and cosine of the angle z
+				cos_theta = Fast_Cos(z);
+				sin_theta = Fast_Sin(z);
+
+				// set the matrix up 
+				mz.Initialize(cos_theta, sin_theta, 0, 0,
+					-sin_theta, cos_theta, 0, 0,
+					0, 0, 1, 0,
+					0, 0, 0, 1);
+
+				// concatenate matrices 
+				Multiply(&mx, &mz);
+				return;
+
+	} break;
+
+	case 6: // yz rotation
+	{
+				// compute the sine and cosine of the angle y
+				cos_theta = Fast_Cos(y);
+				sin_theta = Fast_Sin(y);
+
+				// set the matrix up 
+				my.Initialize(cos_theta, 0, -sin_theta, 0,
+					0, 1, 0, 0,
+					sin_theta, 0, cos_theta, 0,
+					0, 0, 0, 1);
+
+				// compute the sine and cosine of the angle z
+				cos_theta = Fast_Cos(z);
+				sin_theta = Fast_Sin(z);
+
+				// set the matrix up 
+				mz.Initialize(cos_theta, sin_theta, 0, 0,
+					-sin_theta, cos_theta, 0, 0,
+					0, 0, 1, 0,
+					0, 0, 0, 1);
+
+				// concatenate matrices 
+				Multiply(&my, &mz);
+				return;
+
+	} break;
+
+	case 7: // xyz rotation
+	{
+				// compute the sine and cosine of the angle x
+				cos_theta = Fast_Cos(x);
+				sin_theta = Fast_Sin(x);
+
+				// set the matrix up 
+				mx.Initialize(1, 0, 0, 0,
+					0, cos_theta, sin_theta, 0,
+					0, -sin_theta, cos_theta, 0,
+					0, 0, 0, 1);
+
+				// compute the sine and cosine of the angle y
+				cos_theta = Fast_Cos(y);
+				sin_theta = Fast_Sin(y);
+
+				// set the matrix up 
+				my.Initialize(cos_theta, 0, -sin_theta, 0,
+					0, 1, 0, 0,
+					sin_theta, 0, cos_theta, 0,
+					0, 0, 0, 1);
+
+				// compute the sine and cosine of the angle z
+				cos_theta = Fast_Cos(z);
+				sin_theta = Fast_Sin(z);
+
+				// set the matrix up 
+				mz.Initialize(cos_theta, sin_theta, 0, 0,
+					-sin_theta, cos_theta, 0, 0,
+					0, 0, 1, 0,
+					0, 0, 0, 1);
+
+				// concatenate matrices, watch order!
+				mtmp.Multiply(&mx, &my);
+				Multiply(&mtmp, &mz);
+
+	} break;
+
+	default: break;
+
+	} // end switch
 }
+
 
 SoaringLoong::Math::Matrix::CMatrix4x4::CMatrix4x4()
 {
@@ -621,7 +808,7 @@ int SoaringLoong::Math::Matrix::CMatrix2x2::Solve_2X2_System(CMatrix2x2* A, MATR
 	// solve for x /////////////////
 
 	// copy A into working matrix
-	MAT_COPY_2X2(A, &work_mat);
+	work_mat.Copy(A);
 
 	// swap out column 0 (x column)
 	work_mat.MAT_COLUMN_SWAP_2X2(&work_mat, 0, B);
@@ -635,7 +822,7 @@ int SoaringLoong::Math::Matrix::CMatrix2x2::Solve_2X2_System(CMatrix2x2* A, MATR
 	// solve for y /////////////////
 
 	// copy A into working matrix
-	MAT_COPY_2X2(A, &work_mat);
+	work_mat.Copy(A);
 
 	// swap out column 1 (y column)
 	work_mat.MAT_COLUMN_SWAP_2X2(&work_mat, 1, B);
@@ -649,4 +836,15 @@ int SoaringLoong::Math::Matrix::CMatrix2x2::Solve_2X2_System(CMatrix2x2* A, MATR
 	// return success
 	return(1);
 
+}
+
+void SoaringLoong::Math::Matrix::CMatrix2x2::Copy(const CMatrix2x2& mSrc)
+{
+	Copy(&mSrc);
+}
+
+void SoaringLoong::Math::Matrix::CMatrix2x2::Copy(const CMatrix2x2* mSrc)
+{
+	M00 = mSrc->M00; M01 = mSrc->M01;
+	M10 = mSrc->M10; M11 = mSrc->M11;
 }

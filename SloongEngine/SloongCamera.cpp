@@ -303,7 +303,7 @@ void SoaringLoong::Graphics3D::CCamera::UpdateCameraMatrix()
 		// at this point, we have the view reference point, the target and that's
 		// all we need to recompute u,v,n
 		// Step 1: n = <target position - view reference point>
-		this->WorldPos.VECTOR4D_Build(&this->WorldPos, &this->Target, &this->N);
+		this->N.Subtract(&this->WorldPos, &this->Target);
 
 		// Step 2: Let v = <0,1,0>
 		this->V.Initialize(0, 1, 0);

@@ -14,6 +14,11 @@ CException::CException(LPCTSTR lpStr, HRESULT hRes)
 	m_hResult = hRes;
 }
 
+SoaringLoong::CException::CException(CString strMessage)
+{
+	m_strMessage = strMessage;
+}
+
 
 CException::~CException()
 {

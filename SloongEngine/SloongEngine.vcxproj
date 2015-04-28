@@ -93,11 +93,11 @@
     <ClInclude Include="SloongDraw.h" />
     <ClInclude Include="SloongEngine.h" />
     <ClInclude Include="SloongException.h" />
+    <ClInclude Include="SloongFile.h" />
     <ClInclude Include="SloongLua.h" />
     <ClInclude Include="SloongMath2.h" />
     <ClInclude Include="SloongMathBase.h" />
     <ClInclude Include="SloongMatrix.h" />
-    <ClInclude Include="SloongModelLoader.h" />
     <ClInclude Include="SloongObject.h" />
     <ClInclude Include="SloongObject3D.h" />
     <ClInclude Include="SloongParmLine.h" />
@@ -137,11 +137,11 @@
     <ClCompile Include="SloongDraw.cpp" />
     <ClCompile Include="SloongEngine.cpp" />
     <ClCompile Include="SloongException.cpp" />
+    <ClCompile Include="SloongFile.cpp" />
     <ClCompile Include="SloongLua.cpp" />
     <ClCompile Include="SloongMath2.cpp" />
     <ClCompile Include="SloongMathBase.cpp" />
     <ClCompile Include="SloongMatrix.cpp" />
-    <ClCompile Include="SloongModelLoader.cpp" />
     <ClCompile Include="SloongObject.cpp" />
     <ClCompile Include="SloongObject3D.cpp" />
     <ClCompile Include="SloongParmLine.cpp" />
