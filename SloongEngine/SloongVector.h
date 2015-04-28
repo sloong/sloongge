@@ -238,6 +238,8 @@ namespace SoaringLoong
 				void Normalize(CVector4D* va);
 				float Length();
 				float Length_Fast();
+				void Build(const CVector4D& vInit, const CVector4D& vTerm);
+				void Build(const CVector4D* vInit, const CVector4D* vTerm);
 			public:
 				
 				

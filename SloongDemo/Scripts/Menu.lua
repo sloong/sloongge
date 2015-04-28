@@ -5,7 +5,7 @@ g_Menu_GUI_Item =
 		"Textures\\UIB_BACK_HV.BMP", "Textures\\UIB_BACK_UP.BMP", "Textures\\UIB_BACK_UP.BMP",
 		['Hanlder'] = 	function(event)
 					if event == 1 then 
-						RunGUI("Loading.lua");
+						RunGUI("game.lua");
 					end
 				end	
 		},

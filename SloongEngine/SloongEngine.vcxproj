@@ -84,6 +84,7 @@
     <ClInclude Include="CameraClass.h" />
     <ClInclude Include="ConsoleWindow.h" />
     <ClInclude Include="DInputClass.h" />
+    <ClInclude Include="ISloongPolygon.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SkyBoxClass.h" />
     <ClInclude Include="SloongBitmap.h" />

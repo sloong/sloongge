@@ -7,40 +7,6 @@ using namespace SoaringLoong::Math::Vector;
 using namespace SoaringLoong::Polygon;
 
 
-class CPolygon3D : public IPolygon
-{
-public:
-	CPolygon3D();
-	virtual ~CPolygon3D();
-public:
-	void	Initialize(int n1, int n2, int n3, VectorList* pLocalList, VectorList* pTransList);
-	HRESULT Render(CDDraw* pDraw);
-	void	GetIndex(int& x, int& y, int& z);
-
-	void	SetAttribute(DWORD arrt);
-	void	AddAttribute(DWORD arrt);
-	DWORD	GetAttribute();
-
-	void	ToWorld(const CVector4D& vWorld);
-	void	Transform(const CMatrix4x4& mMatrix, bool toNormal);
-
-	void	SetColor(COLORREF color);
-	COLORREF GetColor();
-
-	void SetStatus(DWORD dwStatus);
-	void AddStatus(DWORD dwStatus);
-	void DeleteStatus(DWORD dwStatus);
-	DWORD GetStatus();
-public:
-	DWORD				m_dwAttribute;
-	DWORD				m_dwStatus;
-	COLORREF			m_dwColor;
-	int					m_n1, m_n2, m_n3;
-	VectorList*			m_pLocalList;
-	VectorList*			m_pTransList;
-};
-
-
 HRESULT CPolygon3D::Render(CDDraw* pDraw)
 {
 	auto list = *m_pTransList;
@@ -57,15 +23,17 @@ HRESULT CPolygon3D::Render(CDDraw* pDraw)
 
 CPolygon3D::CPolygon3D()
 {
-
+	m_pTransList = new vector<CVector4D*>;
+	m_pLocalList = new vector<CVector4D*>;
 }
 
 CPolygon3D::~CPolygon3D()
 {
-
+ 	SAFE_DELETE(m_pLocalList);
+ 	SAFE_DELETE(m_pTransList);
 }
 
-void CPolygon3D::Initialize(int n1, int n2, int n3, VectorList* pLocalList, VectorList* pTransList)
+void CPolygon3D::Initialize(int n1, int n2, int n3, vector<CVector4D*>* pLocalList, vector<CVector4D*>* pTransList)
 {
 	m_n1 = (n1);
 	m_n2 = (n2);

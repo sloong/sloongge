@@ -56,7 +56,6 @@ namespace SoaringLoong
 		}
 		namespace Polygon
 		{
-			class CPolygon3D;
 			class IPolygon;
 		}
 	}

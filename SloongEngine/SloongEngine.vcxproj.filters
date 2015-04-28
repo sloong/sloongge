@@ -123,6 +123,9 @@
     <ClInclude Include="SloongFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ISloongPolygon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

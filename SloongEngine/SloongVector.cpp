@@ -729,3 +729,16 @@ CVector4D SoaringLoong::Math::Vector::CVector4D::Subtract(const CVector4D* va, c
 	vTemp.w = 1;
 	return vTemp;
 }
+
+void SoaringLoong::Math::Vector::CVector4D::Build(const CVector4D& vInit, const CVector4D& vTerm)
+{
+	Build(&vInit, &vTerm);
+}
+
+void SoaringLoong::Math::Vector::CVector4D::Build(const CVector4D* vInit, const CVector4D* vTerm)
+{
+	x = vTerm->x - vInit->x;
+	y = vTerm->y - vInit->y;
+	z = vTerm->z - vInit->z;
+	w = 1;
+}

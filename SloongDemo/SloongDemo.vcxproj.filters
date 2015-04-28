@@ -30,12 +30,6 @@
     <ClInclude Include="SloongDemo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ITestRender.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TestPolygonSection6.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\SloongEngine\Defines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -45,12 +39,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SloongDemo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ITestRender.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TestPolygonSection6.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

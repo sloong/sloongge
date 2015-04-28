@@ -5,7 +5,11 @@
 using namespace SoaringLoong;
 #pragma comment(lib,"SloongEngine.lib")
 
-#include "ITestRender.h"
+#include "SloongVector.h"
+#include "SloongObject3D.h"
+#include "SloongCamera.h"
+using namespace SoaringLoong::Math::Vector;
+using namespace SoaringLoong::Graphics3D;
 enum UI_EVENT
 {
 	BUTTON_UP = 0,
@@ -58,6 +62,8 @@ public:
 	int				Run();
 	void			Shutdown();
 	void			Render();
+	void			RenderTest();
+	void			InitTest();
 public:
 	static int Version(lua_State* l);
 	static int RegisterEvent(lua_State* l);
@@ -110,5 +116,12 @@ public:
 	CRect				m_rcWindow;
 	CSloongEngine*		m_pEngine;
 
-	ITestRender*		m_iTestRender;
+	CVector4D vscale, vpos, vrot;
+	CObject3D*     obj_tower,    // used to hold the master tower
+		*obj_tank,     // used to hold the master tank
+		*obj_marker,   // the ground marker
+		*obj_player;   // the player object        
+
+	CVector4D        towers[96], tanks[24];
+	CCamera        m_cam;       // the single camera
 };

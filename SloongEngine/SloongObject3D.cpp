@@ -133,11 +133,7 @@ void SoaringLoong::Graphics3D::CObject3D::UpdateVertex(const CMatrix4x4& mMarix,
 	auto len = m_pPolygonList->size();
 	for (int i = 0; i < len; i++)
 	{
-		if ((*m_pPolygonList)[i])
-		{
-			(*m_pPolygonList)[i]->Transform(mMarix, bNormal);
-		}
-
+		m_pPolygonList->at(i)->Transform(mMarix, bNormal);
 	}
 }
 
@@ -168,7 +164,7 @@ void SoaringLoong::Graphics3D::CObject3D::ComputeRadius()
 	// loop thru and compute radius
 	for (int vertex = 0; vertex < m_nNumVertices; vertex++)
 	{
-		auto vVertex = (*m_pLocalList)[vertex];
+		auto vVertex = m_pLocalList->at(vertex);
 		// update the average and maximum radius
 		float dist_to_vertex =
 			sqrt(vVertex->x*vVertex->x +
@@ -192,7 +188,7 @@ CVector4D* SoaringLoong::Graphics3D::CObject3D::GetVertex(int nIndex)
 {
 	if (nIndex < m_nNumVertices)
 	{
-		return (*m_pLocalList)[nIndex];
+		return m_pLocalList->at(nIndex);
 	}
 	else
 		return nullptr;
@@ -213,7 +209,7 @@ void SoaringLoong::Graphics3D::CObject3D::Reset()
 	for (int poly = 0; poly < m_nNumPolygones; poly++)
 	{
 		// acquire polygon
-		auto curPoly = (*m_pPolygonList)[poly];
+		auto curPoly = m_pPolygonList->at(poly);
 		//POLY4DV1_PTR curr_poly = &obj->plist[poly];
 
 		// first is this polygon even visible?
@@ -243,8 +239,7 @@ void SoaringLoong::Graphics3D::CObject3D::Transform(const CMatrix4x4& mMatrix, T
 						  POINT4D presult; // hold result of each transformation
 
 						  // transform point
-						  auto vVertex = (*m_pLocalList)[vertex];
-						  vVertex->Multiply(mMatrix);
+						  m_pLocalList->at(vertex)->Multiply(mMatrix);
 					  } // end for index
 	} break;
 
@@ -258,7 +253,7 @@ void SoaringLoong::Graphics3D::CObject3D::Transform(const CMatrix4x4& mMatrix, T
 						  POINT4D presult; // hold result of each transformation
 
 						  // transform point
-						  (*m_pTransList)[vertex]->Multiply(mMatrix);
+						  m_pTransList->at(vertex)->Multiply(mMatrix);
 					  } // end for index			
 	} break;
 
@@ -271,7 +266,7 @@ void SoaringLoong::Graphics3D::CObject3D::Transform(const CMatrix4x4& mMatrix, T
 							 POINT4D presult; // hold result of each transformation
 
 							 // transform point
-							 (*m_pTransList)[vertex]->Copy(mMatrix.Multiply((*(*m_pLocalList)[vertex])));
+							 m_pTransList->at(vertex)->Copy(mMatrix.Multiply(m_pLocalList->at(vertex)));
 						 } // end for index
 	} break;
 
@@ -547,7 +542,7 @@ void SoaringLoong::Graphics3D::CObject3D::Scale(const CVector4D& vScale)
 	// vs on a componentwise basis, that is, sx, sy, sz
 	for (int vertex = 0; vertex < m_nNumVertices; vertex++)
 	{
-		auto vCur = (*m_pLocalList)[vertex];
+		auto vCur = m_pLocalList->at(vertex);
 		vCur->x *= vScale.x;
 		vCur->y *= vScale.y;
 		vCur->z *= vScale.z;
@@ -604,7 +599,7 @@ void SoaringLoong::Graphics3D::CObject3D::Rotate(float x, float y, float z)
 		// 
 		// 		// store result back
 		// 		presult.VECTOR4D_COPY(&obj->vlist_local[vertex], &presult);
-		(*m_pLocalList)[vertex]->Multiply(mrot);
+		m_pLocalList->at(vertex)->Multiply(mrot);
 
 	} // end for index
 
@@ -644,7 +639,7 @@ void SoaringLoong::Graphics3D::CObject3D::ToWorld(TRANS_MODE emMode)
 		for (int vertex = 0; vertex < m_nNumVertices; vertex++)
 		{
 			// translate vertex
-			(*m_pTransList)[vertex]->Copy(CVector4D::Add((*m_pLocalList)[vertex], m_pWorldPos));
+			m_pTransList->at(vertex)->Copy(CVector4D::Add(m_pLocalList->at(vertex), m_pWorldPos));
 		} // end for vertex
 	} // end if local
 	else
@@ -652,7 +647,7 @@ void SoaringLoong::Graphics3D::CObject3D::ToWorld(TRANS_MODE emMode)
 		for (int vertex = 0; vertex < m_nNumVertices; vertex++)
 		{
 			// translate vertex
-			(*m_pTransList)[vertex]->Add(m_pWorldPos);
+			m_pTransList->at(vertex)->Add(m_pWorldPos);
 		} // end for vertex
 	} // end else trans
 
@@ -782,7 +777,7 @@ void SoaringLoong::Graphics3D::CObject3D::RemoveBackface(CCamera* pCam)
 	for (int poly = 0; poly < m_nNumPolygones; poly++)
 	{
 		// acquire polygon
-		auto cur = (*m_pPolygonList)[poly];
+		auto cur = m_pPolygonList->at(poly);
 
 		// is this polygon valid?
 		// test this polygon if and only if it's not clipped, not culled,
@@ -809,15 +804,15 @@ void SoaringLoong::Graphics3D::CObject3D::RemoveBackface(CCamera* pCam)
 		VECTOR4D u, v, n;
 
 		// build u, v
-		u.Subtract((*m_pTransList)[x], (*m_pTransList)[y]);
-		v.Subtract((*m_pTransList)[x], (*m_pTransList)[z]);
+		u.Build(m_pTransList->at(x), m_pTransList->at(y));
+		v.Build(m_pTransList->at(x), m_pTransList->at(z));
 
 		// compute cross product
 		n = CVector4D::Cross(u, v);
 
 		// now create eye vector to viewpoint
 		VECTOR4D view;
-		view.Subtract((*m_pTransList)[x], &pCam->WorldPos);
+		view.Build(m_pTransList->at(x), &pCam->WorldPos);
 
 		// and finally, compute the dot product
 		float dp = n.Dot(view);
@@ -853,7 +848,7 @@ void SoaringLoong::Graphics3D::CObject3D::ToCamera(CCamera* pCam)
 		POINT4D presult; // hold result of each transformation
 
 		// transform point
-		(*m_pTransList)[vertex]->Multiply(pCam->MatrixCamera);
+		m_pTransList->at(vertex)->Multiply(pCam->MatrixCamera);
 	} // end for vertex
 
 
@@ -880,7 +875,7 @@ void SoaringLoong::Graphics3D::CObject3D::ToProject(CCamera* pCam)
 	// coordinates and the result is in vlist_trans[]
 	for (int vertex = 0; vertex < m_nNumVertices; vertex++)
 	{
-		auto cur = (*m_pTransList)[vertex];
+		auto cur = m_pTransList->at(vertex);
 
 		// transform the vertex by the view parameters in the camera
 		cur->x = pCam->ViewDistance*cur->x / cur->z;
@@ -924,7 +919,7 @@ void SoaringLoong::Graphics3D::CObject3D::CameraToPerspectiveScreen(CCamera* pCa
 	// coordinates and the result is in vlist_trans[]
 	for (int vertex = 0; vertex < m_nNumVertices; vertex++)
 	{
-		auto cur = (*m_pTransList)[vertex];
+		auto cur = m_pTransList->at(vertex);
 
 		// transform the vertex by the view parameters in the camera
 		cur->x = pCam->ViewDistance*cur->x / cur->z;
@@ -975,7 +970,7 @@ void SoaringLoong::Graphics3D::CObject3D::PerspectiveToScreen(CCamera* pCam)
 		// assumes the vertex is in perspective normalized coords from -1 to 1
 		// on each axis, simple scale them to viewport and invert y axis and project
 		// to screen
-		auto cur = (*m_pTransList)[vertex];
+		auto cur = m_pTransList->at(vertex);
 
 		// transform the vertex by the view parameters in the camera
 		cur->x = alpha + alpha*cur->x;
@@ -994,7 +989,7 @@ void SoaringLoong::Graphics3D::CObject3D::ConvertFromHomogeneous4D()
 	for (int vertex = 0; vertex < m_nNumVertices; vertex++)
 	{
 		// convert to non-homogenous coords
-		auto cur = (*m_pTransList)[vertex];
+		auto cur = m_pTransList->at(vertex);
 		cur->VECTOR4D_DIV_BY_W(cur);
 	} // end for vertex
 

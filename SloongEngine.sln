@@ -16,6 +16,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SloongDemo", "SloongDemo\Sl
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SloongLua", "SloongLua\SloongLua.vcxproj", "{D42BA7CC-64EA-49B6-8731-9D571C5D3A3B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SloongMath", "SloongMath\SloongMath.vcxproj", "{6DCF6049-E7BF-4CE8-AC24-432AA9C3014E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -34,6 +36,10 @@ Global
 		{D42BA7CC-64EA-49B6-8731-9D571C5D3A3B}.Debug|Win32.Build.0 = Debug|Win32
 		{D42BA7CC-64EA-49B6-8731-9D571C5D3A3B}.Release|Win32.ActiveCfg = Release|Win32
 		{D42BA7CC-64EA-49B6-8731-9D571C5D3A3B}.Release|Win32.Build.0 = Release|Win32
+		{6DCF6049-E7BF-4CE8-AC24-432AA9C3014E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6DCF6049-E7BF-4CE8-AC24-432AA9C3014E}.Debug|Win32.Build.0 = Debug|Win32
+		{6DCF6049-E7BF-4CE8-AC24-432AA9C3014E}.Release|Win32.ActiveCfg = Release|Win32
+		{6DCF6049-E7BF-4CE8-AC24-432AA9C3014E}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

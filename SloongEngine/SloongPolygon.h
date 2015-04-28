@@ -1,11 +1,6 @@
 #pragma once
 
-#include "SloongVertex.h"
-#include "SloongMatrix.h"
-#include "SloongVector.h"
-using namespace SoaringLoong::Math::Vertex;
-using namespace SoaringLoong::Math::Vector;
-using namespace SoaringLoong::Math::Matrix;
+#include "ISloongPolygon.h"
 
 
 // states of polygons and faces
@@ -41,12 +36,6 @@ namespace SoaringLoong
 	{
 		namespace Polygon
 		{
-			typedef enum PolygonStateType
-			{
-				POLY_STATE_ACTIVE = 0x0001,
-				POLY_STATE_CLIPPED = 0x0002,
-				POLY_STATE_BACKFACE = 0x0004,
-			}POLYSTATE;
 			class SLOONGENGINE_API CPolygon2D
 			{
 			public:
@@ -58,33 +47,39 @@ namespace SoaringLoong
 				VERTEX2DF *vlist; // pointer to vertex list
 			};
 
-			typedef vector<CVector4D*> VectorList;
-			class SLOONGENGINE_API IPolygon
+			class CPolygon3D : public IPolygon
 			{
 			public:
-				static  IPolygon* Create3D();
-				virtual void Initialize(int n1, int n2, int n3, VectorList* pLocalList, VectorList* pTransList) = 0;
-				virtual HRESULT Render(CDDraw* pDraw) = 0;
+				CPolygon3D();
+				virtual ~CPolygon3D();
+			public:
+				void	Initialize(int n1, int n2, int n3, vector<CVector4D*>* pLocalList, vector<CVector4D*>* pTransList);
+				HRESULT Render(CDDraw* pDraw);
+				void	GetIndex(int& x, int& y, int& z);
 
-				virtual void GetIndex( int& x, int& y, int& z) = 0;
+				void	SetAttribute(DWORD arrt);
+				void	AddAttribute(DWORD arrt);
+				DWORD	GetAttribute();
 
-				virtual void SetAttribute(DWORD arrt) = 0;
-				virtual void AddAttribute(DWORD arrt) = 0;
-				virtual DWORD GetAttribute() = 0;
+				void	ToWorld(const CVector4D& vWorld);
+				void	Transform(const CMatrix4x4& mMatrix, bool toNormal);
 
-				virtual void ToWorld(const CVector4D& vWorld) = 0;
-				virtual void Transform(const CMatrix4x4& mMatrix, bool toNormal) = 0;
+				void	SetColor(COLORREF color);
+				COLORREF GetColor();
 
-				virtual void SetColor(COLORREF color) = 0;
-				virtual COLORREF GetColor() = 0;
-
-				virtual void SetStatus(DWORD dwStatus) = 0;
-				virtual void AddStatus(DWORD dwStatus) = 0;
-				virtual void DeleteStatus(DWORD dwStatus) = 0;
-				virtual DWORD GetStatus() = 0;
+				void SetStatus(DWORD dwStatus);
+				void AddStatus(DWORD dwStatus);
+				void DeleteStatus(DWORD dwStatus);
+				DWORD GetStatus();
+			public:
+				DWORD				m_dwAttribute;
+				DWORD				m_dwStatus;
+				COLORREF			m_dwColor;
+				int					m_n1, m_n2, m_n3;
+				vector<CVector4D*>*	m_pLocalList;
+				vector<CVector4D*>*	m_pTransList;
 			};
 
-			
 		}
 	}
 }
