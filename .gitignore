@@ -35,3 +35,6 @@
 /SloongLua/*.user
 /SloongDemo/*.log
 /*.suo
+/SloongGraphic/Debug
+/SloongMath/Debug
+/*.vsp
