@@ -9,7 +9,7 @@ using namespace SoaringLoong::Polygon;
 
 HRESULT CPolygon3D::Render(CDDraw* pDraw)
 {
-	auto list = *m_pTransList;
+	auto& list = *m_pTransList;
 	auto x = list[m_n1];
 	auto y = list[m_n2];
 	auto z = list[m_n3];

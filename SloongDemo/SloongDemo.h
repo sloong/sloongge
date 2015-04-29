@@ -117,7 +117,7 @@ public:
 	CSloongEngine*		m_pEngine;
 
 	CVector4D vscale, vpos, vrot;
-	CObject3D*     obj_tower,    // used to hold the master tower
+	IObject*     obj_tower,    // used to hold the master tower
 		*obj_tank,     // used to hold the master tank
 		*obj_marker,   // the ground marker
 		*obj_player;   // the player object        

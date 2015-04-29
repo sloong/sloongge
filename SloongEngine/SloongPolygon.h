@@ -71,7 +71,7 @@ namespace SoaringLoong
 				void AddStatus(DWORD dwStatus);
 				void DeleteStatus(DWORD dwStatus);
 				DWORD GetStatus();
-			public:
+			protected:
 				DWORD				m_dwAttribute;
 				DWORD				m_dwStatus;
 				COLORREF			m_dwColor;

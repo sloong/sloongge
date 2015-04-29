@@ -179,10 +179,10 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 		m_pDraw->Initialize(m_hMainWnd, m_rcWindow.Width(), m_rcWindow.Height(), SCREEN_BPP, FULLSCREEN);
 
 		g_pUIManager = new CUIManager();
-		g_pUIManager->Initialize(m_pDraw, g_pLua, m_pLog,m_hMainWnd);
+		g_pUIManager->Initialize(m_pDraw, g_pLua, m_pLog, m_hMainWnd);
 
 		g_pLua->RunScript(_T("Start.lua"));
-		
+
 		InitTest();
 	}
 	catch (CException& e)
@@ -465,61 +465,90 @@ bool CSloongGame::InRect(const CSize& pos, const CRect& rc)
 
 void CSloongGame::InitTest()
 {
-vscale = { 1, 1, 1, 1 }, vpos = { 0, 0, 0, 1 }, vrot = { 0, 0, 0, 1 };
+	vscale = { 1, 1, 1, 1 }, vpos = { 0, 0, 0, 1 }, vrot = { 0, 0, 0, 1 };
 
-// initialize camera 
-POINT4D  cam_pos = { 0, 40, 0, 1 };
-POINT4D  cam_target = { 0, 0, 0, 1 };
-VECTOR4D cam_dir = { 0, 0, 0, 1 };
+	// initialize camera 
+	POINT4D  cam_pos = { 0, 40, 0, 1 };
+	POINT4D  cam_target = { 0, 0, 0, 1 };
+	VECTOR4D cam_dir = { 0, 0, 0, 1 };
 
-m_cam.Initialize(CAMERA_ELUER, cam_pos, cam_dir, &cam_target, CAM_ROT_SEQ_XYZ, 200, 12000, 120, WINDOW_WIDTH, WINDOW_HEIGHT);
-//m_cam.Initialize(CAMERA_UVN, cam_pos, cam_dir, &cam_target, UVN_MODE_SPHERICAL, 200, 12000, 120, WINDOW_WIDTH, WINDOW_HEIGHT);
+	m_cam.Initialize(CAMERA_ELUER, cam_pos, cam_dir, &cam_target, CAM_ROT_SEQ_XYZ, 200, 12000, 120, WINDOW_WIDTH, WINDOW_HEIGHT);
+	//m_cam.Initialize(CAMERA_UVN, cam_pos, cam_dir, &cam_target, UVN_MODE_SPHERICAL, 200, 12000, 120, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-obj_tank = new CObject3D(m_pDraw);
-obj_marker = new CObject3D(m_pDraw);
-obj_player = new CObject3D(m_pDraw);
-obj_tower = new CObject3D(m_pDraw);
-
-// load the master tank object
-vscale.Initialize(0.75, 0.75, 0.75);
-obj_tank->LoadPLGMode(_T("DXFile\\tank2.plg"), vscale, vpos, vrot);
-
-// load player object for 3rd person view
-vscale.Initialize(0.75, 0.75, 0.75);
-obj_player->LoadPLGMode(_T("DXFile\\tank3.plg"), vscale, vpos, vrot);
-
-// load the master tower object
-vscale.Initialize(1.0, 2.0, 1.0);
-obj_tower->LoadPLGMode(_T("DXFile\\tower1.plg"), vscale, vpos, vrot);
-
-// load the master ground marker
-vscale.Initialize(3.0, 3.0, 3.0);
-obj_marker->LoadPLGMode(_T("DXFile\\marker1.plg"), vscale, vpos, vrot);
+	obj_tank = IObject::Create3D(m_pDraw);
+	obj_marker = IObject::Create3D(m_pDraw);
+	obj_player = IObject::Create3D(m_pDraw);
+	obj_tower = IObject::Create3D(m_pDraw);
 
 #define UNIVERSE_RADIUS   4000
 
 #define NUM_TOWERS        96
 #define NUM_TANKS         24
 
-// position the tanks
-for (int index = 0; index < NUM_TANKS; index++)
-{
-	// randomly position the tanks
-	tanks[index].x = RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS);
-	tanks[index].y = 0; // obj_tank.max_radius;
-	tanks[index].z = RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS);
-	tanks[index].w = RAND_RANGE(0, 360);
-} // end for
+
+	// load the master tank object
+	vscale.Initialize(0.75, 0.75, 0.75);
+	obj_tank->LoadPLGMode(_T("DXFile\\tank2.plg"), 0, vscale, vpos, vrot);
+
+	// position the tanks
+	for (int index = 1; index < NUM_TANKS; index++)
+	{
+		obj_tank->AddObject(index, CVector4D(
+			RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS),
+			0,
+			RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS)));
+		obj_tank->Scale(vscale);
+		obj_tank->SetStatus(OBJECT4DV1_STATE_ACTIVE | OBJECT4DV1_STATE_VISIBLE);
+	} // end for
 
 
-// position the towers
-for (int index = 0; index < NUM_TOWERS; index++)
-{
-	// randomly position the tower
-	towers[index].x = RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS);
-	towers[index].y = 0; // obj_tower.max_radius;
-	towers[index].z = RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS);
-} // end for
+	// load player object for 3rd person view
+	vscale.Initialize(0.75, 0.75, 0.75);
+	obj_player->LoadPLGMode(_T("DXFile\\tank3.plg"), 0, vscale, vpos, vrot);
+
+	// load the master tower object
+	vscale.Initialize(1.0, 2.0, 1.0);
+	obj_tower->LoadPLGMode(_T("DXFile\\tower1.plg"), 0, vscale, vpos, vrot);
+
+
+	// position the towers
+	for (int index = 1; index < NUM_TOWERS; index++)
+	{
+		obj_tower->AddObject(index, CVector4D(
+			RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS),
+			0,
+			RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS)));
+		obj_tower->Scale(vscale);
+		obj_tower->SetStatus(OBJECT4DV1_STATE_ACTIVE | OBJECT4DV1_STATE_VISIBLE);
+	} // end for
+
+	// load the master ground marker
+	vscale.Initialize(3.0, 3.0, 3.0);
+	obj_marker->LoadPLGMode(_T("DXFile\\marker1.plg"), 0, vscale, vpos, vrot);
+
+
+#define POINT_SIZE        200
+#define NUM_POINTS_X      (2*UNIVERSE_RADIUS/POINT_SIZE)
+#define NUM_POINTS_Z      (2*UNIVERSE_RADIUS/POINT_SIZE)
+#define NUM_POINTS        (NUM_POINTS_X*NUM_POINTS_Z)
+	// insert the ground markers into the world
+	int loopIndex = 0;
+	double avg, max;
+	obj_marker->GetRadius(avg, max);
+	for (int index_x = 0; index_x < NUM_POINTS_X; index_x++)
+	for (int index_z = 0; index_z < NUM_POINTS_Z; index_z++)
+	{
+		loopIndex++;
+		
+		// set position of tower
+		obj_marker->AddObject(loopIndex, CVector4D(
+			RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_x*POINT_SIZE,
+			max,
+			RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_z*POINT_SIZE));
+		obj_marker->Scale(vscale);
+		obj_marker->SetStatus(OBJECT4DV1_STATE_ACTIVE | OBJECT4DV1_STATE_VISIBLE);
+	}
+
 }
 
 void CSloongGame::RenderTest()
@@ -536,8 +565,6 @@ void CSloongGame::RenderTest()
 
 	char work_string[256]; // temp string
 
-	int index; // looping var
-
 	// draw the sky
 	m_pDraw->Draw_Rectangle(0, 0, WINDOW_WIDTH - 1, WINDOW_HEIGHT / 2, RGB(0, 140, 192), m_pDraw->GetBackSurface());
 
@@ -548,14 +575,15 @@ void CSloongGame::RenderTest()
 	m_pInput->GetInput();
 	// game logic here...
 
-	// allow user to move camera
-#define TANK_SPEED        15
-	tank_speed = TANK_SPEED;
 	if (m_pInput->IsKeyDown(DIK_ESCAPE) || KEY_DOWN(VK_ESCAPE))
 	{
 		PostQuitMessage(0);
 		return;
 	}
+
+	// allow user to move camera
+#define TANK_SPEED        15
+	tank_speed = TANK_SPEED;
 
 	// turbo
 	if (m_pInput->IsKeyDown(DIK_SPACE))
@@ -628,110 +656,12 @@ void CSloongGame::RenderTest()
 	obj_player->ToProject(&m_cam);
 	obj_player->PerspectiveToScreen(&m_cam);
 	//obj_player->CameraToPerspectiveScreen(&m_cam);
-	obj_player->Render(m_pDraw);
+	obj_player->Render();
 
-	// insert the tanks in the world
-	for (index = 0; index < NUM_TANKS; index++)
-	{
-		// reset the object (this only matters for backface and object removal)
-
-		obj_tank->Reset();
-
-		// generate rotation matrix around y axis
-		mrot.BuildRotateMatrix(0, tanks[index].w, 0);
-
-		// rotate the local coords of the object
-		obj_tank->Transform(mrot, TRANS_MODE::LocalToTrans, true);
-
-		// set position of tank
-		obj_tank->SetWorldPosition(CVector4D(tanks[index].x, tanks[index].y, tanks[index].z));
-		obj_tank->Cull(&m_cam, CULL_ON_XYZ_PLANES);
-		if (obj_tank->Visible())
-		{
-			obj_tank->ToWorld(TRANS_MODE::TransOnly);
-			obj_tank->RemoveBackface(&m_cam);
-			obj_tank->ToCamera(&m_cam);
-			obj_tank->ToProject(&m_cam);
-			obj_tank->PerspectiveToScreen(&m_cam);
-			//obj_tanke->CameraToPerspectiveScreen(&m_cam);
-			obj_tank->Render(m_pDraw);
-
-		}
-
-	} // end for
-
-	for (index = 0; index < NUM_TOWERS; index++)
-	{
-		// reset the object (this only matters for backface and object removal)
-
-		obj_tower->Reset();
-
-		// generate rotation matrix around y axis
-		mrot.BuildRotateMatrix(0, towers[index].w, 0);
-
-		// rotate the local coords of the object
-		obj_tower->Transform(mrot, TRANS_MODE::LocalToTrans, true);
-
-		// set position of tank
-		obj_tower->SetWorldPosition(towers[index]);
-		obj_tower->Cull(&m_cam, CULL_ON_XYZ_PLANES);
-		if (obj_tower->Visible())
-		{
-			obj_tower->ToWorld(TRANS_MODE::TransOnly);
-			obj_tower->RemoveBackface(&m_cam);
-			obj_tower->ToCamera(&m_cam);
-			obj_tower->ToProject(&m_cam);
-			obj_tower->PerspectiveToScreen(&m_cam);
-			//obj_tanke->CameraToPerspectiveScreen(&m_cam);
-			obj_tower->Render(m_pDraw);
-		}
-
-	} // end for
-
-
-	// seed number generator so that modulation of markers is always the same
-	srand(13);
-
-#define POINT_SIZE        200
-#define NUM_POINTS_X      (2*UNIVERSE_RADIUS/POINT_SIZE)
-#define NUM_POINTS_Z      (2*UNIVERSE_RADIUS/POINT_SIZE)
-#define NUM_POINTS        (NUM_POINTS_X*NUM_POINTS_Z)
-	// insert the ground markers into the world
-	for (int index_x = 0; index_x < NUM_POINTS_X; index_x++)
-	for (int index_z = 0; index_z < NUM_POINTS_Z; index_z++)
-	{
-		// reset the object (this only matters for backface and object removal)
-		obj_marker->Reset();
-
-		// generate rotation matrix around y axis
-		mrot.BuildRotateMatrix(0, 1, 0);
-
-		// rotate the local coords of the object
-		obj_marker->Transform(mrot, LocalToTrans, true);
-
-		// set position of tower
-		obj_marker->SetWorldPosition(CVector4D(
-			RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_x*POINT_SIZE,
-			obj_marker->m_fMaxRadius,
-			RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_z*POINT_SIZE));
-
-		// attempt to cull object   
-		obj_marker->Cull(&m_cam, CULL_MODE::CULL_ON_XYZ_PLANES);
-		if (obj_marker->Visible())
-		{
-			// if we get here then the object is visible at this world position
-			// so we can insert it into the rendering list
-			// perform local/model to world transform
-			obj_marker->ToWorld(TRANS_MODE::TransOnly);
-
-			obj_marker->ToCamera(&m_cam);
-			obj_marker->ToProject(&m_cam);
-			obj_marker->PerspectiveToScreen(&m_cam);
-			obj_marker->Render(m_pDraw);
-		} // end if
-
-	} // end for
-
+	mrot.BuildRotateMatrix(0, 1, 0);
+	obj_tank->RenderAll(&m_cam, &mrot);
+	obj_tower->RenderAll(&m_cam, &mrot);
+	obj_marker->RenderAll(&m_cam, &mrot);
 
 	sprintf_s(work_string, 256, "pos:[%f, %f, %f] heading:[%f] elev:[%f]",
 		m_cam.WorldPos.x, m_cam.WorldPos.y, m_cam.WorldPos.z, m_cam.Direction.y, m_cam.Direction.x);

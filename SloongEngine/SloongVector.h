@@ -197,10 +197,15 @@ namespace SoaringLoong
 
 				inline void Copy( const CVector4D& vSrc)
 				{
-					x = (vSrc).x;
-					y = (vSrc).y;
-					z = (vSrc).z;
-					w = (vSrc).w;
+					Copy(&vSrc);
+				}
+
+				inline void Copy(const CVector4D* vSrc)
+				{
+					x = (vSrc)->x;
+					y = (vSrc)->y;
+					z = (vSrc)->z;
+					w = (vSrc)->w;
 				}
 
 				inline CVector4D& operator=(const CVector4D& Src)

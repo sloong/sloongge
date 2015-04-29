@@ -15,21 +15,29 @@ using namespace SoaringLoong::Graphics;
 using namespace SoaringLoong::Universal;
 SoaringLoong::Graphics3D::CObject3D::CObject3D(CDDraw* pDDraw)
 {
-	m_pWorldPos = nullptr;
 	m_pCamera = nullptr;
 	m_pCameraMatrix = nullptr;
 	m_pProjectMatrix = nullptr;
 	m_pScreenMatrix = nullptr;
 	m_pDDraw = pDDraw;
+	m_nCurrentIndex = 0;
+	m_nNumObjects = 0;
 
 	m_pPolygonList = new vector<IPolygon*>;
 	m_pLocalList = new vector<CVector4D*>;
 	m_pTransList = new vector<CVector4D*>;
+	m_pWorldPosList = new vector<CVector4D*>;
+	m_pRotateList = new vector<CVector4D*>;
+	m_pScaleList = new vector<CVector4D*>;
+	m_fAvgRadiusList = new vector<double>;
+	m_fMaxRadiusList = new vector<double>;
+	m_dwAttribute = new vector<DWORD>;
+	m_dwStatus = new vector<DWORD>;
+	m_pKeytoIndex = new map<int, int>;
 }
 
 SoaringLoong::Graphics3D::CObject3D::~CObject3D()
 {
-	SAFE_DELETE(m_pWorldPos);
 	m_pCamera = nullptr;
 	m_pCameraMatrix = nullptr;
 	m_pProjectMatrix = nullptr;
@@ -39,6 +47,8 @@ SoaringLoong::Graphics3D::CObject3D::~CObject3D()
 		auto cur = (*m_pPolygonList)[i];
 		SAFE_DELETE(cur);
 	}
+	SAFE_DELETE(m_pPolygonList);
+
 	for (int i = 0; i < m_nNumVertices; i++)
 	{
 		auto cur = (*m_pTransList)[i];
@@ -46,31 +56,45 @@ SoaringLoong::Graphics3D::CObject3D::~CObject3D()
 		cur = (*m_pLocalList)[i];
 		SAFE_DELETE(cur);
 	}
-
-	SAFE_DELETE(m_pPolygonList);
 	SAFE_DELETE(m_pLocalList);
 	SAFE_DELETE(m_pTransList);
+	
+	for (int i = 0; i < m_nNumObjects; i++)
+	{
+		SAFE_DELETE(m_pWorldPosList->at(i));
+		SAFE_DELETE(m_pScaleList->at(i));
+		SAFE_DELETE(m_pRotateList->at(i));
+	}
+
+	SAFE_DELETE(m_pRotateList);
+	SAFE_DELETE(m_pScaleList);
+	SAFE_DELETE(m_pWorldPosList);
+	SAFE_DELETE(m_fMaxRadiusList);
+	SAFE_DELETE(m_fAvgRadiusList);
+	SAFE_DELETE(m_dwAttribute);
+	SAFE_DELETE(m_dwStatus);
+	SAFE_DELETE(m_pKeytoIndex);
 }
 
 void SoaringLoong::Graphics3D::CObject3D::Update()
 {
-	UpdateWorldVertex(*m_pWorldPos);
+	//UpdateWorldVertex(*m_pWorldPos);
 	//DeleteBackface()
 	UpdateCameraVertex(*m_pCameraMatrix);
 	UpdateProjectVertex(*m_pProjectMatrix);
 	UpdateScreenVertex(*m_pScreenMatrix);
 }
 
-void SoaringLoong::Graphics3D::CObject3D::Render(CDDraw* pDDraw)
+void SoaringLoong::Graphics3D::CObject3D::Render()
 {
 	if ( !Visible())
 	{
 		return;
 	}
 
-	LPBYTE pBuffer = pDDraw->DDraw_Lock_Back_Surface();
+	LPBYTE pBuffer = m_pDDraw->DDraw_Lock_Back_Surface();
 
-	auto list = *m_pPolygonList;
+	auto& list = *m_pPolygonList;
 	auto len = list.size();
 	for (int i = 0; i < len; i++)
 	{
@@ -80,21 +104,21 @@ void SoaringLoong::Graphics3D::CObject3D::Render(CDDraw* pDDraw)
 				(list[i]->GetStatus() & POLY4DV1_STATE_CLIPPED) ||
 				(list[i]->GetStatus() & POLY4DV1_STATE_BACKFACE))
 				continue;
-			list[i]->Render(pDDraw);
+			list[i]->Render(m_pDDraw);
 		}
 
 	}
-	pDDraw->DDraw_Unlock_Back_Surface();
+	m_pDDraw->DDraw_Unlock_Back_Surface();
 }
 
 void SoaringLoong::Graphics3D::CObject3D::UpdateWorldVertex(const POINT4D& mWorld)
 {
-	if (!m_pWorldPos)
-	{
-		m_pWorldPos = new CVector4D();
-	}
-	m_pWorldPos->Copy(mWorld);
-	ToWorld(TRANS_MODE::LocalToTrans);
+// 	if (!m_pWorldPosList->size())
+// 	{
+// 		m_pWorldPos = new CVector4D();
+// 	}
+// 	m_pWorldPos->Copy(mWorld);
+// 	ToWorld(TRANS_MODE::LocalToTrans);
 }
 
 
@@ -158,30 +182,35 @@ void SoaringLoong::Graphics3D::CObject3D::ComputeRadius()
 	// sent object and opdates the object data
 
 	// reset incase there's any residue
-	m_fAvgRadius = 0;
-	m_fMaxRadius = 0;
+	auto& avg = m_fAvgRadiusList->at(m_nCurrentIndex);
+	auto& max = m_fMaxRadiusList->at(m_nCurrentIndex);
+	auto& vScale = m_pScaleList->at(m_nCurrentIndex);
 
 	// loop thru and compute radius
 	for (int vertex = 0; vertex < m_nNumVertices; vertex++)
 	{
-		auto vVertex = m_pLocalList->at(vertex);
+		CVector4D vTemp;
+		vTemp = m_pLocalList->at(vertex);
+
+		vTemp.x *= vScale->x;
+		vTemp.y *= vScale->y;
+		vTemp.z *= vScale->z;
 		// update the average and maximum radius
-		float dist_to_vertex =
-			sqrt(vVertex->x*vVertex->x +
-			vVertex->y*vVertex->y +
-			vVertex->z*vVertex->z);
+		float dist_to_vertex = sqrt(vTemp.x*vTemp.x +
+									vTemp.y*vTemp.y +
+									vTemp.z*vTemp.z);
 
 		// accumulate total radius
-		m_fAvgRadius += dist_to_vertex;
+		avg += dist_to_vertex;
 
 		// update maximum radius   
-		if (dist_to_vertex > m_fMaxRadius)
-			m_fMaxRadius = dist_to_vertex;
+		if (dist_to_vertex > max)
+			max = dist_to_vertex;
 
 	} // end for vertex
 
 	// finallize average radius computation
-	m_fAvgRadius /= m_nNumVertices;
+	avg /= m_nNumVertices;
 }
 
 CVector4D* SoaringLoong::Graphics3D::CObject3D::GetVertex(int nIndex)
@@ -299,7 +328,7 @@ void SoaringLoong::Graphics3D::CObject3D::Transform(const CMatrix4x4& mMatrix, T
 
 }
 
-void SoaringLoong::Graphics3D::CObject3D::LoadPLGMode(LPCTSTR strFileName, const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRot)
+void SoaringLoong::Graphics3D::CObject3D::LoadPLGMode(LPCTSTR strFileName, int key, const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRot)
 {
 	// file format review, note types at end of each description
 	// # this is a comment
@@ -327,6 +356,8 @@ void SoaringLoong::Graphics3D::CObject3D::LoadPLGMode(LPCTSTR strFileName, const
 
 	// Step 1: clear out the object and initialize it a bit
 	//memset(obj, 0, sizeof(OBJECT4DV1));
+	
+	AddObject(key, vPos);
 
 	// set state of object to active and visible
 	this->SetStatus(OBJECT4DV1_STATE_ACTIVE | OBJECT4DV1_STATE_VISIBLE);
@@ -370,15 +401,8 @@ void SoaringLoong::Graphics3D::CObject3D::LoadPLGMode(LPCTSTR strFileName, const
 
 		// parse out vertex
 		stscanf_s(token_string, _T("%f %f %f"), &vTemp.x, &vTemp.y, &vTemp.z);
-		vTemp.w = 1;
 
-		// scale vertices
-		vTemp.x *= vScale.x;
-		vTemp.y *= vScale.y;
-		vTemp.z *= vScale.z;
-
-		this->AddVertex(vTemp);
-
+		AddVertex(vTemp);
 	} // end for vertex
 
 	// compute average and max radius
@@ -528,7 +552,7 @@ void SoaringLoong::Graphics3D::CObject3D::Move(const CVector4D& vTrans)
 	// NOTE: Not matrix based
 	// this function translates an object without matrices,
 	// simply updates the world_pos
-	m_pWorldPos->Add(vTrans);
+	m_pWorldPosList->at(m_nCurrentIndex)->Add(vTrans);
 }
 
 void SoaringLoong::Graphics3D::CObject3D::Scale(const CVector4D& vScale)
@@ -540,15 +564,7 @@ void SoaringLoong::Graphics3D::CObject3D::Scale(const CVector4D& vScale)
 
 	// for each vertex in the mesh scale the local coordinates by
 	// vs on a componentwise basis, that is, sx, sy, sz
-	for (int vertex = 0; vertex < m_nNumVertices; vertex++)
-	{
-		auto vCur = m_pLocalList->at(vertex);
-		vCur->x *= vScale.x;
-		vCur->y *= vScale.y;
-		vCur->z *= vScale.z;
-		// leave w unchanged, always equal to 1
-
-	} // end for vertex
+	m_pScaleList->at(m_nCurrentIndex)->Copy(vScale);
 
 	// now since the object is scaled we have to do something with 
 	// the radii calculation, but we don't know how the scaling
@@ -559,13 +575,15 @@ void SoaringLoong::Graphics3D::CObject3D::Scale(const CVector4D& vScale)
 	// radii with since it's the worst case scenario of the new max and
 	// average radii
 
+	
 	// find max scaling factor
-	float scale = MAX(vScale.x, vScale.y);
-	scale = MAX(scale, vScale.z);
-
-	// now scale
-	m_fMaxRadius *= scale;
-	m_fAvgRadius *= scale;
+	ComputeRadius();
+// 	float scale = MAX(vScale.x, vScale.y);
+// 	scale = MAX(scale, vScale.z);
+// 
+// 	// now scale
+// 	m_fAvgRadiusList->at(m_nCurrentIndex) *= scale;
+// 	m_fMaxRadiusList->at(m_nCurrentIndex) *= scale;
 
 }
 
@@ -634,12 +652,22 @@ void SoaringLoong::Graphics3D::CObject3D::ToWorld(TRANS_MODE emMode)
 	// coords to world coords by translating the vertex list by
 	// the amount world_pos and storing the results in vlist_trans[]
 
+	auto& vScale = m_pScaleList->at(m_nCurrentIndex);
+	auto& vWorldPos = m_pWorldPosList->at(m_nCurrentIndex);
+
 	if (emMode == TRANS_MODE::LocalToTrans)
 	{
+		
 		for (int vertex = 0; vertex < m_nNumVertices; vertex++)
 		{
 			// translate vertex
-			m_pTransList->at(vertex)->Copy(CVector4D::Add(m_pLocalList->at(vertex), m_pWorldPos));
+			auto& item = m_pTransList->at(vertex);
+			item->Copy(m_pLocalList->at(vertex));
+			// scale vertices
+			item->x *= vScale->x;
+			item->y *= vScale->y;
+			item->z *= vScale->z;
+			item->Add( vWorldPos);
 		} // end for vertex
 	} // end if local
 	else
@@ -647,7 +675,13 @@ void SoaringLoong::Graphics3D::CObject3D::ToWorld(TRANS_MODE emMode)
 		for (int vertex = 0; vertex < m_nNumVertices; vertex++)
 		{
 			// translate vertex
-			m_pTransList->at(vertex)->Add(m_pWorldPos);
+			auto& item = m_pTransList->at(vertex);
+
+			// scale vertices
+			item->x *= vScale->x;
+			item->y *= vScale->y;
+			item->z *= vScale->z;
+			item->Add(vWorldPos);
 		} // end for vertex
 	} // end else trans
 
@@ -670,8 +704,12 @@ void SoaringLoong::Graphics3D::CObject3D::Cull(CCamera* cam, CULL_MODE emMode)
 
 	POINT4D sphere_pos; // hold result of transforming center of bounding sphere
 
+	auto& worldPos = m_pWorldPosList->at(m_nCurrentIndex);
+	auto& avg = m_fAvgRadiusList->at(m_nCurrentIndex);
+	auto& max = m_fMaxRadiusList->at(m_nCurrentIndex);
+
 	// transform point
-	sphere_pos = cam->MatrixCamera.Multiply(m_pWorldPos);
+	sphere_pos = cam->MatrixCamera.Multiply(worldPos);
 
 	// step 2:  based on culling flags remove the object
 	if (emMode & CULL_ON_Z_PLANE)
@@ -679,8 +717,8 @@ void SoaringLoong::Graphics3D::CObject3D::Cull(CCamera* cam, CULL_MODE emMode)
 		// cull only based on z clipping planes
 
 		// test far plane
-		if (((sphere_pos.z - m_fMaxRadius) > cam->FarZ) ||
-			((sphere_pos.z + m_fMaxRadius) < cam->NearZ))
+		if (((sphere_pos.z - max) > cam->FarZ) ||
+			((sphere_pos.z + max) < cam->NearZ))
 		{
 			AddStatus(OBJECT4DV1_STATE_CULLED);
 			return;
@@ -700,8 +738,8 @@ void SoaringLoong::Graphics3D::CObject3D::Cull(CCamera* cam, CULL_MODE emMode)
 		// points of the bounding sphere
 		float z_test = (0.5)*cam->ViewPlaneWidth*sphere_pos.z / cam->ViewDistance;
 
-		if (((sphere_pos.x - m_fMaxRadius) > z_test) || // right side
-			((sphere_pos.x + m_fMaxRadius) < -z_test))  // left side, note sign change
+		if (((sphere_pos.x - max) > z_test) || // right side
+			((sphere_pos.x + max) < -z_test))  // left side, note sign change
 		{
 			AddStatus(OBJECT4DV1_STATE_CULLED);
 			return;
@@ -720,8 +758,8 @@ void SoaringLoong::Graphics3D::CObject3D::Cull(CCamera* cam, CULL_MODE emMode)
 		// points of the bounding sphere
 		float z_test = (0.5)*cam->ViewPlaneHeight*sphere_pos.z / cam->ViewDistance;
 
-		if (((sphere_pos.y - m_fMaxRadius) > z_test) || // top side
-			((sphere_pos.y + m_fMaxRadius) < -z_test))  // bottom side, note sign change
+		if (((sphere_pos.y - max) > z_test) || // top side
+			((sphere_pos.y + max) < -z_test))  // bottom side, note sign change
 		{
 			AddStatus(OBJECT4DV1_STATE_CULLED);
 			return;
@@ -733,32 +771,36 @@ void SoaringLoong::Graphics3D::CObject3D::Cull(CCamera* cam, CULL_MODE emMode)
 
 void SoaringLoong::Graphics3D::CObject3D::AddStatus(DWORD dwStatus)
 {
-	m_dwStatus |= dwStatus;
+	auto& status = m_dwStatus->at(m_nCurrentIndex);
+	status |= dwStatus;
 }
 
 void SoaringLoong::Graphics3D::CObject3D::SetStatus(DWORD dwStatus)
 {
-	m_dwStatus = dwStatus;
+	auto& status = m_dwStatus->at(m_nCurrentIndex);
+	status = dwStatus;
 }
 
 DWORD SoaringLoong::Graphics3D::CObject3D::GetStatus()
 {
-	return m_dwStatus;
+	return m_dwStatus->at(m_nCurrentIndex);
 }
 
 DWORD SoaringLoong::Graphics3D::CObject3D::GetAttribute()
 {
-	return m_dwAttribute;
+	return m_dwAttribute->at(m_nCurrentIndex);
 }
 
 void SoaringLoong::Graphics3D::CObject3D::SetAttribute(DWORD dwAttribute)
 {
-	m_dwAttribute = dwAttribute;
+	auto& attr = m_dwAttribute->at(m_nCurrentIndex);
+	attr = dwAttribute;
 }
 
 void SoaringLoong::Graphics3D::CObject3D::AddAttribute(DWORD dwAttribute)
 {
-	m_dwAttribute |= dwAttribute;
+	auto& attr = m_dwAttribute->at(m_nCurrentIndex);
+	attr |= dwAttribute;
 }
 
 void SoaringLoong::Graphics3D::CObject3D::RemoveBackface(CCamera* pCam)
@@ -997,16 +1039,16 @@ void SoaringLoong::Graphics3D::CObject3D::ConvertFromHomogeneous4D()
 
 void SoaringLoong::Graphics3D::CObject3D::SetWorldPosition(const CVector4D& vPos)
 {
-	if ( !m_pWorldPos )
+	if ( m_nCurrentIndex >= m_pWorldPosList->size() )
 	{
-		m_pWorldPos = new CVector4D();
+		m_pWorldPosList->push_back(new CVector4D());
 	}
-	m_pWorldPos->Copy(vPos);
+	m_pWorldPosList->at(m_nCurrentIndex)->Copy(vPos);
 }
 
 SoaringLoong::Math::Vector::CVector4D SoaringLoong::Graphics3D::CObject3D::GetWorldPosition()
 {
-	return *m_pWorldPos;
+	return *m_pWorldPosList->at(0);
 }
 
 bool SoaringLoong::Graphics3D::CObject3D::Visible()
@@ -1021,5 +1063,87 @@ bool SoaringLoong::Graphics3D::CObject3D::Visible()
 
 void SoaringLoong::Graphics3D::CObject3D::DeleteStatus(DWORD dwStatus)
 {
-	m_dwStatus &= (~dwStatus);
+	auto& cur = m_dwStatus->at(m_nCurrentIndex);
+	cur &= (~dwStatus);
+}
+
+void SoaringLoong::Graphics3D::CObject3D::SetCurrentKey(int key)
+{
+	m_nCurrentKey = key;
+	m_nCurrentIndex = GetCurrentIndex();
+}
+
+int SoaringLoong::Graphics3D::CObject3D::GetCurrentKey()
+{
+	return m_nCurrentKey;
+}
+
+void SoaringLoong::Graphics3D::CObject3D::AddObject(int key, const CVector4D& vPos)
+{
+	m_nCurrentKey = key;
+	if (m_pKeytoIndex->find(key) == m_pKeytoIndex->end())
+	{
+		(*m_pKeytoIndex)[key] = m_nNumObjects;
+		m_nNumObjects++;
+		m_pWorldPosList->push_back(new CVector4D(vPos));
+		m_pScaleList->push_back(new CVector4D(1,1,1,1));
+		m_pRotateList->push_back(new CVector4D(0,0,0,1));
+		m_fAvgRadiusList->push_back(0);
+		m_fMaxRadiusList->push_back(0);
+		m_dwStatus->push_back(0);
+		m_dwAttribute->push_back(0);
+	}
+	else
+	{
+		m_pWorldPosList->at(m_nCurrentIndex)->Copy(vPos);
+	}
+	m_nCurrentIndex = GetCurrentIndex();
+}
+
+void SoaringLoong::Graphics3D::CObject3D::GetRadius(double& avg, double& max)
+{
+	avg = m_fAvgRadiusList->at(m_nCurrentIndex);
+	max = m_fMaxRadiusList->at(m_nCurrentIndex);
+}
+
+int SoaringLoong::Graphics3D::CObject3D::GetCurrentIndex()
+{
+	auto item = m_pKeytoIndex->find(m_nCurrentKey);
+	if (item != m_pKeytoIndex->end())
+	{
+		return item->second;
+	}
+	else
+	{
+		return -1;
+	}
+}
+
+void SoaringLoong::Graphics3D::CObject3D::RenderAll(CCamera* cam,CMatrix4x4* mTrans)
+{
+	int m_nOldIndex = m_nCurrentIndex;
+	for each (auto& item in *m_pKeytoIndex)
+	{
+		m_nCurrentIndex = item.second;
+		Reset();
+		Transform(*mTrans, LocalToTrans, true);
+		Cull(cam, CULL_ON_XYZ_PLANES);
+		if (Visible())
+		{
+			ToWorld(TRANS_MODE::TransOnly);
+			//RemoveBackface(cam);
+			ToCamera(cam);
+			ToProject(cam);
+			PerspectiveToScreen(cam);
+			//CameraToPerspectiveScreen(&m_cam);
+			Render();
+
+		}
+	}
+}
+
+SLOONGENGINE_API IObject* SoaringLoong::Graphics3D::IObject::Create3D(CDDraw* pDDraw)
+{
+	IObject* pNew = new CObject3D(pDDraw);
+	return pNew;
 }
