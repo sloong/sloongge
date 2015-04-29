@@ -90,7 +90,7 @@ namespace SoaringLoong
 			static IObject* Create3D(CDDraw* pDDraw);
 
 		public:
-			virtual void LoadPLGMode(LPCTSTR strFileName, int key, const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRot) = 0;
+			virtual void LoadPLGMode(LPCTSTR strFileName) = 0;
 			virtual void Update() = 0;
 			virtual void Render() = 0;
 			virtual void RenderAll( CCamera* cam, CMatrix4x4* mTrans ) = 0;
@@ -134,7 +134,7 @@ namespace SoaringLoong
 			virtual void RemoveBackface(CCamera* cam) = 0;
 			virtual bool Visible() = 0;
 
-			virtual void AddObject( int key, const CVector4D& vPos) = 0;
+			virtual int AddObject(int key, const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRot) = 0;
 			virtual void SetCurrentKey(int key) = 0;
 			virtual int GetCurrentKey() = 0;
 			virtual int GetCurrentIndex() = 0;

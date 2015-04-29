@@ -44,6 +44,7 @@ LuaFunctionRegistr CSloongGame::g_LuaFunctionList[] =
 	{ _T("SetItemFont"), CSloongGame::SetItemFont },
 	{ _T("StartTimer"), CSloongGame::StartTimer },
 	{ _T("Exit"), CSloongGame::Exit },
+	{ _T("Load3DModule"), CSloongGame::Load3DModule},
 };
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
@@ -397,6 +398,13 @@ int CSloongGame::Exit(lua_State* l)
 	return 0;
 }
 
+
+int CSloongGame::Load3DModule(lua_State* l)
+{
+	
+	return 0;
+}
+
 CLua* CSloongGame::GetSloongLua()
 {
 	return g_pLua;
@@ -490,43 +498,39 @@ void CSloongGame::InitTest()
 
 	// load the master tank object
 	vscale.Initialize(0.75, 0.75, 0.75);
-	obj_tank->LoadPLGMode(_T("DXFile\\tank2.plg"), 0, vscale, vpos, vrot);
+	obj_tank->LoadPLGMode(_T("DXFile\\tank2.plg"));
 
 	// position the tanks
-	for (int index = 1; index < NUM_TANKS; index++)
+	for (int index = 0; index < NUM_TANKS; index++)
 	{
 		obj_tank->AddObject(index, CVector4D(
 			RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS),
 			0,
-			RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS)));
-		obj_tank->Scale(vscale);
-		obj_tank->SetStatus(OBJECT4DV1_STATE_ACTIVE | OBJECT4DV1_STATE_VISIBLE);
+			RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS)),vscale,vrot);
 	} // end for
 
 
 	// load player object for 3rd person view
 	vscale.Initialize(0.75, 0.75, 0.75);
-	obj_player->LoadPLGMode(_T("DXFile\\tank3.plg"), 0, vscale, vpos, vrot);
+	obj_player->LoadPLGMode(_T("DXFile\\tank3.plg") );
+	obj_player->AddObject(0, vpos, vscale, vrot);
 
 	// load the master tower object
 	vscale.Initialize(1.0, 2.0, 1.0);
-	obj_tower->LoadPLGMode(_T("DXFile\\tower1.plg"), 0, vscale, vpos, vrot);
-
+	obj_tower->LoadPLGMode(_T("DXFile\\tower1.plg") );
 
 	// position the towers
-	for (int index = 1; index < NUM_TOWERS; index++)
+	for (int index = 0; index < NUM_TOWERS; index++)
 	{
 		obj_tower->AddObject(index, CVector4D(
 			RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS),
 			0,
-			RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS)));
-		obj_tower->Scale(vscale);
-		obj_tower->SetStatus(OBJECT4DV1_STATE_ACTIVE | OBJECT4DV1_STATE_VISIBLE);
+			RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS)), vscale,vrot);
 	} // end for
 
 	// load the master ground marker
 	vscale.Initialize(3.0, 3.0, 3.0);
-	obj_marker->LoadPLGMode(_T("DXFile\\marker1.plg"), 0, vscale, vpos, vrot);
+	obj_marker->LoadPLGMode(_T("DXFile\\marker1.plg"));
 
 
 #define POINT_SIZE        200
@@ -535,20 +539,19 @@ void CSloongGame::InitTest()
 #define NUM_POINTS        (NUM_POINTS_X*NUM_POINTS_Z)
 	// insert the ground markers into the world
 	int loopIndex = 0;
-	double avg, max;
-	obj_marker->GetRadius(avg, max);
+	double avg, max = 0.0;
+	
 	for (int index_x = 0; index_x < NUM_POINTS_X; index_x++)
 	for (int index_z = 0; index_z < NUM_POINTS_Z; index_z++)
 	{
 		loopIndex++;
 		
 		// set position of tower
-		obj_marker->AddObject(loopIndex, CVector4D(
-			RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_x*POINT_SIZE,
-			max,
-			RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_z*POINT_SIZE));
-		obj_marker->Scale(vscale);
-		obj_marker->SetStatus(OBJECT4DV1_STATE_ACTIVE | OBJECT4DV1_STATE_VISIBLE);
+ 		obj_marker->AddObject(loopIndex, CVector4D(
+ 			RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_x*POINT_SIZE,
+ 			max,
+ 			RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_z*POINT_SIZE), vscale,vrot);
+		obj_marker->GetRadius(avg, max);
 	}
 
 }

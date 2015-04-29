@@ -12,7 +12,7 @@ namespace SoaringLoong
 			~CObject3D();
 
 		public:
-			virtual void LoadPLGMode(LPCTSTR strFileName, int key, const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRot);
+			virtual void LoadPLGMode(LPCTSTR strFileName);
 			virtual void Update();
 			virtual void Render();
 			virtual void RenderAll(CCamera* cam, CMatrix4x4* mTrans);
@@ -59,7 +59,7 @@ namespace SoaringLoong
 			virtual void SetCurrentKey(int key);
 			virtual int GetCurrentKey();
 			virtual int GetCurrentIndex();
-			virtual void AddObject(int key, const CVector4D& vPos);
+			virtual int AddObject(int key, const CVector4D& vPos, const CVector4D& vScale, const CVector4D& vRot);
 
 			virtual void GetRadius(double& avg, double& max);
 		protected:

@@ -328,7 +328,7 @@ void SoaringLoong::Graphics3D::CObject3D::Transform(const CMatrix4x4& mMatrix, T
 
 }
 
-void SoaringLoong::Graphics3D::CObject3D::LoadPLGMode(LPCTSTR strFileName, int key, const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRot)
+void SoaringLoong::Graphics3D::CObject3D::LoadPLGMode(LPCTSTR strFileName)
 {
 	// file format review, note types at end of each description
 	// # this is a comment
@@ -357,14 +357,14 @@ void SoaringLoong::Graphics3D::CObject3D::LoadPLGMode(LPCTSTR strFileName, int k
 	// Step 1: clear out the object and initialize it a bit
 	//memset(obj, 0, sizeof(OBJECT4DV1));
 	
-	AddObject(key, vPos);
+	//AddObject(key, vPos);
 
 	// set state of object to active and visible
-	this->SetStatus(OBJECT4DV1_STATE_ACTIVE | OBJECT4DV1_STATE_VISIBLE);
+	//this->SetStatus(OBJECT4DV1_STATE_ACTIVE | OBJECT4DV1_STATE_VISIBLE);
 
 
 	// set position of object
-	this->SetWorldPosition(vPos);
+	//this->SetWorldPosition(vPos);
 
 	// Step 2: open the file for reading
 	CFile oFile;
@@ -406,7 +406,7 @@ void SoaringLoong::Graphics3D::CObject3D::LoadPLGMode(LPCTSTR strFileName, int k
 	} // end for vertex
 
 	// compute average and max radius
-	this->ComputeRadius();
+	//this->ComputeRadius();
 
 	// 	Write_Error("\nObject average radius = %f, max radius = %f",
 	// 		obj->avg_radius, obj->max_radius);
@@ -1078,7 +1078,7 @@ int SoaringLoong::Graphics3D::CObject3D::GetCurrentKey()
 	return m_nCurrentKey;
 }
 
-void SoaringLoong::Graphics3D::CObject3D::AddObject(int key, const CVector4D& vPos)
+int SoaringLoong::Graphics3D::CObject3D::AddObject(int key, const CVector4D& vPos, const CVector4D& vScale, const CVector4D& vRot)
 {
 	m_nCurrentKey = key;
 	if (m_pKeytoIndex->find(key) == m_pKeytoIndex->end())
@@ -1086,8 +1086,8 @@ void SoaringLoong::Graphics3D::CObject3D::AddObject(int key, const CVector4D& vP
 		(*m_pKeytoIndex)[key] = m_nNumObjects;
 		m_nNumObjects++;
 		m_pWorldPosList->push_back(new CVector4D(vPos));
-		m_pScaleList->push_back(new CVector4D(1,1,1,1));
-		m_pRotateList->push_back(new CVector4D(0,0,0,1));
+		m_pScaleList->push_back(new CVector4D(vScale));
+		m_pRotateList->push_back(new CVector4D(vRot));
 		m_fAvgRadiusList->push_back(0);
 		m_fMaxRadiusList->push_back(0);
 		m_dwStatus->push_back(0);
@@ -1096,8 +1096,13 @@ void SoaringLoong::Graphics3D::CObject3D::AddObject(int key, const CVector4D& vP
 	else
 	{
 		m_pWorldPosList->at(m_nCurrentIndex)->Copy(vPos);
+		m_pScaleList->at(m_nCurrentIndex)->Copy(vScale);
+		m_pRotateList->at(m_nCurrentIndex)->Copy(vRot);
 	}
 	m_nCurrentIndex = GetCurrentIndex();
+	SetStatus(OBJECT4DV1_STATE_ACTIVE | OBJECT4DV1_STATE_VISIBLE);
+	ComputeRadius();
+	return m_nCurrentIndex;
 }
 
 void SoaringLoong::Graphics3D::CObject3D::GetRadius(double& avg, double& max)

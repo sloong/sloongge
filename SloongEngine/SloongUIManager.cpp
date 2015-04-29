@@ -14,12 +14,22 @@ using namespace SoaringLoong::Graphics;
 CUIManager::CUIManager()
 {
 	m_UIMap = new map<tstring, CUserInterface*>;
+	m_pModuleMap = new map<tstring, IObject*>;
 }
 
 
 CUIManager::~CUIManager()
 {
+	for each (auto& item in *m_UIMap)
+	{
+		delete item.second;
+	}
 	SAFE_DELETE(m_UIMap);
+	for each (auto& item in *m_pModuleMap)
+	{
+		delete (item.second);
+	}
+	SAFE_DELETE(m_pModuleMap);
 }
 
 void CUIManager::CreateGUIItem(const UINT nID, const tstring strType, const vector<tstring>& strTexture)
@@ -130,4 +140,28 @@ void SoaringLoong::Graphics::CUIManager::Initialize(CDDraw* pDDraw, CLua* pLua, 
 	m_pLua = pLua;
 	m_pLog = pLog;
 	m_hWnd = hWnd;
+}
+
+void SoaringLoong::Graphics::CUIManager::Load3DModule(const int& nID, const CString& strFileName, const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRotate)
+{
+	auto& item = m_pModuleMap->find(strFileName.GetString());
+	if (item == m_pModuleMap->end())
+	{
+		IObject* pObject = IObject::Create3D(m_pDDraw);
+		pObject->LoadPLGMode(strFileName.GetString().c_str());
+	}
+	else
+	{
+		item->second->AddObject(nID, vScale, vPos, vRotate);
+	}
+}
+
+void SoaringLoong::Graphics::CUIManager::Move3DModule(const int& nID, const CVector4D& vPos)
+{
+	
+}
+
+void SoaringLoong::Graphics::CUIManager::Delete3DModule(const int& nID)
+{
+
 }

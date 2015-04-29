@@ -78,6 +78,7 @@ public:
 	static int StartTimer(lua_State* l);
 	static int GetMousePos(lua_State* l);
 	static int Exit(lua_State* l);
+	static int Load3DModule(lua_State* l);
 
 public:
 	static int SendEvent(int id, LPCTSTR args);

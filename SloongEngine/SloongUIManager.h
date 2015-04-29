@@ -8,7 +8,10 @@
 
 
 #include "IUniversal.h"
-
+#include "SloongVector.h"
+#include "SloongObject3D.h"
+using SoaringLoong::Math::Vector::CVector4D;
+using SoaringLoong::Graphics3D::IObject;
 namespace SoaringLoong
 {
 	class CLua;
@@ -32,9 +35,14 @@ namespace SoaringLoong
 			void DeleteItem(const UINT nID);
 			void MoveItem(const UINT nID, const CRect& rcRect);
 
+			void Load3DModule(const int& nID, const CString& strFileName, const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRotate);
+			void Move3DModule(const int& nID, const CVector4D& vPos);
+			void Delete3DModule(const int& nID);
+
 		protected:
-			map<tstring, CUserInterface*>* m_UIMap;
-			CUserInterface*	m_pCurrentUI;
+			map<tstring, CUserInterface*>*	m_UIMap;
+			map<tstring, IObject*>*			m_pModuleMap;
+			CUserInterface*					m_pCurrentUI;
 			CDDraw*							m_pDDraw;
 			CLua*							m_pLua;
 			ILogSystem*						m_pLog;
