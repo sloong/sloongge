@@ -104,7 +104,7 @@ void SoaringLoong::Graphics3D::CObject3D::Render()
 				(list[i]->GetStatus() & POLY4DV1_STATE_CLIPPED) ||
 				(list[i]->GetStatus() & POLY4DV1_STATE_BACKFACE))
 				continue;
-			list[i]->Render(m_pDDraw);
+			list[i]->Render();
 		}
 
 	}
@@ -427,7 +427,7 @@ void SoaringLoong::Graphics3D::CObject3D::LoadPLGMode(LPCTSTR strFileName, int k
 
 		//Write_Error("\nPolygon %d:", poly);
 
-		IPolygon* pPoly = IPolygon::Create3D();
+		IPolygon* pPoly = IPolygon::Create3D(m_pDDraw);
 
 		int n1, n2, n3;
 		// each vertex list MUST have 3 vertices since we made this a rule that all models

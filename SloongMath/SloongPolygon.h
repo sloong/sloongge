@@ -27,17 +27,21 @@
 
 namespace SoaringLoong
 {
-	namespace Graphics
-	{
-		class CDDraw;
-	}
-	using Graphics::CDDraw;
 	namespace Math
 	{
 		namespace Polygon
 		{
-			class SLOONGENGINE_API CPolygon2D
+			class CPolygon2D
 			{
+			public:
+				int Translate_Polygon2D_Mat(CPolygon2D* poly, int dx, int dy);
+				int Rotate_Polygon2D_Mat(CPolygon2D* poly, int theta);
+				int Scale_Polygon2D_Mat(CPolygon2D* poly, float sx, float sy);
+
+				int Translate_Polygon2D(CPolygon2D* poly, int dx, int dy);
+				int Rotate_Polygon2D(CPolygon2D* poly, int theta);
+				int Scale_Polygon2D(CPolygon2D* poly, float sx, float sy);
+
 			public:
 				int state;        // state of polygon
 				int num_verts;    // number of vertices
@@ -50,11 +54,11 @@ namespace SoaringLoong
 			class CPolygon3D : public IPolygon
 			{
 			public:
-				CPolygon3D();
+				CPolygon3D(CDDraw* pDraw);
 				virtual ~CPolygon3D();
 			public:
 				void	Initialize(int n1, int n2, int n3, vector<CVector4D*>* pLocalList, vector<CVector4D*>* pTransList);
-				HRESULT Render(CDDraw* pDraw);
+				HRESULT Render();
 				void	GetIndex(int& x, int& y, int& z);
 
 				void	SetAttribute(DWORD arrt);
@@ -71,6 +75,8 @@ namespace SoaringLoong
 				void AddStatus(DWORD dwStatus);
 				void DeleteStatus(DWORD dwStatus);
 				DWORD GetStatus();
+
+				
 			protected:
 				DWORD				m_dwAttribute;
 				DWORD				m_dwStatus;
@@ -78,6 +84,7 @@ namespace SoaringLoong
 				int					m_n1, m_n2, m_n3;
 				vector<CVector4D*>*	m_pLocalList;
 				vector<CVector4D*>*	m_pTransList;
+				CDDraw*				m_pDDraw;
 			};
 
 		}

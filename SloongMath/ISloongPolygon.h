@@ -48,12 +48,12 @@ namespace SoaringLoong
 				POLY_STATE_BACKFACE = 0x0004,
 			}POLYSTATE;
 
-			class SLOONGENGINE_API IPolygon
+			class SLOONGMATH_API IPolygon
 			{
 			public:
-				static  IPolygon* Create3D();
+				static  IPolygon* Create3D(CDDraw* pDraw);
 				virtual void Initialize(int n1, int n2, int n3, vector<CVector4D*>* pLocalList, vector<CVector4D*>* pTransList) = 0;
-				virtual HRESULT Render(CDDraw* pDraw) = 0;
+				virtual HRESULT Render() = 0;
 
 				virtual void GetIndex(int& x, int& y, int& z) = 0;
 

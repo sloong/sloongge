@@ -6,14 +6,14 @@ namespace SoaringLoong
 	{
 		namespace Vertex
 		{
-			typedef class SLOONGENGINE_API CVertex2DInt
+			typedef class CVertex2DInt
 			{
 			public:
 				int x, y; // the vertex
 			} VERTEX2DI, *VERTEX2DI_PTR;
 
 			// a 2D vertex
-			typedef class SLOONGENGINE_API CVertex2DFloat
+			typedef class CVertex2DFloat
 			{
 			public:
 				float x, y; // the vertex

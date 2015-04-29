@@ -122,3 +122,40 @@ SoaringLoong::Math::CMathBase::CMathBase()
 {
 	BuildFastTable();
 }
+
+int FIXP16_MUL(int fp1, int fp2)
+{
+	// this function computes the product fp_prod = fp1*fp2
+	// using 64 bit math, so as not to loose precission
+
+	int fp_prod; // return the product
+
+	_asm {
+		mov eax, fp1      // move into eax fp2
+			imul fp2          // multiply fp1*fp2
+			shrd eax, edx, 16 // result is in 32:32 format 
+			// residing at edx:eax
+			// shift it into eax alone 16:16
+			// result is sitting in eax
+	} // end asm
+
+} // end FIXP16_MUL
+
+///////////////////////////////////////////////////////////////
+
+int FIXP16_DIV(int fp1, int fp2)
+{
+	// this function computes the quotient fp1/fp2 using
+	// 64 bit math, so as not to loose precision
+
+	_asm {
+		mov eax, fp1      // move dividend into eax
+			cdq               // sign extend it to edx:eax
+			shld edx, eax, 16 // now shift 16:16 into position in edx
+			sal eax, 16       // and shift eax into position since the
+			// shld didn't move it -- DUMB! uPC
+			idiv fp2          // do the divide
+			// result is sitting in eax     
+	} // end asm
+
+} // end FIXP16_DIV

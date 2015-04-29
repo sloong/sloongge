@@ -174,8 +174,8 @@ void SoaringLoong::Graphics3D::CCamera::UpdateCameraMatrix()
 		float theta_z = this->Direction.z;
 
 		// compute the sine and cosine of the angle x
-		float cos_theta = CMath2::Fast_Cos(theta_x);  // no change since cos(-x) = cos(x)
-		float sin_theta = -CMath2::Fast_Sin(theta_x); // sin(-x) = -sin(x)
+		float cos_theta = CMathBase::Fast_Cos(theta_x);  // no change since cos(-x) = cos(x)
+		float sin_theta = -CMathBase::Fast_Sin(theta_x); // sin(-x) = -sin(x)
 
 		// set the matrix up 
 		mx_inv.Initialize(1, 0, 0, 0,
@@ -184,8 +184,8 @@ void SoaringLoong::Graphics3D::CCamera::UpdateCameraMatrix()
 			0, 0, 0, 1);
 
 		// compute the sine and cosine of the angle y
-		cos_theta = CMath2::Fast_Cos(theta_y);  // no change since cos(-x) = cos(x)
-		sin_theta = -CMath2::Fast_Sin(theta_y); // sin(-x) = -sin(x)
+		cos_theta = CMathBase::Fast_Cos(theta_y);  // no change since cos(-x) = cos(x)
+		sin_theta = -CMathBase::Fast_Sin(theta_y); // sin(-x) = -sin(x)
 
 		// set the matrix up 
 		my_inv.Initialize(cos_theta, 0, -sin_theta, 0,
@@ -194,8 +194,8 @@ void SoaringLoong::Graphics3D::CCamera::UpdateCameraMatrix()
 			0, 0, 0, 1);
 
 		// compute the sine and cosine of the angle z
-		cos_theta = CMath2::Fast_Cos(theta_z);  // no change since cos(-x) = cos(x)
-		sin_theta = -CMath2::Fast_Sin(theta_z); // sin(-x) = -sin(x)
+		cos_theta = CMathBase::Fast_Cos(theta_z);  // no change since cos(-x) = cos(x)
+		sin_theta = -CMathBase::Fast_Sin(theta_z); // sin(-x) = -sin(x)
 
 		// set the matrix up 
 		mz_inv.Initialize(cos_theta, sin_theta, 0, 0,
@@ -288,11 +288,11 @@ void SoaringLoong::Graphics3D::CCamera::UpdateCameraMatrix()
 			float theta = this->Direction.y; // heading
 
 			// compute trig functions once
-			float sin_phi = CMath2::Fast_Sin(phi);
-			float cos_phi = CMath2::Fast_Cos(phi);
+			float sin_phi = CMathBase::Fast_Sin(phi);
+			float cos_phi = CMathBase::Fast_Cos(phi);
 
-			float sin_theta = CMath2::Fast_Sin(theta);
-			float cos_theta = CMath2::Fast_Cos(theta);
+			float sin_theta = CMathBase::Fast_Sin(theta);
+			float cos_theta = CMathBase::Fast_Cos(theta);
 
 			// now compute the target point on a unit sphere x,y,z
 			this->Target.x = -1 * sin_phi*sin_theta;

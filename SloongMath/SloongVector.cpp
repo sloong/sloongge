@@ -191,19 +191,6 @@ float CVector2D::VECTOR2D_CosTh(VECTOR2D_PTR va, VECTOR2D_PTR vb)
 
 } // end VECTOR2D_CosTh
 
-//////////////////////////////////////////////////////////////
-
-void CVector2D::VECTOR2D_Print(VECTOR2D_PTR va, char *name = "v")
-{
-	// this function prints out a VECTOR2D
-
-	Write_Error("\n%s=[", name);
-	for (int index = 0; index < 2; index++)
-		Write_Error("%f, ", va->M[index]);
-	Write_Error("]");
-
-} // end VECTOR2D_Print
-
 
 int CVector2D::Fast_Distance_2D(int x, int y)
 {
@@ -442,19 +429,6 @@ float CVector3D::VECTOR3D_CosTh(VECTOR3D_PTR va, VECTOR3D_PTR vb)
 
 } // end VECTOR3D_CosTh
 
-///////////////////////////////////////////////////////////////
-
-void CVector3D::VECTOR3D_Print(VECTOR3D_PTR va, char *name = "v")
-{
-	// this function prints out a VECTOR3D
-
-	Write_Error("\n%s=[", name);
-	for (int index = 0; index < 3; index++)
-		Write_Error("%f, ", va->M[index]);
-	Write_Error("]");
-
-} // end VECTOR3D_Print
-
 ////////////////////////////////////////////////////////////
 
 CVector4D CVector4D::Add(const CVector4D& va, const CVector4D& vb)
@@ -621,18 +595,6 @@ float CVector4D::VECTOR4D_CosTh(VECTOR4D_PTR va, VECTOR4D_PTR vb)
 
 } // end VECTOR4D_CosTh
 
-////////////////////////////////////////////////////////////
-
-void CVector4D::VECTOR4D_Print(VECTOR4D_PTR va, char *name = "v")
-{
-	// this function prints out a VECTOR4D
-
-	Write_Error("\n%s[", name);
-	for (int index = 0; index < 4; index++)
-		Write_Error("%f, ", va->M[index]);
-	Write_Error("]");
-
-} // end VECTOR4D_Print
 
 SoaringLoong::Math::Vector::CVector4D::CVector4D(int x, int y, int z, int w)
 {

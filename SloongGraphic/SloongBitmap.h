@@ -1,8 +1,16 @@
 #pragma once
 
+#ifdef SLOONGGRAPHIC_EXPORTS
+#define SLOONGGRAPHIC_API __declspec(dllexport)
+#else
+#define SLOONGGRAPHIC_API __declspec(dllimport)
+#endif
+
+
 #define BITMAP_ID            0x4D42 // universal id for a bitmap
 #define BITMAP_ATTR_LOADED   128
 
+#include <ddraw.h>    // directX includes
 namespace SoaringLoong
 {
 	namespace Graphics
@@ -13,7 +21,7 @@ namespace SoaringLoong
 			BITMAP_EXTRACT_MODE_CELL = 1,
 		};
 
-		class CBitmap
+		class SLOONGGRAPHIC_API CBitmap
 		{
 		public:
 			CBitmap();

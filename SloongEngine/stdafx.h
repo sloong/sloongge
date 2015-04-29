@@ -24,7 +24,6 @@
 #endif
 
 // TODO: reference additional headers your program requires here
-#include <ddraw.h>    // directX includes
 #include <DxErr.h>
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
@@ -91,12 +90,7 @@ using std::list;
 // bit manipulation macros
 #define SET_BIT(word,bit_flag)   ((word)=((word) | (bit_flag)))
 #define RESET_BIT(word,bit_flag) ((word)=((word) & (~bit_flag)))
-// used for swapping algorithm
-#define SWAP(a,b,t) {t=a; a=b; b=t;}
 
-// used to compute the min and max of two expresions
-#define MIN(a, b)  (((a) < (b)) ? (a) : (b)) 
-#define MAX(a, b)  (((a) > (b)) ? (b) : (a)) 
 // convert integer and float to fixed point 16.16
 #define INT_TO_FIXP16(i) ((i) <<  FIXP16_SHIFT)
 #define FLOAT_TO_FIXP16(f) (((float)(f) * (float)FIXP16_MAG+0.5))
@@ -119,25 +113,6 @@ using std::list;
 #define MAT_IDENTITY_3X3(m) {memcpy((void *)(m), (void *)&IMAT_3X3, sizeof(MATRIX3X3));}
 #define MAT_IDENTITY_4X4(m) {memcpy((void *)(m), (void *)&IMAT_4X4, sizeof(MATRIX4X4));}
 #define MAT_IDENTITY_4X3(m) {memcpy((void *)(m), (void *)&IMAT_4X3, sizeof(MATRIX4X3));}
-
-// pi defines
-#define PI         ((float)3.141592654f)
-#define PI2        ((float)6.283185307f)
-#define PI_DIV_2   ((float)1.570796327f)
-#define PI_DIV_4   ((float)0.785398163f) 
-#define PI_INV     ((float)0.318309886f) 
-
-// DEFINES & CONSTANTS /////////////////////////////////////
-
-// defines for small numbers
-#define EPSILON_E3 (float)(1E-3) 
-#define EPSILON_E4 (float)(1E-4) 
-#define EPSILON_E5 (float)(1E-5)
-#define EPSILON_E6 (float)(1E-6)
-
-
-#define RAND_RANGE(x,y) ( (x) + (rand()%((y)-(x)+1)))
-
 
 // UNICODE define
 #ifdef UNICODE

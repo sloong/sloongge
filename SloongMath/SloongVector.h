@@ -8,7 +8,7 @@ namespace SoaringLoong
 		using namespace Matrix;
 		namespace Vector
 		{
-			typedef class SLOONGENGINE_API CVector2D
+			typedef class CVector2D
 			{
 			public:
 				union
@@ -71,11 +71,10 @@ namespace SoaringLoong
 				void VECTOR2D_Normalize(CVector2D* va, CVector2D* vn);
 				void VECTOR2D_Build(CVector2D* init, CVector2D* term, CVector2D* result);
 				float VECTOR2D_CosTh(CVector2D* va, CVector2D* vb);
-				void VECTOR2D_Print(CVector2D* va, char *name);
 				int Fast_Distance_2D(int x, int y);
 			} VECTOR2D, POINT2D, *VECTOR2D_PTR, *POINT2D_PTR;
 
-			typedef class SLOONGENGINE_API CVector3D : public CMathBase
+			typedef class SLOONGMATH_API CVector3D : public CMathBase
 			{
 			public:
 				union
@@ -145,11 +144,10 @@ namespace SoaringLoong
 				void Normalize( const CVector3D& va);
 				void VECTOR3D_Build(CVector3D* init, CVector3D* term, CVector3D* result);
 				float VECTOR3D_CosTh(CVector3D* va, CVector3D* vb);
-				void VECTOR3D_Print(CVector3D* va, char *name);
 				
 			} VECTOR3D, POINT3D, *VECTOR3D_PTR, *POINT3D_PTR;
 
-			typedef class SLOONGENGINE_API CVector4D : public CMathBase
+			typedef class SLOONGMATH_API CVector4D : public CMathBase
 			{
 			public:
 				union
@@ -253,7 +251,6 @@ namespace SoaringLoong
 				void VECTOR4D_Scale(float k, CVector4D* va, CVector4D* vscaled);
 				
 				float VECTOR4D_CosTh(CVector4D* va, CVector4D* vb);
-				void VECTOR4D_Print(CVector4D* va, char *name);
 			} CPoint4D, VECTOR4D, POINT4D, *VECTOR4D_PTR, *LPVECTOR4D, *POINT4D_PTR, *LPPOINT4D;
 		}
 	}

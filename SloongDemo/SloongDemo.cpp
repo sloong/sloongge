@@ -20,6 +20,8 @@
 #include "SloongObject3D.h"
 #include "SloongMath2.h"
 #pragma comment(lib,"Universal.lib")
+#pragma comment(lib,"SloongMath.lib")
+#pragma comment(lib,"SloongGraphic.lib")
 using namespace SoaringLoong;
 using namespace SoaringLoong::Graphics;
 using namespace SoaringLoong::Universal;
@@ -594,15 +596,15 @@ void CSloongGame::RenderTest()
 	if (m_pInput->IsKeyDown(DIK_UP))
 	{
 		// move forward
-		m_cam.WorldPos.x += tank_speed*CMath2::Fast_Sin(m_cam.Direction.y);
-		m_cam.WorldPos.z += tank_speed*CMath2::Fast_Cos(m_cam.Direction.y);
+		m_cam.WorldPos.x += tank_speed*CMathBase::Fast_Sin(m_cam.Direction.y);
+		m_cam.WorldPos.z += tank_speed*CMathBase::Fast_Cos(m_cam.Direction.y);
 	} // end if
 
 	if (m_pInput->IsKeyDown(DIK_DOWN))
 	{
 		// move backward
-		m_cam.WorldPos.x -= tank_speed*CMath2::Fast_Sin(m_cam.Direction.y);
-		m_cam.WorldPos.z -= tank_speed*CMath2::Fast_Cos(m_cam.Direction.y);
+		m_cam.WorldPos.x -= tank_speed*CMathBase::Fast_Sin(m_cam.Direction.y);
+		m_cam.WorldPos.z -= tank_speed*CMathBase::Fast_Cos(m_cam.Direction.y);
 	} // end if
 
 	// rotate
@@ -642,9 +644,9 @@ void CSloongGame::RenderTest()
 
 
 	obj_player->SetWorldPosition(CVector4D(
-		m_cam.WorldPos.x + 300 * CMath2::Fast_Sin(m_cam.Direction.y),
+		m_cam.WorldPos.x + 300 * CMathBase::Fast_Sin(m_cam.Direction.y),
 		m_cam.WorldPos.y - 70,
-		m_cam.WorldPos.z + 300 * CMath2::Fast_Cos(m_cam.Direction.y)));
+		m_cam.WorldPos.z + 300 * CMathBase::Fast_Cos(m_cam.Direction.y)));
 
 	mrot.BuildRotateMatrix(0, m_cam.Direction.y + turning, 0);
 

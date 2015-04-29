@@ -15,6 +15,38 @@ int SoaringLoong::Math::Matrix::CMatrix3x2::Mat_Init_3X2(CMatrix3x2* ma, float m
 	return(1);
 }
 
+int SoaringLoong::Math::Matrix::CMatrix3x2::Mat_Mul_1X2_3X2(CMatrix1x2* ma, CMatrix3x2* mb, CMatrix1x2* mprod)
+{
+	// this function multiplies a 1x2 matrix against a 
+	// 3x2 matrix - ma*mb and stores the result
+	// using a dummy element for the 3rd element of the 1x2 
+	// to make the matrix multiply valid i.e. 1x3 X 3x2
+
+	for (int col = 0; col < 2; col++)
+	{
+		// compute dot product from row of ma 
+		// and column of mb
+
+		float sum = 0; // used to hold result
+
+		int index = 0;
+		for (; index < 2; index++)
+		{
+			// add in next product pair
+			sum += (ma->M[index] * mb->M[index][col]);
+		} // end for index
+
+		// add in last element * 1 
+		sum += mb->M[index][col];
+
+		// insert resulting col element
+		mprod->M[col] = sum;
+
+	} // end for col
+
+	return(1);
+
+}
 
 int SoaringLoong::Math::Matrix::CMatrix3x3::Mat_Mul_3X3(CMatrix3x3* ma, CMatrix3x3* mb, CMatrix3x3* mprod)
 {
@@ -131,16 +163,6 @@ void SoaringLoong::Math::Matrix::CMatrix3x3::Mat_Init_3X3(CMatrix3x3* ma, float 
 
 }
 
-void SoaringLoong::Math::Matrix::CMatrix3x3::Print_Mat_3X3(CMatrix3x3* ma, char *name)
-{
-	// prints out a 3x3 matrix
-	Write_Error("\n%s=\n", name);
-
-	for (int r = 0; r < 3; r++, Write_Error("\n"))
-	for (int c = 0; c < 3; c++)
-		Write_Error("%f ", ma->M[r][c]);
-
-}
 
 float SoaringLoong::Math::Matrix::CMatrix3x3::Mat_Det_3X3(CMatrix3x3* m)
 {
@@ -225,6 +247,32 @@ void SoaringLoong::Math::Matrix::CMatrix3x3::Copy(const CMatrix3x3* mSrc)
 	M00 = mSrc->M00; M01 = mSrc->M10; M02 = mSrc->M20;
 	M10 = mSrc->M01; M11 = mSrc->M11; M12 = mSrc->M21;
 	M20 = mSrc->M02; M21 = mSrc->M12; M22 = mSrc->M22;
+}
+
+int SoaringLoong::Math::Matrix::CMatrix3x3::Mat_Mul_1X3_3X3(CMatrix1x3* ma, CMatrix3x3* mb, CMatrix1x3* mprod)
+{
+	// this function multiplies a 1x3 matrix against a 
+	// 3x3 matrix - ma*mb and stores the result
+
+	for (int col = 0; col < 3; col++)
+	{
+		// compute dot product from row of ma 
+		// and column of mb
+
+		float sum = 0; // used to hold result
+
+		for (int index = 0; index < 3; index++)
+		{
+			// add in next product pair
+			sum += (ma->M[index] * mb->M[index][col]);
+		} // end for index
+
+		// insert resulting col element
+		mprod->M[col] = sum;
+
+	} // end for col
+
+	return(1);
 }
 
 void SoaringLoong::Math::Matrix::CMatrix4x4::Initialize(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33)
@@ -433,16 +481,6 @@ int SoaringLoong::Math::Matrix::CMatrix4x4::Mat_Inverse_4X4(CMatrix4x4* m, CMatr
 
 }
 
-void SoaringLoong::Math::Matrix::CMatrix4x4::Print_Mat_4X4(CMatrix4x4* ma, char *name)
-{
-	// prints out a 4x4 matrix
-	Write_Error("\n%s=\n", name);
-	for (int r = 0; r < 4; r++, Write_Error("\n"))
-	for (int c = 0; c < 4; c++)
-		Write_Error("%f ", ma->M[r][c]);
-
-}
-
 void SoaringLoong::Math::Matrix::CMatrix4x4::BuildMoveMatrix(const CVector4D& vMove)
 {
 	Initialize(1, 0, 0, 0,
@@ -506,8 +544,8 @@ void SoaringLoong::Math::Matrix::CMatrix4x4::BuildRotateMatrix(double x, double 
 	case 2: // y rotation
 	{
 				// compute the sine and cosine of the angle
-				cos_theta = CMath2::Fast_Cos(y);
-				sin_theta = CMath2::Fast_Sin(y);
+				cos_theta = Fast_Cos(y);
+				sin_theta = Fast_Sin(y);
 
 				// set the matrix up 
 				Initialize(cos_theta, 0, -sin_theta, 0,
@@ -724,17 +762,6 @@ void SoaringLoong::Math::Matrix::CMatrix2x2::Mat_Init_2X2(CMatrix2x2* ma, float 
 	// row major form
 	ma->M00 = m00; ma->M01 = m01;
 	ma->M10 = m10; ma->M11 = m11;
-
-}
-
-void SoaringLoong::Math::Matrix::CMatrix2x2::Print_Mat_2X2(CMatrix2x2* ma, char *name)
-{
-	// prints out a 3x3 matrix
-	Write_Error("\n%s=\n", name);
-
-	for (int r = 0; r < 2; r++, Write_Error("\n"))
-	for (int c = 0; c < 2; c++)
-		Write_Error("%f ", ma->M[r][c]);
 
 }
 

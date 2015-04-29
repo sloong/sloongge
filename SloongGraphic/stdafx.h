@@ -11,19 +11,12 @@
 // Windows Header Files:
 #include <windows.h>
 
-// C RunTime Header Files
-#include <stdlib.h>
-#include <malloc.h>
-#include <memory.h>
-#include <tchar.h>
-#include <math.h>
-
-#include <vector>
-using std::vector;
-
+#pragma comment(lib,"ddraw.lib")
+#pragma comment(lib,"dxguid.lib")
 
 // TODO: reference additional headers your program requires here
-#include "Defines.h"
-
-#pragma comment(lib,"SloongGraphic.lib")
-
+#ifdef SLOONGGRAPHIC_EXPORTS
+#define SLOONGGRAPHIC_API __declspec(dllexport)
+#else
+#define SLOONGGRAPHIC_API __declspec(dllimport)
+#endif

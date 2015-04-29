@@ -17,6 +17,7 @@ extern SLOONGENGINE_API LPCTSTR strButtonName;
 #define BOB_ATTR_LOADED         128 // the bob has been loaded
 #define BOB_ATTR_CLONE          256 // the bob is a clone
 
+#include <ddraw.h>
 namespace SoaringLoong
 {
 	class CRect;

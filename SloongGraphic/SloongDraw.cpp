@@ -2,7 +2,6 @@
 #include "SloongDraw.h"
 #include "IUniversal.h"
 #include "SlMath.h"
-#include "SloongMath2.h"
 
 #pragma comment(lib,"Universal.lib")
 #pragma comment(lib,"SLMath.lib")
@@ -375,7 +374,7 @@ int CDDraw::Draw_Line(int x0, int y0, int x1, int y1, COLORREF color, LPBYTE vb_
 
 
 ///////////////////////////////////////////////////////////////////////
-
+/*
 int CDDraw::DrawPolygon2D(CPolygon2D* poly, LPBYTE vbuffer, int lpitch, RECT rcScreen)
 {
 	// this function draws a POLYGON2D based on 
@@ -414,7 +413,7 @@ int CDDraw::DrawPolygon2D(CPolygon2D* poly, LPBYTE vbuffer, int lpitch, RECT rcS
 
 } // end Draw_Polygon2D
 
-
+*/
 ///////////////////////////////////////////////////////////////////////
 
 // these are the matrix versions, note they are more inefficient for
@@ -2674,7 +2673,7 @@ void CDDraw::Draw_Bottom_TriFP(int x1, int y1,
 
 
 ///////////////////////////////////////////////////////////////////////////////
-
+/*
 int CDDraw::Find_Bounding_Box_Poly2D(CPolygon2D* poly,
 	float &min_x, float &max_x,
 	float &min_y, float &max_y)
@@ -2713,9 +2712,9 @@ int CDDraw::Find_Bounding_Box_Poly2D(CPolygon2D* poly,
 	return(1);
 
 } // end Find_Bounding_Box_Poly2D
-
+*/
 ////////////////////////////////////////////////////////////////
-
+/*
 void CDDraw::Draw_Filled_Polygon2D(CPolygon2D* poly, UCHAR *vbuffer, int mempitch)
 {
 	// this function draws a general n sided polygon 
@@ -3127,13 +3126,13 @@ void CDDraw::Draw_Filled_Polygon2D(CPolygon2D* poly, UCHAR *vbuffer, int mempitc
 	} // end while
 
 } // end Draw_Filled_Polygon2D
-
+*/
 ///////////////////////////////////////////////////////////////
 
-int CDDraw::DrawPolygon2D(CPolygon2D* poly)
-{
-	return DrawPolygon2D(poly, GetBackBuffer(), GetBackPitch(), m_rcWindows);
-}
+// int CDDraw::DrawPolygon2D(CPolygon2D* poly)
+// {
+// 	return DrawPolygon2D(poly, GetBackBuffer(), GetBackPitch(), m_rcWindows);
+// }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

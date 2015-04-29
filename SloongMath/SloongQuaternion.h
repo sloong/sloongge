@@ -8,7 +8,7 @@ namespace SoaringLoong
 		using namespace Vector;
 		namespace Quaternion
 		{
-			typedef class SLOONGENGINE_API CQuaternion : public CMathBase
+			typedef class CQuaternion : public CMathBase
 			{
 			public:
 				CQuaternion(){}

@@ -14,20 +14,12 @@ namespace SoaringLoong
 {
 	namespace Math
 	{
-		namespace Vector
+		class SLOONGMATH_API IMathBase
 		{
-
-		}
+		public:
+			static float Fast_Distance_3D(float x, float y, float z);
+			static float Fast_Sin(float theta);
+			static float Fast_Cos(float theta);
+		};
 	}
 }
-
-// This class is exported from the SloongMath.dll
-class SLOONGMATH_API CSloongMath {
-public:
-	CSloongMath(void);
-	// TODO: add your methods here.
-};
-
-extern SLOONGMATH_API int nSloongMath;
-
-SLOONGMATH_API int fnSloongMath(void);

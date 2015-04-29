@@ -1,5 +1,6 @@
 #pragma once
-
+#include "Defines.h"
+#include "SloongMath.h"
 namespace SoaringLoong
 {
 	namespace Math
@@ -14,7 +15,7 @@ namespace SoaringLoong
 			return radian * 180.0 / PI;
 		}
 
-		class SLOONGENGINE_API CMathBase
+		class SLOONGMATH_API CMathBase : public IMathBase
 		{
 		public:
 			CMathBase();
@@ -30,7 +31,5 @@ namespace SoaringLoong
 			static float sin_look[361]; // 1 extra so we can store 0-360 inclusive
 			static bool isBuildFastTable;
 		};
-
-
 	}
 }

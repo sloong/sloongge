@@ -18,3 +18,7 @@
 // defines for ants
 #define NUM_ANTS         5 // just change this to whatever, but only 8 ants will be displayed
 #define NUM_ANTS_FORM		9
+
+
+#define RAND_RANGE(x,y) ( (x) + (rand()%((y)-(x)+1)))
+

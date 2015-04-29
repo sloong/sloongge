@@ -1,13 +1,15 @@
 #pragma once
 
-#ifdef SLOONGENGINE_EXPORTS
-#define SLOONGENGINE_API __declspec(dllexport)
+#ifdef SLOONGGRAPHIC_EXPORTS
+#define SLOONGGRAPHIC_API __declspec(dllexport)
 #else
-#define SLOONGENGINE_API __declspec(dllimport)
+#define SLOONGGRAPHIC_API __declspec(dllimport)
 #endif
+
 
 // DEFINES ////////////////////////////////////////////////
 #include "IUniversal.h"
+#include <ddraw.h>    // directX includes
 // default screen values, these are all overriden by the 
 // call to DDraw_Init() and are just here to have something
 // to set the globals to instead of constant values
@@ -55,13 +57,9 @@
 
 
 // TYPES //////////////////////////////////////////////////
-#include "SloongPolygon.h"
-using SoaringLoong::Math::Polygon::CPolygon2D;
-
 namespace SoaringLoong
 {
 	class CRect;
-	using namespace SoaringLoong::Math;
 	namespace Graphics
 	{
 		// blinking light structure
@@ -80,7 +78,7 @@ namespace SoaringLoong
 		} BLINKER, *BLINKER_PTR;
 
 	
-		class SLOONGENGINE_API CDDraw
+		class SLOONGGRAPHIC_API CDDraw
 		{
 		public:
 			CDDraw();
@@ -91,7 +89,7 @@ namespace SoaringLoong
 			static HRESULT DrawClipLine(int x0, int y0, int x1, int y1, COLORREF color, LPBYTE lpVideoBuffer, int lpitch, RECT rcScreen);
 			static int Clip_Line(int &x1, int &y1, int &x2, int &y2, RECT rcScreen);
 			static int Draw_Line(int xo, int yo, int x1, int y1, COLORREF color, LPBYTE vb_start, int lpitch);
-			int DrawPolygon2D(CPolygon2D* poly, LPBYTE vbuffer, int lpitch, RECT rcScreen);
+			//int DrawPolygon2D(CPolygon2D* poly, LPBYTE vbuffer, int lpitch, RECT rcScreen);
 			
 		
 		public:// Member function
@@ -111,7 +109,7 @@ namespace SoaringLoong
 			// Draw function
 			HRESULT DrawClipLine(int x0, int y0, int x1, int y1, COLORREF color);
 			int Clip_Line(int &x1, int &y1, int &x2, int &y2);
-			int DrawPolygon2D(CPolygon2D* poly);
+			//int DrawPolygon2D(CPolygon2D* poly);
 
 		public:
 			// TODO:: 还未整理的函数
@@ -192,14 +190,14 @@ namespace SoaringLoong
 
 
 			// general 2D 8-bit, 16-bit polygon rendering and transforming functions
-			void Draw_Filled_Polygon2D(CPolygon2D* poly, UCHAR *vbuffer, int mempitch);
+			//void Draw_Filled_Polygon2D(CPolygon2D* poly, UCHAR *vbuffer, int mempitch);
 
 			
 
 			// collision detection functions
-			int Find_Bounding_Box_Poly2D(CPolygon2D* poly,
-				float &min_x, float &max_x,
-				float &min_y, float &max_y);
+// 			int Find_Bounding_Box_Poly2D(CPolygon2D* poly,
+// 				float &min_x, float &max_x,
+// 				float &min_y, float &max_y);
 
 			// memory manipulation functions
 			inline void Mem_Set_WORD(void *dest, USHORT data, int count);

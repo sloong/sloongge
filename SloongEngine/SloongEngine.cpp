@@ -7,7 +7,9 @@
 
 using namespace SoaringLoong;
 
-
+#pragma comment(lib,"SloongGraphic.lib")
+#pragma comment(lib,"SloongMath.lib")
+#pragma comment(lib,"Universal.lib")
 
 CSloongEngine* SoaringLoong::CSloongEngine::theEngine = nullptr;
 // This is the constructor of a class that has been exported.
