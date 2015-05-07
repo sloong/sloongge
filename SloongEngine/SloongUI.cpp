@@ -78,7 +78,8 @@ void CUserInterface::Render()
 
 		for each (auto item in *m_p3DKeyIDMap)
 		{
-			auto pObject = (*m_p3DObjectMap)[item.second];
+			auto pObject = (*m_p3DObjectMap)[item.first];
+			pObject->SetCurrentIndex(item.second);
 			pObject->Cull(m_pCamera, CULL_MODE::CULL_ON_XYZ_PLANES);
 			if ( pObject->Visible())
 			{
@@ -88,7 +89,6 @@ void CUserInterface::Render()
 				pObject->PerspectiveToScreen(m_pCamera);
 				pObject->Render();
 			}
-
 		}
 	}
 	catch (CException& e)

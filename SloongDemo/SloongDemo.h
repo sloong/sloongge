@@ -67,6 +67,7 @@ public:
 public:
 	static int Version(lua_State* l);
 	static int RegisterEvent(lua_State* l);
+	static int RegisterKeyboardEvent(lua_State* l);
 	static int CreateGUIItem(lua_State* l);
 	static int DeleteGUIItem(lua_State* l);
 	static int MoveGUIItem(lua_State* l);
@@ -101,9 +102,7 @@ public:
 	static bool InRect(const CSize& pos, const CRect& rc);
 
 private:
-	static CLua* g_pLua;
 	static CSloongGame* g_pApp;
-	static CUIManager* g_pUIManager;
 
 public:
 	HINSTANCE	m_hInst;
@@ -111,6 +110,8 @@ public:
 	LPCTSTR		m_strWindowClass;
 	HWND		m_hMainWnd;
 	CDDraw*		m_pDraw;
+	CUIManager*			m_pUIManager;
+	CLua*				m_pLua;
 	IUniversal*			m_pUniversal;
 	ILogSystem*			m_pLog;
 	CSloongD3D*			m_pD3D;

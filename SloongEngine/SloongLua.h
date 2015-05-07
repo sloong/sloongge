@@ -10,7 +10,6 @@
 
 namespace SoaringLoong
 {
-
 	extern "C" {
 #include "..\\SloongLua\\lua-5.3.0\\src\\lua.h"
 #include "..\\SloongLua\\lua-5.3.0\\src\\lualib.h"
@@ -29,6 +28,22 @@ namespace SoaringLoong
 	{
 		LPCTSTR strFunctionName;
 		LuaFunctionType pFunction;
+	};
+
+	enum LuaType
+	{
+		TNONE = -1,
+
+		TNIL = 0,
+		TBOOLEAN = 1,
+		TLIGHTUSERDATA = 2,
+		TNUMBER = 3,
+		TSTRING = 4,
+		TTABLE = 5,
+		TFUNCTION = 6,
+		TUSERDATA = 7,
+		TTHREAD = 8,
+		NUMTAGS = 9,
 	};
 
 	class SLOONGENGINE_API CLua
@@ -50,6 +65,8 @@ namespace SoaringLoong
 		void	PushNumber(double dValue);
 		void	SetErrorHandle(void(*pErrHandler)(LPCTSTR strError)) { m_pErrorHandler = pErrHandler; }
 		lua_State*	GetScriptContext()	{ return m_pScriptContext; }
+		map<tstring, tstring> GetTableParam(int index);
+		LuaType	CheckType(int index);
 
 	public:
 		static string UnicodeToANSI(LPCWSTR strWide);

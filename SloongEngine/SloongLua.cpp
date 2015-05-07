@@ -194,3 +194,38 @@ void SoaringLoong::CLua::HandlerError(LPCTSTR strErrorType,LPCTSTR strCmd)
 		m_pErrorHandler(strMessage.GetString().c_str());
 	}
 }
+
+map<tstring, tstring> SoaringLoong::CLua::GetTableParam(int index)
+{
+	auto L = m_pScriptContext;
+	map<tstring, tstring> data;
+	lua_pushnil(L);
+	// 现在的栈：-1 => nil; index => table
+	//index = lua_gettop(L);
+	//index = index - 1;
+	while (lua_next(L, index))
+	{
+		// 现在的栈：-1 => value; -2 => key; index => table
+		// 拷贝一份 key 到栈顶，然后对它做 lua_tostring 就不会改变原始的 key 值了
+		lua_pushvalue(L, -2);
+		// 现在的栈：-1 => key; -2 => value; -3 => key; index => table
+
+		CString key = lua_tostring(L, -1);
+		CString value = lua_tostring(L, -2);
+
+		data[key.GetString()] = value.GetString();
+		// 弹出 value 和拷贝的 key，留下原始的 key 作为下一次 lua_next 的参数
+		lua_pop(L, 2);
+		// 现在的栈：-1 => key; index => table
+	}
+	// 现在的栈：index => table （最后 lua_next 返回 0 的时候它已经把上一次留下的 key 给弹出了）
+	// 所以栈已经恢复到进入这个函数时的状态
+	return data;
+
+}
+
+SoaringLoong::LuaType SoaringLoong::CLua::CheckType(int index)
+{
+	int nType = lua_type(m_pScriptContext, index);
+	return (LuaType)nType;
+}

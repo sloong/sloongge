@@ -27,9 +27,7 @@ using namespace SoaringLoong::Graphics;
 using namespace SoaringLoong::Universal;
 using namespace SoaringLoong::Graphics3D;
 // Global Variables:							
-CLua* CSloongGame::g_pLua;
 CSloongGame* CSloongGame::g_pApp = NULL;
-CUIManager* CSloongGame::g_pUIManager = NULL;
 LuaFunctionRegistr CSloongGame::g_LuaFunctionList[] =
 {
 	{ _T("Version"), CSloongGame::Version },
@@ -46,6 +44,7 @@ LuaFunctionRegistr CSloongGame::g_LuaFunctionList[] =
 	{ _T("Exit"), CSloongGame::Exit },
 	{ _T("Load3DModule"), CSloongGame::Load3DModule},
 	{ _T("CreateCamera"), CSloongGame::CreateCamera },
+	{ _T("RegisterKeyboardEvent"), CSloongGame::RegisterKeyboardEvent },
 };
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
@@ -70,7 +69,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 CSloongGame::CSloongGame()
 {
-	g_pLua = NULL;
+	m_pLua = NULL;
 	m_hMainWnd = NULL;
 	m_strTitle = _T("SloongGame");
 	m_strWindowClass = _T("SLOONGGAME");
@@ -82,8 +81,8 @@ CSloongGame::~CSloongGame()
 {
 	SAFE_RELEASE(m_pLog);
 	SAFE_RELEASE(m_pUniversal);
-	SAFE_DELETE(g_pLua);
-	SAFE_DELETE(g_pUIManager);
+	SAFE_DELETE(m_pLua);
+	SAFE_DELETE(m_pUIManager);
 	CoUninitialize();
 }
 
@@ -164,11 +163,11 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	try
 	{
-		g_pLua = new CLua();
-		g_pLua->SetErrorHandle(CSloongGame::ErrorHandler);
+		m_pLua = new CLua();
+		m_pLua->SetErrorHandle(CSloongGame::ErrorHandler);
 		for (int i = 0; i < ARRAYSIZE(g_LuaFunctionList); i++)
 		{
-			g_pLua->AddFunction(g_LuaFunctionList[i].strFunctionName, g_LuaFunctionList[i].pFunction);
+			m_pLua->AddFunction(g_LuaFunctionList[i].strFunctionName, g_LuaFunctionList[i].pFunction);
 		}
 		m_pEngine = new CSloongEngine();
 		m_pEngine->SetEnentHandler(SendEvent);
@@ -182,10 +181,10 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 		m_pDraw = new CDDraw();
 		m_pDraw->Initialize(m_hMainWnd, m_rcWindow.Width(), m_rcWindow.Height(), SCREEN_BPP, FULLSCREEN);
 
-		g_pUIManager = new CUIManager();
-		g_pUIManager->Initialize(m_pDraw, g_pLua, m_pLog, m_hMainWnd);
+		m_pUIManager = new CUIManager();
+		m_pUIManager->Initialize(m_pDraw, m_pLua, m_pLog, m_hMainWnd);
 
-		g_pLua->RunScript(_T("Start.lua"));
+		m_pLua->RunScript(_T("Start.lua"));
 
 		//InitTest();
 	}
@@ -224,7 +223,7 @@ LRESULT CALLBACK CSloongGame::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 
 void CSloongGame::Shutdown()
 {
-	SAFE_DELETE(g_pLua);
+	SAFE_DELETE(m_pLua);
 
 	PostQuitMessage(0);
 }
@@ -257,16 +256,18 @@ int CSloongGame::Run()
 
 LuaRes CSloongGame::Version(lua_State* l)
 {
-	tstring str = g_pLua->GetStringArgument(1);
+	tstring str = GetSloongLua()->GetStringArgument(1);
 	MessageBox(NULL, str.c_str(), _T("Test"), MB_OK);
 	return 0;
 }
 
 LuaRes CSloongGame::RegisterEvent(lua_State* l)
 {
-	if (g_pLua)
+	auto pLua = GetSloongLua();
+	if (pLua)
 	{
-		auto handlerName = g_pLua->GetStringArgument(1);
+		auto handlerName = pLua->GetStringArgument(1);
+		auto param = pLua->GetNumberArgument(2);
 		GetSloongUIManager()->GetCurrentUI()->SetEventHandler(handlerName.c_str());
 	}
 	return 0;
@@ -275,7 +276,8 @@ LuaRes CSloongGame::RegisterEvent(lua_State* l)
 LuaRes CSloongGame::SendEvent(int id, LPCTSTR args)
 {
 	auto strEventHandler = GetSloongUIManager()->GetCurrentUI()->GetEventHandler();
-	if (g_pLua && !strEventHandler.empty())
+	auto pLua = GetSloongLua();
+	if (pLua && !strEventHandler.empty())
 	{
 		TCHAR buf[256] = { 0 };
 		if (args)
@@ -286,7 +288,7 @@ LuaRes CSloongGame::SendEvent(int id, LPCTSTR args)
 		{
 			_stprintf_s(buf, 256, _T("%d"), id);
 		}
-		g_pLua->RunFunction(strEventHandler.c_str(), buf);
+		pLua->RunFunction(strEventHandler.c_str(), buf);
 	}
 	return 0;
 }
@@ -345,19 +347,20 @@ int CSloongGame::CreateGUIItem(lua_State* l)
 
 int CSloongGame::DeleteGUIItem(lua_State* l)
 {
-	g_pUIManager->DeleteItem(g_pLua->GetNumberArgument(1));
+	GetSloongUIManager()->DeleteItem(GetSloongLua()->GetNumberArgument(1));
 	return 0;
 }
 
 int CSloongGame::MoveGUIItem(lua_State* l)
 {
-	UINT nID = g_pLua->GetNumberArgument(1);
+	auto pLua = GetSloongLua();
+	UINT nID = pLua->GetNumberArgument(1);
 	CRect rc;
-	rc.SetRect(g_pLua->GetNumberArgument(2),
-		g_pLua->GetNumberArgument(3),
-		g_pLua->GetNumberArgument(4) + g_pLua->GetNumberArgument(2),
-		g_pLua->GetNumberArgument(5) + g_pLua->GetNumberArgument(3));
-	g_pUIManager->MoveItem(nID, rc);
+	rc.SetRect(pLua->GetNumberArgument(2),
+		pLua->GetNumberArgument(3),
+		pLua->GetNumberArgument(4) + pLua->GetNumberArgument(2),
+		pLua->GetNumberArgument(5) + pLua->GetNumberArgument(3));
+	GetSloongUIManager()->MoveItem(nID, rc);
 	return 0;
 }
 
@@ -417,12 +420,19 @@ int CSloongGame::Load3DModule(lua_State* l)
 
 CLua* CSloongGame::GetSloongLua()
 {
-	return g_pLua;
+	if ( g_pApp )
+	{
+		return g_pApp->m_pLua;
+	}
+	return nullptr;
 }
 
 void CSloongGame::SetSloongLua(CLua* pLua)
 {
-	g_pLua = pLua;
+	if (g_pApp)
+	{
+		g_pApp->m_pLua = pLua;
+	}
 }
 
 CSloongGame* CSloongGame::GetAppMain()
@@ -437,7 +447,11 @@ void CSloongGame::SetAppMain(CSloongGame* pApp)
 
 CUIManager* CSloongGame::GetSloongUIManager()
 {
-	return g_pUIManager;
+	if ( g_pApp )
+	{
+		return g_pApp->m_pUIManager;
+	}
+	return nullptr;
 }
 
 void CSloongGame::Render()
@@ -712,5 +726,13 @@ int CSloongGame::CreateCamera(lua_State* l)
 	pCam->Initialize(CAMERA_ELUER, vPos, vDir, &vTarget, CAM_ROT_SEQ_XYZ, fNearN, fFarN, fFOV, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	pUIM->SetCamera(pCam);
+	return 0;
+}
+
+int CSloongGame::RegisterKeyboardEvent(lua_State* l)
+{
+	auto temp = GetSloongLua()->CheckType(1);
+	auto temp1 = GetSloongLua()->GetTableParam(1);
+	auto map = GetSloongLua()->GetTableParam(2);
 	return 0;
 }
