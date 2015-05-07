@@ -142,26 +142,37 @@ void SoaringLoong::Graphics::CUIManager::Initialize(CDDraw* pDDraw, CLua* pLua, 
 	m_hWnd = hWnd;
 }
 
-void SoaringLoong::Graphics::CUIManager::Load3DModule(const int& nID, const CString& strFileName, const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRotate)
+void SoaringLoong::Graphics::CUIManager::Load3DModule(const int& nID, const tstring& strFileName, const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRotate)
 {
-	auto& item = m_pModuleMap->find(strFileName.GetString());
+	auto& item = m_pModuleMap->find(strFileName);
 	if (item == m_pModuleMap->end())
 	{
 		IObject* pObject = IObject::Create3D(m_pDDraw);
-		pObject->LoadPLGMode(strFileName.GetString().c_str());
+		pObject->LoadPLGMode(strFileName.c_str());
+		(*m_pModuleMap)[strFileName] = pObject;
+		item = m_pModuleMap->find(strFileName);
 	}
-	else
-	{
-		item->second->AddObject(nID, vScale, vPos, vRotate);
-	}
+	
+	// 添加當前模型引用
+	int nIndex = item->second->AddObject(vScale, vPos, vRotate);
+	auto pUI = GetCurrentUI();
+	// 添加當前模型指針和ID索引到當前界面
+	pUI->Add3DObject(nID, nIndex, item->second);
+	
 }
 
 void SoaringLoong::Graphics::CUIManager::Move3DModule(const int& nID, const CVector4D& vPos)
 {
-	
+	GetCurrentUI()->Move3DObject(nID, vPos);
 }
 
 void SoaringLoong::Graphics::CUIManager::Delete3DModule(const int& nID)
 {
 
+}
+
+void SoaringLoong::Graphics::CUIManager::SetCamera(CCamera* pCamera)
+{
+	m_pCamera = pCamera;
+	GetCurrentUI()->SetCamera(m_pCamera);
 }

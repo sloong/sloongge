@@ -56,10 +56,9 @@ namespace SoaringLoong
 			virtual void RemoveBackface(CCamera* cam);
 			virtual bool Visible();
 
-			virtual void SetCurrentKey(int key);
-			virtual int GetCurrentKey();
+			virtual void SetCurrentIndex(int index);
 			virtual int GetCurrentIndex();
-			virtual int AddObject(int key, const CVector4D& vPos, const CVector4D& vScale, const CVector4D& vRot);
+			virtual int AddObject( const CVector4D& vPos, const CVector4D& vScale, const CVector4D& vRot);
 
 			virtual void GetRadius(double& avg, double& max);
 		protected:
@@ -84,9 +83,7 @@ namespace SoaringLoong
 			vector<CVector4D*>*	m_pRotateList;
 			vector<double>*		m_fAvgRadiusList;
 			vector<double>*		m_fMaxRadiusList;
-			int					m_nCurrentKey;
-			int					m_nCurrentIndex;
-			map<int, int>*		m_pKeytoIndex;
+			int					m_nCurrent;
 		};
 	}
 }

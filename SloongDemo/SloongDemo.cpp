@@ -45,6 +45,7 @@ LuaFunctionRegistr CSloongGame::g_LuaFunctionList[] =
 	{ _T("StartTimer"), CSloongGame::StartTimer },
 	{ _T("Exit"), CSloongGame::Exit },
 	{ _T("Load3DModule"), CSloongGame::Load3DModule},
+	{ _T("CreateCamera"), CSloongGame::CreateCamera },
 };
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
@@ -186,7 +187,7 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 		g_pLua->RunScript(_T("Start.lua"));
 
-		InitTest();
+		//InitTest();
 	}
 	catch (CException& e)
 	{
@@ -401,7 +402,16 @@ int CSloongGame::Exit(lua_State* l)
 
 int CSloongGame::Load3DModule(lua_State* l)
 {
-	
+	auto pUIM = GetSloongUIManager();
+	auto pLua = GetSloongLua();
+	int nID = pLua->GetNumberArgument(1);
+	tstring strFile = pLua->GetStringArgument(2);
+	CVector4D vPos(pLua->GetNumberArgument(3), pLua->GetNumberArgument(4), pLua->GetNumberArgument(5));
+	CVector4D vScale(pLua->GetNumberArgument(6), pLua->GetNumberArgument(7), pLua->GetNumberArgument(8));
+	CVector4D vRot(pLua->GetNumberArgument(9), pLua->GetNumberArgument(10), pLua->GetNumberArgument(11));
+
+	pUIM->Load3DModule(nID, strFile, vPos, vScale, vRot);
+
 	return 0;
 }
 
@@ -432,7 +442,7 @@ CUIManager* CSloongGame::GetSloongUIManager()
 
 void CSloongGame::Render()
 {
-	//GetSloongUIManager()->Update();
+	GetSloongUIManager()->Update();
 	m_pDraw->DDrawFillBackSurface(0);
 
 	if (KEY_DOWN(VK_ESCAPE))
@@ -442,8 +452,8 @@ void CSloongGame::Render()
 		m_pDraw->Screen_Transitions(SCREEN_DARKNESS, NULL, 0);
 
 	}
-	//GetSloongUIManager()->GetCurrentUI()->Render();
-	RenderTest();
+	GetSloongUIManager()->GetCurrentUI()->Render();
+	//RenderTest();
 	// Flip
 	m_pDraw->DDraw_Flip();
 }
@@ -503,7 +513,7 @@ void CSloongGame::InitTest()
 	// position the tanks
 	for (int index = 0; index < NUM_TANKS; index++)
 	{
-		obj_tank->AddObject(index, CVector4D(
+		obj_tank->AddObject( CVector4D(
 			RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS),
 			0,
 			RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS)),vscale,vrot);
@@ -513,7 +523,7 @@ void CSloongGame::InitTest()
 	// load player object for 3rd person view
 	vscale.Initialize(0.75, 0.75, 0.75);
 	obj_player->LoadPLGMode(_T("DXFile\\tank3.plg") );
-	obj_player->AddObject(0, vpos, vscale, vrot);
+	obj_player->AddObject( vpos, vscale, vrot);
 
 	// load the master tower object
 	vscale.Initialize(1.0, 2.0, 1.0);
@@ -522,7 +532,7 @@ void CSloongGame::InitTest()
 	// position the towers
 	for (int index = 0; index < NUM_TOWERS; index++)
 	{
-		obj_tower->AddObject(index, CVector4D(
+		obj_tower->AddObject( CVector4D(
 			RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS),
 			0,
 			RAND_RANGE(-UNIVERSE_RADIUS, UNIVERSE_RADIUS)), vscale,vrot);
@@ -538,16 +548,14 @@ void CSloongGame::InitTest()
 #define NUM_POINTS_Z      (2*UNIVERSE_RADIUS/POINT_SIZE)
 #define NUM_POINTS        (NUM_POINTS_X*NUM_POINTS_Z)
 	// insert the ground markers into the world
-	int loopIndex = 0;
 	double avg, max = 0.0;
 	
 	for (int index_x = 0; index_x < NUM_POINTS_X; index_x++)
 	for (int index_z = 0; index_z < NUM_POINTS_Z; index_z++)
 	{
-		loopIndex++;
 		
 		// set position of tower
- 		obj_marker->AddObject(loopIndex, CVector4D(
+ 		obj_marker->AddObject( CVector4D(
  			RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_x*POINT_SIZE,
  			max,
  			RAND_RANGE(-100, 100) - UNIVERSE_RADIUS + index_z*POINT_SIZE), vscale,vrot);
@@ -685,4 +693,24 @@ void CSloongGame::RenderTest()
 
 	// sync to 30ish fps
 	m_pDraw->Wait_Clock(30);
+}
+
+int CSloongGame::CreateCamera(lua_State* l)
+{
+	auto pLua = GetSloongLua();
+	auto pUIM = GetSloongUIManager();
+
+	CVector4D vPos(pLua->GetNumberArgument(1), pLua->GetNumberArgument(2), pLua->GetNumberArgument(3));
+	CVector4D vDir(pLua->GetNumberArgument(4), pLua->GetNumberArgument(5), pLua->GetNumberArgument(6));
+	CVector4D vTarget(pLua->GetNumberArgument(7), pLua->GetNumberArgument(8), pLua->GetNumberArgument(9));
+
+	double fNearN = pLua->GetNumberArgument(10);
+	double fFarN = pLua->GetNumberArgument(11);
+	double fFOV = pLua->GetNumberArgument(12);
+
+	CCamera* pCam = new CCamera();
+	pCam->Initialize(CAMERA_ELUER, vPos, vDir, &vTarget, CAM_ROT_SEQ_XYZ, fNearN, fFarN, fFOV, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	pUIM->SetCamera(pCam);
+	return 0;
 }

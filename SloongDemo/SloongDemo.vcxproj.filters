@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Script Files">
+      <UniqueIdentifier>{841a2533-5498-472c-88b9-8bd9ba237f8c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -57,5 +60,22 @@
     <Image Include="Sloong.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\Define.lua">
+      <Filter>Script Files</Filter>
+    </None>
+    <None Include="Scripts\game.lua">
+      <Filter>Script Files</Filter>
+    </None>
+    <None Include="Scripts\Loading.lua">
+      <Filter>Script Files</Filter>
+    </None>
+    <None Include="Scripts\Menu.lua">
+      <Filter>Script Files</Filter>
+    </None>
+    <None Include="Scripts\Start.lua">
+      <Filter>Script Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

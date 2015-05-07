@@ -134,9 +134,8 @@ namespace SoaringLoong
 			virtual void RemoveBackface(CCamera* cam) = 0;
 			virtual bool Visible() = 0;
 
-			virtual int AddObject(int key, const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRot) = 0;
-			virtual void SetCurrentKey(int key) = 0;
-			virtual int GetCurrentKey() = 0;
+			virtual int AddObject( const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRot) = 0;
+			virtual void SetCurrentIndex(int index) = 0;
 			virtual int GetCurrentIndex() = 0;
 
 			virtual void GetRadius(double& avg, double& max) = 0;

@@ -20,7 +20,7 @@ SoaringLoong::Graphics3D::CObject3D::CObject3D(CDDraw* pDDraw)
 	m_pProjectMatrix = nullptr;
 	m_pScreenMatrix = nullptr;
 	m_pDDraw = pDDraw;
-	m_nCurrentIndex = 0;
+	m_nCurrent = 0;
 	m_nNumObjects = 0;
 
 	m_pPolygonList = new vector<IPolygon*>;
@@ -33,7 +33,6 @@ SoaringLoong::Graphics3D::CObject3D::CObject3D(CDDraw* pDDraw)
 	m_fMaxRadiusList = new vector<double>;
 	m_dwAttribute = new vector<DWORD>;
 	m_dwStatus = new vector<DWORD>;
-	m_pKeytoIndex = new map<int, int>;
 }
 
 SoaringLoong::Graphics3D::CObject3D::~CObject3D()
@@ -73,7 +72,6 @@ SoaringLoong::Graphics3D::CObject3D::~CObject3D()
 	SAFE_DELETE(m_fAvgRadiusList);
 	SAFE_DELETE(m_dwAttribute);
 	SAFE_DELETE(m_dwStatus);
-	SAFE_DELETE(m_pKeytoIndex);
 }
 
 void SoaringLoong::Graphics3D::CObject3D::Update()
@@ -182,9 +180,9 @@ void SoaringLoong::Graphics3D::CObject3D::ComputeRadius()
 	// sent object and opdates the object data
 
 	// reset incase there's any residue
-	auto& avg = m_fAvgRadiusList->at(m_nCurrentIndex);
-	auto& max = m_fMaxRadiusList->at(m_nCurrentIndex);
-	auto& vScale = m_pScaleList->at(m_nCurrentIndex);
+	auto& avg = m_fAvgRadiusList->at(m_nCurrent);
+	auto& max = m_fMaxRadiusList->at(m_nCurrent);
+	auto& vScale = m_pScaleList->at(m_nCurrent);
 
 	// loop thru and compute radius
 	for (int vertex = 0; vertex < m_nNumVertices; vertex++)
@@ -552,7 +550,7 @@ void SoaringLoong::Graphics3D::CObject3D::Move(const CVector4D& vTrans)
 	// NOTE: Not matrix based
 	// this function translates an object without matrices,
 	// simply updates the world_pos
-	m_pWorldPosList->at(m_nCurrentIndex)->Add(vTrans);
+	m_pWorldPosList->at(m_nCurrent)->Add(vTrans);
 }
 
 void SoaringLoong::Graphics3D::CObject3D::Scale(const CVector4D& vScale)
@@ -564,7 +562,7 @@ void SoaringLoong::Graphics3D::CObject3D::Scale(const CVector4D& vScale)
 
 	// for each vertex in the mesh scale the local coordinates by
 	// vs on a componentwise basis, that is, sx, sy, sz
-	m_pScaleList->at(m_nCurrentIndex)->Copy(vScale);
+	m_pScaleList->at(m_nCurrent)->Copy(vScale);
 
 	// now since the object is scaled we have to do something with 
 	// the radii calculation, but we don't know how the scaling
@@ -582,8 +580,8 @@ void SoaringLoong::Graphics3D::CObject3D::Scale(const CVector4D& vScale)
 // 	scale = MAX(scale, vScale.z);
 // 
 // 	// now scale
-// 	m_fAvgRadiusList->at(m_nCurrentIndex) *= scale;
-// 	m_fMaxRadiusList->at(m_nCurrentIndex) *= scale;
+// 	m_fAvgRadiusList->at(m_nCurrent) *= scale;
+// 	m_fMaxRadiusList->at(m_nCurrent) *= scale;
 
 }
 
@@ -652,8 +650,8 @@ void SoaringLoong::Graphics3D::CObject3D::ToWorld(TRANS_MODE emMode)
 	// coords to world coords by translating the vertex list by
 	// the amount world_pos and storing the results in vlist_trans[]
 
-	auto& vScale = m_pScaleList->at(m_nCurrentIndex);
-	auto& vWorldPos = m_pWorldPosList->at(m_nCurrentIndex);
+	auto& vScale = m_pScaleList->at(m_nCurrent);
+	auto& vWorldPos = m_pWorldPosList->at(m_nCurrent);
 
 	if (emMode == TRANS_MODE::LocalToTrans)
 	{
@@ -704,9 +702,9 @@ void SoaringLoong::Graphics3D::CObject3D::Cull(CCamera* cam, CULL_MODE emMode)
 
 	POINT4D sphere_pos; // hold result of transforming center of bounding sphere
 
-	auto& worldPos = m_pWorldPosList->at(m_nCurrentIndex);
-	auto& avg = m_fAvgRadiusList->at(m_nCurrentIndex);
-	auto& max = m_fMaxRadiusList->at(m_nCurrentIndex);
+	auto& worldPos = m_pWorldPosList->at(m_nCurrent);
+	auto& avg = m_fAvgRadiusList->at(m_nCurrent);
+	auto& max = m_fMaxRadiusList->at(m_nCurrent);
 
 	// transform point
 	sphere_pos = cam->MatrixCamera.Multiply(worldPos);
@@ -771,35 +769,35 @@ void SoaringLoong::Graphics3D::CObject3D::Cull(CCamera* cam, CULL_MODE emMode)
 
 void SoaringLoong::Graphics3D::CObject3D::AddStatus(DWORD dwStatus)
 {
-	auto& status = m_dwStatus->at(m_nCurrentIndex);
+	auto& status = m_dwStatus->at(m_nCurrent);
 	status |= dwStatus;
 }
 
 void SoaringLoong::Graphics3D::CObject3D::SetStatus(DWORD dwStatus)
 {
-	auto& status = m_dwStatus->at(m_nCurrentIndex);
+	auto& status = m_dwStatus->at(m_nCurrent);
 	status = dwStatus;
 }
 
 DWORD SoaringLoong::Graphics3D::CObject3D::GetStatus()
 {
-	return m_dwStatus->at(m_nCurrentIndex);
+	return m_dwStatus->at(m_nCurrent);
 }
 
 DWORD SoaringLoong::Graphics3D::CObject3D::GetAttribute()
 {
-	return m_dwAttribute->at(m_nCurrentIndex);
+	return m_dwAttribute->at(m_nCurrent);
 }
 
 void SoaringLoong::Graphics3D::CObject3D::SetAttribute(DWORD dwAttribute)
 {
-	auto& attr = m_dwAttribute->at(m_nCurrentIndex);
+	auto& attr = m_dwAttribute->at(m_nCurrent);
 	attr = dwAttribute;
 }
 
 void SoaringLoong::Graphics3D::CObject3D::AddAttribute(DWORD dwAttribute)
 {
-	auto& attr = m_dwAttribute->at(m_nCurrentIndex);
+	auto& attr = m_dwAttribute->at(m_nCurrent);
 	attr |= dwAttribute;
 }
 
@@ -1039,11 +1037,11 @@ void SoaringLoong::Graphics3D::CObject3D::ConvertFromHomogeneous4D()
 
 void SoaringLoong::Graphics3D::CObject3D::SetWorldPosition(const CVector4D& vPos)
 {
-	if ( m_nCurrentIndex >= m_pWorldPosList->size() )
+	if ( m_nCurrent >= m_pWorldPosList->size() )
 	{
 		m_pWorldPosList->push_back(new CVector4D());
 	}
-	m_pWorldPosList->at(m_nCurrentIndex)->Copy(vPos);
+	m_pWorldPosList->at(m_nCurrent)->Copy(vPos);
 }
 
 SoaringLoong::Math::Vector::CVector4D SoaringLoong::Graphics3D::CObject3D::GetWorldPosition()
@@ -1063,27 +1061,18 @@ bool SoaringLoong::Graphics3D::CObject3D::Visible()
 
 void SoaringLoong::Graphics3D::CObject3D::DeleteStatus(DWORD dwStatus)
 {
-	auto& cur = m_dwStatus->at(m_nCurrentIndex);
+	auto& cur = m_dwStatus->at(m_nCurrent);
 	cur &= (~dwStatus);
 }
 
-void SoaringLoong::Graphics3D::CObject3D::SetCurrentKey(int key)
+void SoaringLoong::Graphics3D::CObject3D::SetCurrentIndex(int index)
 {
-	m_nCurrentKey = key;
-	m_nCurrentIndex = GetCurrentIndex();
+	m_nCurrent = index;
 }
 
-int SoaringLoong::Graphics3D::CObject3D::GetCurrentKey()
+int SoaringLoong::Graphics3D::CObject3D::AddObject( const CVector4D& vPos, const CVector4D& vScale, const CVector4D& vRot)
 {
-	return m_nCurrentKey;
-}
-
-int SoaringLoong::Graphics3D::CObject3D::AddObject(int key, const CVector4D& vPos, const CVector4D& vScale, const CVector4D& vRot)
-{
-	m_nCurrentKey = key;
-	if (m_pKeytoIndex->find(key) == m_pKeytoIndex->end())
-	{
-		(*m_pKeytoIndex)[key] = m_nNumObjects;
+	m_nCurrent = m_nNumObjects;
 		m_nNumObjects++;
 		m_pWorldPosList->push_back(new CVector4D(vPos));
 		m_pScaleList->push_back(new CVector4D(vScale));
@@ -1092,51 +1081,36 @@ int SoaringLoong::Graphics3D::CObject3D::AddObject(int key, const CVector4D& vPo
 		m_fMaxRadiusList->push_back(0);
 		m_dwStatus->push_back(0);
 		m_dwAttribute->push_back(0);
-	}
-	else
-	{
-		m_pWorldPosList->at(m_nCurrentIndex)->Copy(vPos);
-		m_pScaleList->at(m_nCurrentIndex)->Copy(vScale);
-		m_pRotateList->at(m_nCurrentIndex)->Copy(vRot);
-	}
-	m_nCurrentIndex = GetCurrentIndex();
+
 	SetStatus(OBJECT4DV1_STATE_ACTIVE | OBJECT4DV1_STATE_VISIBLE);
 	ComputeRadius();
-	return m_nCurrentIndex;
+	return m_nCurrent;
 }
 
 void SoaringLoong::Graphics3D::CObject3D::GetRadius(double& avg, double& max)
 {
-	avg = m_fAvgRadiusList->at(m_nCurrentIndex);
-	max = m_fMaxRadiusList->at(m_nCurrentIndex);
+	avg = m_fAvgRadiusList->at(m_nCurrent);
+	max = m_fMaxRadiusList->at(m_nCurrent);
 }
 
 int SoaringLoong::Graphics3D::CObject3D::GetCurrentIndex()
 {
-	auto item = m_pKeytoIndex->find(m_nCurrentKey);
-	if (item != m_pKeytoIndex->end())
-	{
-		return item->second;
-	}
-	else
-	{
-		return -1;
-	}
+	return m_nCurrent;
 }
 
 void SoaringLoong::Graphics3D::CObject3D::RenderAll(CCamera* cam,CMatrix4x4* mTrans)
 {
-	int m_nOldIndex = m_nCurrentIndex;
-	for each (auto& item in *m_pKeytoIndex)
+	int nOldIndex = m_nCurrent;
+	for (int i = 0; i < m_nNumObjects;i++)
 	{
-		m_nCurrentIndex = item.second;
+		m_nCurrent = i;
 		Reset();
-		Transform(*mTrans, LocalToTrans, true);
+		//Transform(*mTrans, LocalToTrans, true);
 		Cull(cam, CULL_ON_XYZ_PLANES);
 		if (Visible())
 		{
-			ToWorld(TRANS_MODE::TransOnly);
-			//RemoveBackface(cam);
+			ToWorld(TRANS_MODE::LocalToTrans);
+			RemoveBackface(cam);
 			ToCamera(cam);
 			ToProject(cam);
 			PerspectiveToScreen(cam);
@@ -1145,6 +1119,7 @@ void SoaringLoong::Graphics3D::CObject3D::RenderAll(CCamera* cam,CMatrix4x4* mTr
 
 		}
 	}
+	m_nCurrent = nOldIndex;
 }
 
 SLOONGENGINE_API IObject* SoaringLoong::Graphics3D::IObject::Create3D(CDDraw* pDDraw)

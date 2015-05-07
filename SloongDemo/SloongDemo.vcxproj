@@ -102,6 +102,13 @@
     <Image Include="SloongDemo.ico" />
     <Image Include="small.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\Define.lua" />
+    <None Include="Scripts\game.lua" />
+    <None Include="Scripts\Loading.lua" />
+    <None Include="Scripts\Menu.lua" />
+    <None Include="Scripts\Start.lua" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

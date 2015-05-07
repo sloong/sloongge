@@ -7,16 +7,22 @@
 
 using namespace SoaringLoong;
 using namespace SoaringLoong::Graphics;
+using SoaringLoong::Graphics3D::CULL_MODE;
+using SoaringLoong::Graphics3D::TRANS_MODE;
 
 CUserInterface::CUserInterface()
 {
 	m_ObjectsMap = new map<UINT, CObject*>;
+	m_p3DObjectMap = new map<UINT, IObject*>;
+	m_p3DKeyIDMap = new map<UINT, UINT>;
 }
 
 
 CUserInterface::~CUserInterface()
 {
 	SAFE_DELETE(m_ObjectsMap);
+	SAFE_DELETE(m_p3DKeyIDMap);
+	SAFE_DELETE(m_p3DObjectMap);
 }
 
 void CUserInterface::DeleteObject(UINT nID)
@@ -68,6 +74,21 @@ void CUserInterface::Render()
 				}
 				item++;
 			}
+		}
+
+		for each (auto item in *m_p3DKeyIDMap)
+		{
+			auto pObject = (*m_p3DObjectMap)[item.second];
+			pObject->Cull(m_pCamera, CULL_MODE::CULL_ON_XYZ_PLANES);
+			if ( pObject->Visible())
+			{
+				pObject->ToWorld(TRANS_MODE::LocalToTrans);
+				pObject->ToCamera(m_pCamera);
+				pObject->ToProject(m_pCamera);
+				pObject->PerspectiveToScreen(m_pCamera);
+				pObject->Render();
+			}
+
 		}
 	}
 	catch (CException& e)
@@ -137,4 +158,28 @@ void SoaringLoong::Graphics::CUserInterface::Update( HWND hWnd )
 void SoaringLoong::Graphics::CUserInterface::SetEventHandler(LPCTSTR strName)
 {
 	m_strEventHandlerName = strName;
+}
+
+void SoaringLoong::Graphics::CUserInterface::Add3DObject(UINT nKey, UINT nID,IObject* pObject)
+{
+	(*m_p3DKeyIDMap)[nKey] = nID;
+	(*m_p3DObjectMap)[nKey] = pObject;
+}
+
+void SoaringLoong::Graphics::CUserInterface::SetCamera(CCamera* pCamera)
+{
+	m_pCamera = pCamera;
+}
+
+void SoaringLoong::Graphics::CUserInterface::Move3DObject(UINT nKey, const CVector4D& vPos)
+{
+	// 根據參數Key從KeyIDMap中找到對應的Object ID
+	int nID = (*m_p3DKeyIDMap)[nKey];
+	// 根據參數Key從ObjectMap中找到對應的Object對象
+	auto pObj = (*m_p3DObjectMap)[nKey];
+	// 設置對象的當前的數據索引
+	pObj->SetCurrentIndex(nID);
+	// 設置對象的世界座標
+	pObj->SetWorldPosition(vPos);
+
 }
