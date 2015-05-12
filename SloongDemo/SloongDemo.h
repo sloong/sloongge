@@ -28,6 +28,11 @@ enum UI_EVENT
 	MOUSE_BUTTON_UP,
 };
 
+typedef struct EVENT_PARAM
+{
+	int id;
+	UI_EVENT event;
+}*LPEVENT_PARAM;
 
 namespace SoaringLoong
 {
@@ -84,7 +89,7 @@ public:
 
 public:
 	static int SendEvent(int id, LPCTSTR args);
-	static int SendEvent(int id, UI_EVENT event);
+	static   DWORD WINAPI SendEvent(LPVOID pArgs);
 	static void ErrorHandler(LPCTSTR strError);
 
 public:

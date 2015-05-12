@@ -81,6 +81,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\SloongEngine\ConsoleWindow.h" />
     <ClInclude Include="..\SloongEngine\Defines.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SloongDemo.h" />
@@ -88,6 +89,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\SloongEngine\ConsoleWindow.cpp" />
     <ClCompile Include="SloongDemo.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

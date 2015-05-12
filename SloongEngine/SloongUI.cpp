@@ -4,9 +4,10 @@
 #include "SloongLua.h"
 #include "SloongDraw.h"
 #include "SloongException.h"
-
+#include "SloongEngine.h"
 using namespace SoaringLoong;
 using namespace SoaringLoong::Graphics;
+using namespace SoaringLoong::Universal;
 using SoaringLoong::Graphics3D::CULL_MODE;
 using SoaringLoong::Graphics3D::TRANS_MODE;
 
@@ -97,11 +98,12 @@ void CUserInterface::Render()
 	}
 }
 
-void CUserInterface::Initialize(ctstring& strPath, CDDraw* pDDraw, CLua* pLua, ILogSystem* pLog)
+void CUserInterface::Initialize(ctstring& strPath, CDDraw* pDDraw, DInputClass* pInput, CLua* pLua, ILogSystem* pLog)
 {
 	m_pLog = pLog;
 	m_pLua = pLua;
 	m_pDDraw = pDDraw;
+	m_pInput = pInput;
 	pLua->RunScript(strPath.c_str());
 }
 
@@ -125,6 +127,17 @@ void SoaringLoong::Graphics::CUserInterface::Update( HWND hWnd )
 {
 	try
 	{
+		m_pInput->GetInput();
+		// Update the keyboard event
+		for each (auto& item in m_vKeyboardEvent)
+		{
+			if (m_pInput->IsKeyDown(item))
+			{
+				CSloongEngine::SendEvent(item, UI_EVENT::KEY_PRESS);
+			}
+		}
+
+
 		if (m_ObjectsMap->size())
 		{
 			CPoint pos;
@@ -182,4 +195,9 @@ void SoaringLoong::Graphics::CUserInterface::Move3DObject(UINT nKey, const CVect
 	// 設置對象的世界座標
 	pObj->SetWorldPosition(vPos);
 
+}
+
+void SoaringLoong::Graphics::CUserInterface::RegisterKeyboardEvent(const vector<size_t>& keyList)
+{
+	m_vKeyboardEvent = keyList;
 }

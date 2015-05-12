@@ -9,6 +9,7 @@
 #include "SloongString.h"
 #include "ISloongObject.h"
 #include "SloongCamera.h"
+#include "DInputClass.h"
 namespace SoaringLoong
 {
 	class CRect;
@@ -27,7 +28,7 @@ namespace SoaringLoong
 			CUserInterface();
 			~CUserInterface();
 
-			void Initialize(ctstring& strPath, CDDraw* pDDraw, CLua* pLua, ILogSystem* pLog);
+			void Initialize(ctstring& strPath, CDDraw* pDDraw, DInputClass* pInput, CLua* pLua, ILogSystem* pLog);
 
 			tstring GetEventHandler() const;
 			void SetEventHandler(LPCTSTR strName);
@@ -39,18 +40,22 @@ namespace SoaringLoong
 			void Add3DObject(UINT nKey, UINT nID,IObject* pObject);
 			void Move3DObject(UINT nKey, const CVector4D& vPos);
 
+			void RegisterKeyboardEvent(const vector<size_t>& keyList);
+
 		protected:
 			CObject* FindObject(UINT nID);
 
 		protected:
-			map<UINT, CObject*>* m_ObjectsMap;
+			map<UINT, CObject*>*		m_ObjectsMap;
 			map<UINT, IObject*>*		m_p3DObjectMap;
 			map<UINT, UINT>*			m_p3DKeyIDMap;
-			CString m_strEventHandlerName;
-			CLua*				m_pLua;
-			ILogSystem*			m_pLog;
-			CDDraw*				m_pDDraw;
-			CCamera*			m_pCamera;
+			vector<size_t>				m_vKeyboardEvent;
+			CString						m_strEventHandlerName;
+			CLua*						m_pLua;
+			ILogSystem*					m_pLog;
+			CDDraw*						m_pDDraw;
+			CCamera*					m_pCamera;
+			DInputClass*				m_pInput;
 		public:
 			void Update( HWND hWnd );
 		};

@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "SloongException.h"
 
-using SoaringLoong::CException;
+using SoaringLoong::Universal::CException;
+using SoaringLoong::Universal::CString;
 
 CException::CException( LPCTSTR lpStr )
 {
@@ -14,7 +15,7 @@ CException::CException(LPCTSTR lpStr, HRESULT hRes)
 	m_hResult = hRes;
 }
 
-SoaringLoong::CException::CException(CString strMessage)
+CException::CException(CString strMessage)
 {
 	m_strMessage = strMessage;
 }

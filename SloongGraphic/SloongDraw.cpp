@@ -424,6 +424,15 @@ int CDDraw::DrawPolygon2D(CPolygon2D* poly, LPBYTE vbuffer, int lpitch, RECT rcS
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 
+int CDDraw::DrawText(LPCTSTR strText, int x, int y, COLORREF dwColor)
+{
+	DDraw_Lock_Back_Surface();
+	DrawText(strText, x, y, dwColor, GetBackSurface());
+	DDraw_Unlock_Back_Surface();
+	return 0;
+} // end Draw_Text_GDI
+
+
 int CDDraw::DrawText(LPCTSTR strText, int x, int y, COLORREF dwColor, LPDIRECTDRAWSURFACE7 lpdds)
 {
 	// this function draws the sent text on the sent surface 
@@ -863,8 +872,6 @@ inline void CDDraw::Mem_Set_QUAD(void *dest, UINT data, int count)
 int CDDraw::Initialize(HWND hWnd, int width, int height, int bpp, bool bFullScreen)
 {
 	// this function initializes directdraw
-	int index; // looping variable
-
 	m_hWnd = hWnd;
 	// create IDirectDraw interface 7.0 object and test for error
 	if (FAILED(DirectDrawCreateEx(NULL, (void **)&m_pDDraw, IID_IDirectDraw7, NULL)))
@@ -1331,30 +1338,6 @@ int CDDraw::Draw_Rectangle(int x1, int y1, int x2, int y2, int color,
 	return(1);
 
 } // end Draw_Rectangle
-
-///////////////////////////////////////////////////////////
-
-int CDDraw::Rotate_Colors(int start_index, int end_index)
-{
-	// this function rotates the color between start and end
-
-	int colors = end_index - start_index + 1;
-
-	PALETTEENTRY work_pal[MAX_COLORS_PALETTE]; // working palette
-
-	// get the color palette
-// 	lpddpal->GetEntries(0, start_index, colors, work_pal);
-// 
-// 	// shift the colors
-// 	lpddpal->SetEntries(0, start_index + 1, colors - 1, work_pal);
-// 
-// 	// fix up the last color
-// 	lpddpal->SetEntries(0, start_index, 1, &work_pal[colors - 1]);
-
-	// return success
-	return(1);
-
-} // end Rotate_Colors
 
 ///////////////////////////////////////////////////////////   
 

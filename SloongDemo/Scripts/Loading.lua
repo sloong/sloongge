@@ -1,6 +1,6 @@
 g_Loading_GUI_Item = 
 {
-	--[10] = { g_str_Sprite_Name, 0,0,800,600, "Textures\\UI_BG_MAINMENU.bmp"},
+	[10] = { g_str_Sprite_Name, 0,0,800,600, "Textures\\UI_BG_MAINMENU.bmp"},
 	[11] = { g_str_Button_Name,0,0,293,67,"Textures\\UIB_BACK_DN.BMP", 
 		"Textures\\UIB_BACK_HV.BMP", "Textures\\UIB_BACK_UP.BMP", "Textures\\UIB_BACK_UP.BMP",
 		['Hanlder'] = 	function(event)

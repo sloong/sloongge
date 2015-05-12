@@ -67,13 +67,12 @@ namespace SoaringLoong
 		lua_State*	GetScriptContext()	{ return m_pScriptContext; }
 		map<tstring, tstring> GetTableParam(int index);
 		LuaType	CheckType(int index);
+		size_t  StringToNumber(LPCTSTR string);
 
-	public:
-		static string UnicodeToANSI(LPCWSTR strWide);
-		static wstring ANSIToUnicode(LPCSTR strMulti);
 	private:
 		lua_State *m_pScriptContext;
 		void(*m_pErrorHandler)(LPCTSTR strError);
+		HANDLE	m_pMutex;
 	};
 
 }

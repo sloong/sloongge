@@ -112,7 +112,7 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	CSloongGame::MyRegisterClass(hInstance);
 
-	if (SUCCEEDED(CreateUniversal((LPVOID*)&m_pUniversal)))
+	if (SUCCEEDED(CreateUniversal((LPVOID*)&m_pUniversal)) && m_pUniversal )
 	{
 		if (SUCCEEDED(m_pUniversal->CreateLogSystem(m_pUniversal, &m_pLog)))
 		{
@@ -172,7 +172,7 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 		m_pEngine = new CSloongEngine();
 		m_pEngine->SetEnentHandler(SendEvent);
 
-		//CWinConsole::StartConsole(m_hInst, g_pLua);
+		CWinConsole::StartConsole(m_hInst, m_pLua);
 
 		//  		m_pD3D = new CSloongD3D();
 		//  		m_pD3D->Init(m_hMainWnd, m_hInst);
@@ -182,7 +182,7 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 		m_pDraw->Initialize(m_hMainWnd, m_rcWindow.Width(), m_rcWindow.Height(), SCREEN_BPP, FULLSCREEN);
 
 		m_pUIManager = new CUIManager();
-		m_pUIManager->Initialize(m_pDraw, m_pLua, m_pLog, m_hMainWnd);
+		m_pUIManager->Initialize(m_pDraw, m_pLua, m_pInput,m_pLog, m_hMainWnd);
 
 		m_pLua->RunScript(_T("Start.lua"));
 
@@ -298,11 +298,17 @@ int CSloongGame::SendEvent(lua_State* l)
 	return 0;
 }
 
-int CSloongGame::SendEvent(int id, UI_EVENT event)
+DWORD CSloongGame::SendEvent(LPVOID pArgs)
 {
+	LPEVENT_PARAM pParam = (LPEVENT_PARAM)pArgs;
+	if ( pParam->id < 0 || pParam->event < 0)
+	{
+		return 0;
+	}
 	CString str;
-	str.Format(_T("%d"), event);
-	SendEvent(id, str.GetString().c_str());
+	str.Format(_T("%d"), pParam->event);
+	SendEvent(pParam->id, str.GetString().c_str());
+	SAFE_DELETE(pArgs);
 	return 0;
 }
 
@@ -466,7 +472,11 @@ void CSloongGame::Render()
 		m_pDraw->Screen_Transitions(SCREEN_DARKNESS, NULL, 0);
 
 	}
+	
 	GetSloongUIManager()->GetCurrentUI()->Render();
+	CString str;
+	str.Format(_T("Current Event List:%d"), CSloongEngine::GetEventListTotal());
+	m_pDraw->DrawText(str.GetString().c_str(), 0, 0, RGB(255, 255, 255));
 	//RenderTest();
 	// Flip
 	m_pDraw->DDraw_Flip();
@@ -733,6 +743,12 @@ int CSloongGame::RegisterKeyboardEvent(lua_State* l)
 {
 	auto temp = GetSloongLua()->CheckType(1);
 	auto temp1 = GetSloongLua()->GetTableParam(1);
-	auto map = GetSloongLua()->GetTableParam(2);
+	auto pLua = GetSloongLua();
+	vector<size_t> vSize;
+	for each (auto& item in temp1)
+	{
+		vSize.push_back(pLua->StringToNumber(item.second.c_str()));
+	}
+	GetSloongUIManager()->GetCurrentUI()->RegisterKeyboardEvent(vSize);
 	return 0;
 }

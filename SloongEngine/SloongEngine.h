@@ -15,7 +15,7 @@ namespace SoaringLoong
 	class CSize;
 	class CRect;
 
-	typedef int(*EventFunc)(int id, UI_EVENT args);
+	typedef LPTHREAD_START_ROUTINE EventFunc;
 
 	namespace Graphics
 	{
@@ -30,6 +30,7 @@ namespace SoaringLoong
 		static CDDraw* GetDraw();
 		static bool InRect(const CSize& pos, const CRect& rc);
 		static void SendEvent(int id, UI_EVENT args);
+		static int GetEventListTotal();
 		void SetEnentHandler(EventFunc func);
 	protected:
 		static CSloongEngine* theEngine;
@@ -37,8 +38,3 @@ namespace SoaringLoong
 	};
 
 }
-
-
-extern SLOONGENGINE_API int nSloongEngine;
-
-SLOONGENGINE_API int fnSloongEngine(void);

@@ -162,12 +162,11 @@ namespace SoaringLoong
 			void Screen_Transitions(int effect, UCHAR *vbuffer, int lpitch);
 
 			// palette functions
-
-			int Rotate_Colors(int start_index, int end_index);
 			int Blink_Colors(int command, BLINKER_PTR new_light, int id);
 
 			// gdi functions
 			int DrawText(LPCTSTR text, int x, int y, COLORREF color, LPDIRECTDRAWSURFACE7 lpdds);
+			int DrawText(LPCTSTR text, int x, int y, COLORREF color);
 
 			// 2d 8-bit, 16-bit triangle rendering
 			void Draw_Top_Tri(int x1, int y1, int x2, int y2, int x3, int y3, int color, UCHAR *dest_buffer, int mempitch);

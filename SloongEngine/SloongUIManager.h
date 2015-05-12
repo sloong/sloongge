@@ -11,6 +11,7 @@
 #include "SloongVector.h"
 #include "SloongObject3D.h"
 #include "SloongCamera.h"
+#include "DInputClass.h"
 using SoaringLoong::Math::Vector::CVector4D;
 using SoaringLoong::Graphics3D::IObject;
 using SoaringLoong::Graphics3D::CCamera;
@@ -30,7 +31,7 @@ namespace SoaringLoong
 		public:
 			CUserInterface* GetCurrentUI() const;
 
-			void Initialize( CDDraw* pDDraw, CLua* pLua, ILogSystem* pLog,HWND hWnd);
+			void Initialize( CDDraw* pDDraw, CLua* pLua, DInputClass* pInput, ILogSystem* pLog,HWND hWnd);
 			void RunGUI(ctstring& strFileName);
 
 			void CreateGUIItem( const UINT nID, const tstring strType, const vector<tstring>& strTexture);
@@ -51,6 +52,7 @@ namespace SoaringLoong
 			ILogSystem*						m_pLog;
 			HWND							m_hWnd;
 			CCamera*						m_pCamera;
+			DInputClass*					m_pInput;
 		public:
 			void Update();
 		};

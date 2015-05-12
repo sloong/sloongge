@@ -1,44 +1,25 @@
 #include "stdafx.h"
 #include "SloongLua.h"
 #include "SloongString.h"
-
+#include "SloongException.h"
 using namespace SoaringLoong;
 using SoaringLoong::Universal::CString;
+using SoaringLoong::Universal::CException;
 CLua::CLua()
 {
 	m_pErrorHandler = NULL;
 
 	m_pScriptContext = luaL_newstate();
 	luaL_openlibs(m_pScriptContext);
-}
-string CLua::UnicodeToANSI(LPCWSTR strWide)
-{
-	string strResult;
-	int nLen = wcslen(strWide);
-	LPSTR szMulti = new CHAR[nLen + 1];
-	memset(szMulti, 0, nLen+1);
-	WideCharToMultiByte(CP_ACP, 0, strWide, wcslen(strWide), szMulti, nLen, NULL, FALSE);
-	strResult = szMulti;
-	delete[] szMulti;
-	return strResult;
-}
-
-wstring CLua::ANSIToUnicode(LPCSTR strMulti)
-{
-	wstring strResult;
-	int nLen = strlen(strMulti);
-	LPWSTR strWide = new WCHAR[nLen + 1];
-	memset(strWide, 0, sizeof(TCHAR)*(nLen + 1));
-	MultiByteToWideChar(CP_ACP, 0, strMulti, strlen(strMulti), strWide, nLen);
-	strResult = strWide;
-	delete[] strWide;
-	return strResult;
+	m_pMutex = CreateMutex(NULL, FALSE, _T("SloongLuaMutex"));
 }
 
 CLua::~CLua()
 {
 	if (m_pScriptContext)
 		lua_close(m_pScriptContext);
+
+	CloseHandle(m_pMutex);
 }
 
 static string findScript(LPCTSTR strFullName)
@@ -84,19 +65,23 @@ static string findScript(LPCTSTR strFullName)
 
 bool CLua::RunScript(LPCTSTR strFileName)
 {
+	WaitForSingleObject(m_pMutex, INFINITE);
 	CString strFullName(findScript(strFileName).c_str());
 
 	if ( 0 != luaL_loadfile(m_pScriptContext, strFullName.GetStringA().c_str()))
 	{
 		HandlerError(_T("Load Script"), strFullName.GetString().c_str());
+		ReleaseMutex(m_pMutex);
 		return false;
 	}
 
 	if ( 0 != lua_pcall(m_pScriptContext,0,LUA_MULTRET,0))
 	{
 		HandlerError(_T("Run Script"), strFullName.GetString().c_str());
+		ReleaseMutex(m_pMutex);
 		return false;
 	}
+	ReleaseMutex(m_pMutex);
 	return true;
 }
 
@@ -123,17 +108,22 @@ bool CLua::RunString(LPCTSTR strCommand)
 {
 	CString str(strCommand);
 
+	WaitForSingleObject(m_pMutex, INFINITE);
 	if (0 != luaL_loadstring(m_pScriptContext, str.GetStringA().c_str()))
 	{
-		HandlerError(_T("String Load"),strCommand);
+		HandlerError(_T("String Load"), strCommand);
+		ReleaseMutex(m_pMutex);
 		return false;
 	}
 
 	if (0 != lua_pcall(m_pScriptContext, 0, LUA_MULTRET, 0))
 	{
 		HandlerError(_T("Run String"), strCommand);
+		ReleaseMutex(m_pMutex);
 		return false;
 	}
+
+	ReleaseMutex(m_pMutex);
 	return true;
 }
 
@@ -180,6 +170,7 @@ void CLua::PushNumber(double value)
 
 bool CLua::RunFunction(LPCTSTR strFunctionName, LPCTSTR args)
 {
+
 	CString str;
 	str.Format(_T("%s(%s)"), strFunctionName, args);
 	return RunString(str.GetString().c_str());
@@ -201,8 +192,11 @@ map<tstring, tstring> SoaringLoong::CLua::GetTableParam(int index)
 	map<tstring, tstring> data;
 	lua_pushnil(L);
 	// 现在的栈：-1 => nil; index => table
-	//index = lua_gettop(L);
-	//index = index - 1;
+	if ( index >= lua_gettop(L))
+	{
+		throw CException(_T("The index is too big."));
+	}
+
 	while (lua_next(L, index))
 	{
 		// 现在的栈：-1 => value; -2 => key; index => table
@@ -228,4 +222,12 @@ SoaringLoong::LuaType SoaringLoong::CLua::CheckType(int index)
 {
 	int nType = lua_type(m_pScriptContext, index);
 	return (LuaType)nType;
+}
+
+size_t SoaringLoong::CLua::StringToNumber(LPCTSTR string)
+{
+	CString str(string);
+	lua_stringtonumber(m_pScriptContext, str.GetStringA().c_str());
+	
+	return lua_tonumber(m_pScriptContext, -1);
 }

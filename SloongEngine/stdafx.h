@@ -58,6 +58,9 @@ using std::exception;
 #include <list>
 using std::list;
 
+#include <thread>
+using std::thread;
+
 #ifndef SAFE_DELETE
 #define SAFE_DELETE(p)		{if(NULL != (p)){delete (p);(p)=NULL;}}
 #endif	// SAFE_DELETE

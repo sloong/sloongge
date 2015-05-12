@@ -2,7 +2,8 @@
 #include "ConsoleWindow.h"
 #include "SloongLua.h"
 #include "Resource.h"
-using namespace SoaringLoong;
+#include "SloongString.h"
+using namespace SoaringLoong::Universal;
 
 LuaFunctionRegistr DebugGlue[] = 
 {
@@ -241,14 +242,9 @@ LRESULT WINAPI CWinConsole::MsgProc(HWND hWnd, unsigned uMsg, WPARAM wParam, LPA
 		// string should be in m_CommandBuffer
 		Write(m_CommandBuffer);
 
-		string str;
-#ifdef _UNICODE
-		str = CLua::UnicodeToANSI(m_CommandBuffer);
-#else
-		str = m_CommandBuffer;
-#endif
+		CString str(m_CommandBuffer);
 		
-		if (0 != luaL_loadbuffer(g_Console->m_pScriptContext->GetScriptContext(), str.c_str(), strlen(str.c_str()), NULL))
+		if (0 != luaL_loadbuffer(g_Console->m_pScriptContext->GetScriptContext(), str.GetStringA().c_str(), strlen(str.GetStringA().c_str()), NULL))
 		{
 			Write(_T("Error loading Command\n"));
 		}
@@ -256,14 +252,8 @@ LRESULT WINAPI CWinConsole::MsgProc(HWND hWnd, unsigned uMsg, WPARAM wParam, LPA
 		{
 			Write(_T("Error in Command\n"));
 
-			string strCheckString = luaL_checkstring(g_Console->m_pScriptContext->GetScriptContext(), -1);
-			tstring str;
-#ifdef _UNICODE
-			str = CLua::ANSIToUnicode(strCheckString.c_str());
-#else
-			str = strCheckString;
-#endif
-			Write(str.c_str());
+			str = luaL_checkstring(g_Console->m_pScriptContext->GetScriptContext(), -1);
+			Write(str.GetString().c_str());
 		}
 		// clear buffer when done processing
 		memset(m_CommandBuffer, 0, 4096*sizeof(TCHAR));
@@ -407,17 +397,11 @@ static int Debug_Print(lua_State *L)
 		lua_pushvalue(L, -1);  /* function to be called */
 		lua_pushvalue(L, i);   /* value to print */
 		lua_call(L, 1, 1);
-		string strRes = lua_tostring(L, -1);  /* get result */
-		tstring str;
-#ifdef _UNICODE
-		str = CLua::ANSIToUnicode(strRes.c_str());
-#else
-		str = strRes;
-#endif
-		if (str.empty())
+		CString str = lua_tostring(L, -1);  /* get result */
+		if (str.GetString().empty())
 			return luaL_error(L, "`tostring' must return a string to `print'");
 		if (i > 1) CWinConsole::Write(_T("\t"));
-		CWinConsole::Write(str.c_str());
+		CWinConsole::Write(str.GetString().c_str());
 		lua_pop(L, 1);  /* pop result */
 	}
 	CWinConsole::Write(_T("\n"));

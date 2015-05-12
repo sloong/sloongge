@@ -82,7 +82,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraClass.h" />
-    <ClInclude Include="ConsoleWindow.h" />
     <ClInclude Include="DInputClass.h" />
     <ClInclude Include="ISloongObject.h" />
     <ClInclude Include="Resource.h" />
@@ -99,6 +98,8 @@
     <ClInclude Include="SloongSprite.h" />
     <ClInclude Include="SloongString.h" />
     <ClInclude Include="SloongTextField.h" />
+    <ClInclude Include="SloongThread.h" />
+    <ClInclude Include="SloongThreadPool.h" />
     <ClInclude Include="SloongUI.h" />
     <ClInclude Include="SloongUIManager.h" />
     <ClInclude Include="SnowParticleClass.h" />
@@ -109,7 +110,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CameraClass.cpp" />
-    <ClCompile Include="ConsoleWindow.cpp" />
     <ClCompile Include="DInputClass.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
@@ -132,6 +132,8 @@
     <ClCompile Include="SloongSprite.cpp" />
     <ClCompile Include="SloongString.cpp" />
     <ClCompile Include="SloongTextField.cpp" />
+    <ClCompile Include="SloongThread.cpp" />
+    <ClCompile Include="SloongThreadPool.cpp" />
     <ClCompile Include="SloongUI.cpp" />
     <ClCompile Include="SloongUIManager.cpp" />
     <ClCompile Include="SnowParticleClass.cpp" />

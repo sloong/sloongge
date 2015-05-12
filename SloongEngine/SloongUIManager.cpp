@@ -94,7 +94,7 @@ void CUIManager::RunGUI(ctstring& strFileName)
 		(*m_UIMap)[strFileName] = m_pCurrentUI;
 		// TODO : build the full path
 		tstring strFullPath = strFileName;
-		m_pCurrentUI->Initialize(strFullPath, m_pDDraw, m_pLua, m_pLog);
+		m_pCurrentUI->Initialize(strFullPath, m_pDDraw, m_pInput, m_pLua, m_pLog);
 		CSloongEngine::SendEvent(0,UI_EVENT::ENTER_INTERFACE);
 	}
 	else
@@ -103,7 +103,7 @@ void CUIManager::RunGUI(ctstring& strFileName)
 
 		if (m_pCurrentUI->GetEventHandler().empty())
 		{
-			m_pCurrentUI->Initialize(strFileName,m_pDDraw,m_pLua,m_pLog);
+			m_pCurrentUI->Initialize(strFileName, m_pDDraw, m_pInput, m_pLua, m_pLog);
 			CSloongEngine::SendEvent(0, UI_EVENT::ENTER_INTERFACE);
 		}
 		else
@@ -134,10 +134,11 @@ void SoaringLoong::Graphics::CUIManager::Update()
 	GetCurrentUI()->Update(m_hWnd);
 }
 
-void SoaringLoong::Graphics::CUIManager::Initialize(CDDraw* pDDraw, CLua* pLua, ILogSystem* pLog,HWND hWnd)
+void SoaringLoong::Graphics::CUIManager::Initialize(CDDraw* pDDraw, CLua* pLua,DInputClass* pInput, ILogSystem* pLog,HWND hWnd)
 {
 	m_pDDraw = pDDraw;
 	m_pLua = pLua;
+	m_pInput = pInput;
 	m_pLog = pLog;
 	m_hWnd = hWnd;
 }
