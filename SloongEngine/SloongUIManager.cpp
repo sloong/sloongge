@@ -177,3 +177,8 @@ void SoaringLoong::Graphics::CUIManager::SetCamera(CCamera* pCamera)
 	m_pCamera = pCamera;
 	GetCurrentUI()->SetCamera(m_pCamera);
 }
+
+void SoaringLoong::Graphics::CUIManager::MoveCamera(const POINT4D& Position, const POINT4D& Direction, LPPOINT4D Target)
+{
+	m_pCamera->Move(Position, Direction, Target);
+}

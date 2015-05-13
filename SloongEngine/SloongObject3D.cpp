@@ -715,8 +715,8 @@ void SoaringLoong::Graphics3D::CObject3D::Cull(CCamera* cam, CULL_MODE emMode)
 		// cull only based on z clipping planes
 
 		// test far plane
-		if (((sphere_pos.z - max) > cam->FarZ) ||
-			((sphere_pos.z + max) < cam->NearZ))
+		if (((sphere_pos.z - max) > -cam->m_WorldPos.z + cam->FarZ) ||
+			((sphere_pos.z + max) < -cam->m_WorldPos.z - cam->NearZ))
 		{
 			AddStatus(OBJECT4DV1_STATE_CULLED);
 			return;
@@ -736,8 +736,8 @@ void SoaringLoong::Graphics3D::CObject3D::Cull(CCamera* cam, CULL_MODE emMode)
 		// points of the bounding sphere
 		float z_test = (0.5)*cam->ViewPlaneWidth*sphere_pos.z / cam->ViewDistance;
 
-		if (((sphere_pos.x - max) > z_test) || // right side
-			((sphere_pos.x + max) < -z_test))  // left side, note sign change
+		if (((sphere_pos.x - max) > cam->m_WorldPos.z + z_test) || // right side
+			((sphere_pos.x + max) < -cam->m_WorldPos.z - z_test))  // left side, note sign change
 		{
 			AddStatus(OBJECT4DV1_STATE_CULLED);
 			return;
@@ -756,8 +756,8 @@ void SoaringLoong::Graphics3D::CObject3D::Cull(CCamera* cam, CULL_MODE emMode)
 		// points of the bounding sphere
 		float z_test = (0.5)*cam->ViewPlaneHeight*sphere_pos.z / cam->ViewDistance;
 
-		if (((sphere_pos.y - max) > z_test) || // top side
-			((sphere_pos.y + max) < -z_test))  // bottom side, note sign change
+		if (((sphere_pos.y - max) > cam->m_WorldPos.z+ z_test) || // top side
+			((sphere_pos.y + max) < -cam->m_WorldPos.z - z_test))  // bottom side, note sign change
 		{
 			AddStatus(OBJECT4DV1_STATE_CULLED);
 			return;
@@ -852,7 +852,7 @@ void SoaringLoong::Graphics3D::CObject3D::RemoveBackface(CCamera* pCam)
 
 		// now create eye vector to viewpoint
 		VECTOR4D view;
-		view.Build(m_pTransList->at(x), &pCam->WorldPos);
+		view.Build(m_pTransList->at(x), &pCam->m_WorldPos);
 
 		// and finally, compute the dot product
 		float dp = n.Dot(view);

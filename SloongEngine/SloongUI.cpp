@@ -81,6 +81,7 @@ void CUserInterface::Render()
 		{
 			auto pObject = (*m_p3DObjectMap)[item.first];
 			pObject->SetCurrentIndex(item.second);
+			pObject->Reset();
 			pObject->Cull(m_pCamera, CULL_MODE::CULL_ON_XYZ_PLANES);
 			if ( pObject->Visible())
 			{

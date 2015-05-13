@@ -27,8 +27,8 @@ void SoaringLoong::Graphics3D::CCamera::Initialize(CAMERA_TYPE emType, const POI
 	// 设置类型
 	this->emType = emType;
 	// 设置位置和朝向
-	this->WorldPos = Position;// positions
-	this->Direction = Direction;// direction vector or angles for
+	this->m_WorldPos = Position;// positions
+	this->m_Direction = Direction;// direction vector or angles for
 	// euler camera
 	// for UVN camera
 	this->U.Initialize(1, 0, 0);
@@ -39,11 +39,11 @@ void SoaringLoong::Graphics3D::CCamera::Initialize(CAMERA_TYPE emType, const POI
 	// 设置相机目标点
 	if ( Target )
 	{
-		this->Target = Target;
+		this->m_Target = Target;
 	}
 	else
 	{
-		this->Target.Zero();
+		this->m_Target.Zero();
 	}
 
 	// 计算裁剪面和屏幕参数
@@ -159,7 +159,7 @@ void SoaringLoong::Graphics3D::CCamera::UpdateCameraMatrix()
 		mt_inv.Initialize(1, 0, 0, 0,
 			0, 1, 0, 0,
 			0, 0, 1, 0,
-			-this->WorldPos.x, -this->WorldPos.y, -this->WorldPos.z, 1);
+			-this->m_WorldPos.x, -this->m_WorldPos.y, -this->m_WorldPos.z, 1);
 
 		// step 2: create the inverse rotation sequence for the camera
 		// rember either the transpose of the normal rotation matrix or
@@ -169,9 +169,9 @@ void SoaringLoong::Graphics3D::CCamera::UpdateCameraMatrix()
 		// first compute all 3 rotation matrices
 
 		// extract out euler angles
-		float theta_x = this->Direction.x;
-		float theta_y = this->Direction.y;
-		float theta_z = this->Direction.z;
+		float theta_x = this->m_Direction.x;
+		float theta_y = this->m_Direction.y;
+		float theta_z = this->m_Direction.z;
 
 		// compute the sine and cosine of the angle x
 		float cos_theta = CMathBase::Fast_Cos(theta_x);  // no change since cos(-x) = cos(x)
@@ -274,7 +274,7 @@ void SoaringLoong::Graphics3D::CCamera::UpdateCameraMatrix()
 		mt_inv.Initialize(1, 0, 0, 0,
 			0, 1, 0, 0,
 			0, 0, 1, 0,
-			-this->WorldPos.x, -this->WorldPos.y, -this->WorldPos.z, 1);
+			-this->m_WorldPos.x, -this->m_WorldPos.y, -this->m_WorldPos.z, 1);
 
 
 		// step 2: determine how the target point will be computed
@@ -284,8 +284,8 @@ void SoaringLoong::Graphics3D::CCamera::UpdateCameraMatrix()
 			// target needs to be recomputed
 
 			// extract elevation and heading 
-			float phi = this->Direction.x; // elevation
-			float theta = this->Direction.y; // heading
+			float phi = this->m_Direction.x; // elevation
+			float theta = this->m_Direction.y; // heading
 
 			// compute trig functions once
 			float sin_phi = CMathBase::Fast_Sin(phi);
@@ -295,15 +295,15 @@ void SoaringLoong::Graphics3D::CCamera::UpdateCameraMatrix()
 			float cos_theta = CMathBase::Fast_Cos(theta);
 
 			// now compute the target point on a unit sphere x,y,z
-			this->Target.x = -1 * sin_phi*sin_theta;
-			this->Target.y = 1 * cos_phi;
-			this->Target.z = 1 * sin_phi*cos_theta;
+			this->m_Target.x = -1 * sin_phi*sin_theta;
+			this->m_Target.y = 1 * cos_phi;
+			this->m_Target.z = 1 * sin_phi*cos_theta;
 		} // end else
 
 		// at this point, we have the view reference point, the target and that's
 		// all we need to recompute u,v,n
 		// Step 1: n = <target position - view reference point>
-		this->N.Subtract(&this->WorldPos, &this->Target);
+		this->N.Subtract(&this->m_WorldPos, &this->m_Target);
 
 		// Step 2: Let v = <0,1,0>
 		this->V.Initialize(0, 1, 0);
@@ -374,4 +374,12 @@ void SoaringLoong::Graphics3D::CCamera::UpdateScreenMatrix()
 		0, -beta, 0, 0,
 		alpha, beta, 1, 0,
 		0, 0, 0, 1);
+}
+
+void SoaringLoong::Graphics3D::CCamera::Move(const POINT4D& Position, const POINT4D& Direction, LPPOINT4D Target)
+{
+	m_WorldPos = Position;
+	m_Direction = Direction;
+	m_Target = Target;
+	UpdateCameraMatrix();
 }

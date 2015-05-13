@@ -1,21 +1,26 @@
 g_Game_GUI_Item = 
 {
 	{ 'DXFile\\tank2.plg', 
-	math.random(),math.random(),math.random(), -- 隨機生成的世界座標
-	0.75,0.75,0.75,  -- 縮放係數
+	--math.random(),math.random(),math.random(), -- 隨機生成的世界座標
+	0,0,0,
+	1,1,1,  -- 縮放係數
 	0,0,0 -- 旋轉係數
 	},
 	
 	{ 'DXFile\\tank3.plg',
-	math.random(),math.random(),math.random(),	--隨機生成的世界座標
+	--math.random(),math.random(),math.random(),	--隨機生成的世界座標
+	0,0,0,
 	0.75,0.75,0.75,	-- 模型縮放係數
 	0,0,0,		-- 模型旋轉係數
 	},
 };
 
-CreateCamera(0,40,0, -- 相機世界座標
+camPos = {0,40,0, -- 相機世界座標
 0,0,0,	--相機方向
 0,0,0,	--相機目標
+};
+
+CreateCamera(camPos[1], camPos[2], camPos[3], camPos[4],camPos[5], camPos[6], camPos[7], camPos[8], camPos[9],
 200,12000,120
 )
 
@@ -33,8 +38,21 @@ RegisterKeyboard =
 RegisterKeyboardEvent(RegisterKeyboard);
 RegisterEvent("GameEventHandler")
 function GameEventHandler( id, event )
-	if id ~= 0 then
-		local fun = g_Game_GUI_Item[id]['Hanlder'];
-		if nil ~= fun then fun(event) end;
-	end
-end
+	if event == 4 then
+		if id == tonumber(RegisterKeyboard[1]) then -- left key down
+			camPos[1] = camPos[1] - 5;
+			camPos[7] = camPos[7] - 5;
+			MoveCamera(camPos[1], camPos[2], camPos[3], camPos[4],camPos[5], camPos[6], camPos[7], camPos[8], camPos[9]);
+		elseif id == tonumber(RegisterKeyboard[2]) then
+			camPos[1] = camPos[1] + 5;
+			camPos[7] = camPos[7] + 5;
+			MoveCamera(camPos[1], camPos[2], camPos[3], camPos[4],camPos[5], camPos[6], camPos[7], camPos[8], camPos[9]);
+		elseif id == tonumber(RegisterKeyboard[3]) then
+			camPos[3] = camPos[3] - 5;
+			MoveCamera(camPos[1], camPos[2], camPos[3], camPos[4],camPos[5], camPos[6], camPos[7], camPos[8], camPos[9]);
+		elseif id == tonumber(RegisterKeyboard[4]) then
+			camPos[3] = camPos[3] + 5;
+			MoveCamera(camPos[1], camPos[2], camPos[3], camPos[4],camPos[5], camPos[6], camPos[7], camPos[8], camPos[9]);
+		end;
+	end;
+end;

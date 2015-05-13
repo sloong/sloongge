@@ -43,6 +43,7 @@ namespace SoaringLoong
 			void Delete3DModule(const int& nID);
 
 			void SetCamera( CCamera* pCamera );
+			void MoveCamera(const POINT4D& Position, const POINT4D& Direction, LPPOINT4D Target);
 		protected:
 			map<tstring, CUserInterface*>*	m_UIMap;
 			map<tstring, IObject*>*			m_pModuleMap;

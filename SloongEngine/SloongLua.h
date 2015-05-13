@@ -60,7 +60,7 @@ namespace SoaringLoong
 		void	HandlerError(LPCTSTR strErrorType,LPCTSTR strCmd);
 		bool	AddFunction(LPCTSTR strFunctionName, LuaFunctionType pFunction);
 		tstring	GetStringArgument(int nNum, LPCTSTR pDefault = _T(""));
-		double	GetNumberArgument(int nNum, double pDefault = 0.0);
+		double	GetNumberArgument(int nNum, double pDefault = -1.0f);
 		void	PushString(LPCTSTR strString);
 		void	PushNumber(double dValue);
 		void	SetErrorHandle(void(*pErrHandler)(LPCTSTR strError)) { m_pErrorHandler = pErrHandler; }

@@ -44,6 +44,7 @@ LuaFunctionRegistr CSloongGame::g_LuaFunctionList[] =
 	{ _T("Exit"), CSloongGame::Exit },
 	{ _T("Load3DModule"), CSloongGame::Load3DModule},
 	{ _T("CreateCamera"), CSloongGame::CreateCamera },
+	{ _T("MoveCamera"), CSloongGame::MoveCamera },
 	{ _T("RegisterKeyboardEvent"), CSloongGame::RegisterKeyboardEvent },
 };
 
@@ -625,27 +626,27 @@ void CSloongGame::RenderTest()
 	// turbo
 	if (m_pInput->IsKeyDown(DIK_SPACE))
 	{
-		m_cam.WorldPos.y += 15;
+		m_cam.m_WorldPos.y += 15;
 	}
 	// forward/backward
 	if (m_pInput->IsKeyDown(DIK_UP))
 	{
 		// move forward
-		m_cam.WorldPos.x += tank_speed*CMathBase::Fast_Sin(m_cam.Direction.y);
-		m_cam.WorldPos.z += tank_speed*CMathBase::Fast_Cos(m_cam.Direction.y);
+		m_cam.m_WorldPos.x += tank_speed*CMathBase::Fast_Sin(m_cam.m_Direction.y);
+		m_cam.m_WorldPos.z += tank_speed*CMathBase::Fast_Cos(m_cam.m_Direction.y);
 	} // end if
 
 	if (m_pInput->IsKeyDown(DIK_DOWN))
 	{
 		// move backward
-		m_cam.WorldPos.x -= tank_speed*CMathBase::Fast_Sin(m_cam.Direction.y);
-		m_cam.WorldPos.z -= tank_speed*CMathBase::Fast_Cos(m_cam.Direction.y);
+		m_cam.m_WorldPos.x -= tank_speed*CMathBase::Fast_Sin(m_cam.m_Direction.y);
+		m_cam.m_WorldPos.z -= tank_speed*CMathBase::Fast_Cos(m_cam.m_Direction.y);
 	} // end if
 
 	// rotate
 	if (m_pInput->IsKeyDown(DIK_RIGHT))
 	{
-		m_cam.Direction.y += 3;
+		m_cam.m_Direction.y += 3;
 
 		// add a little turn to object
 		if ((turning += 2) > 15)
@@ -655,7 +656,7 @@ void CSloongGame::RenderTest()
 
 	if (m_pInput->IsKeyDown(DIK_LEFT))
 	{
-		m_cam.Direction.y -= 3;
+		m_cam.m_Direction.y -= 3;
 
 		// add a little turn to object
 		if ((turning -= 2) < -15)
@@ -679,11 +680,11 @@ void CSloongGame::RenderTest()
 
 
 	obj_player->SetWorldPosition(CVector4D(
-		m_cam.WorldPos.x + 300 * CMathBase::Fast_Sin(m_cam.Direction.y),
-		m_cam.WorldPos.y - 70,
-		m_cam.WorldPos.z + 300 * CMathBase::Fast_Cos(m_cam.Direction.y)));
+		m_cam.m_WorldPos.x + 300 * CMathBase::Fast_Sin(m_cam.m_Direction.y),
+		m_cam.m_WorldPos.y - 70,
+		m_cam.m_WorldPos.z + 300 * CMathBase::Fast_Cos(m_cam.m_Direction.y)));
 
-	mrot.BuildRotateMatrix(0, m_cam.Direction.y + turning, 0);
+	mrot.BuildRotateMatrix(0, m_cam.m_Direction.y + turning, 0);
 
 	obj_player->Transform(mrot, TRANS_MODE::LocalToTrans, true);
 
@@ -701,7 +702,7 @@ void CSloongGame::RenderTest()
 	obj_marker->RenderAll(&m_cam, &mrot);
 
 	sprintf_s(work_string, 256, "pos:[%f, %f, %f] heading:[%f] elev:[%f]",
-		m_cam.WorldPos.x, m_cam.WorldPos.y, m_cam.WorldPos.z, m_cam.Direction.y, m_cam.Direction.x);
+		m_cam.m_WorldPos.x, m_cam.m_WorldPos.y, m_cam.m_WorldPos.z, m_cam.m_Direction.y, m_cam.m_Direction.x);
 
 	CString str(work_string);
 	m_pDraw->DrawText(str.GetString().c_str(), 0, WINDOW_HEIGHT - 20, RGB(0, 255, 0), m_pDraw->GetBackSurface());
@@ -750,5 +751,18 @@ int CSloongGame::RegisterKeyboardEvent(lua_State* l)
 		vSize.push_back(pLua->StringToNumber(item.second.c_str()));
 	}
 	GetSloongUIManager()->GetCurrentUI()->RegisterKeyboardEvent(vSize);
+	return 0;
+}
+
+int CSloongGame::MoveCamera(lua_State* l)
+{
+	auto pLua = GetSloongLua();
+	auto pUIM = GetSloongUIManager();
+
+	CVector4D vPos(pLua->GetNumberArgument(1), pLua->GetNumberArgument(2), pLua->GetNumberArgument(3));
+	CVector4D vDir(pLua->GetNumberArgument(4), pLua->GetNumberArgument(5), pLua->GetNumberArgument(6));
+	CVector4D vTarget(pLua->GetNumberArgument(7), pLua->GetNumberArgument(8), pLua->GetNumberArgument(9));
+
+	pUIM->MoveCamera( vPos, vDir, &vTarget);
 	return 0;
 }
