@@ -22,6 +22,13 @@ namespace SoaringLoong
 		class CDDraw;
 	}
 	using namespace Graphics;
+
+	namespace Graphics3D
+	{
+		class IObject;
+		class CCamera;
+	}
+	using namespace Graphics3D;
 	class SLOONGENGINE_API CSloongEngine {
 	public:
 		CSloongEngine(void);
@@ -30,6 +37,8 @@ namespace SoaringLoong
 		static CDDraw* GetDraw();
 		static bool InRect(const CSize& pos, const CRect& rc);
 		static void SendEvent(int id, UI_EVENT args);
+		static DWORD WINAPI RenderCallBack(LPVOID lpData);
+		static void AddRenderTask(IObject* pObj,int nIndex, CCamera* pCamera);
 		static int GetEventListTotal();
 		void SetEnentHandler(EventFunc func);
 	protected:

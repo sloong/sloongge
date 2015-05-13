@@ -90,7 +90,7 @@ void SoaringLoong::Graphics3D::CObject3D::Render()
 		return;
 	}
 
-	LPBYTE pBuffer = m_pDDraw->DDraw_Lock_Back_Surface();
+	m_pDDraw->LockBackSurface();
 
 	auto& list = *m_pPolygonList;
 	auto len = list.size();
@@ -106,7 +106,7 @@ void SoaringLoong::Graphics3D::CObject3D::Render()
 		}
 
 	}
-	m_pDDraw->DDraw_Unlock_Back_Surface();
+	m_pDDraw->UnlockBackSurface();
 }
 
 void SoaringLoong::Graphics3D::CObject3D::UpdateWorldVertex(const POINT4D& mWorld)

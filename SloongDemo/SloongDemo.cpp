@@ -463,6 +463,7 @@ CUIManager* CSloongGame::GetSloongUIManager()
 
 void CSloongGame::Render()
 {
+	m_pDraw->Start_Clock();
 	GetSloongUIManager()->Update();
 	m_pDraw->DDrawFillBackSurface(0);
 
@@ -475,12 +476,13 @@ void CSloongGame::Render()
 	}
 	
 	GetSloongUIManager()->GetCurrentUI()->Render();
+	
 	CString str;
 	str.Format(_T("Current Event List:%d"), CSloongEngine::GetEventListTotal());
 	m_pDraw->DrawText(str.GetString().c_str(), 0, 0, RGB(255, 255, 255));
-	//RenderTest();
-	// Flip
 	m_pDraw->DDraw_Flip();
+	m_pDraw->Wait_Clock(30);
+	return;
 }
 
 CDDraw* CSloongGame::GetDDraw()
@@ -711,10 +713,10 @@ void CSloongGame::RenderTest()
 	m_pDraw->DrawText(_T("Press ESC to exit. Press Arrow Keys to Move. Space for TURBO."), 0, 0, RGB(0, 255, 0), m_pDraw->GetBackSurface());
 
 	// lock the back buffer
-	LPBYTE pBackBuffer = m_pDraw->DDraw_Lock_Back_Surface();
+	LPBYTE pBackBuffer = m_pDraw->LockBackSurface();
 
 	// unlock the back buffer
-	m_pDraw->DDraw_Unlock_Back_Surface();
+	m_pDraw->UnlockBackSurface();
 
 	// sync to 30ish fps
 	m_pDraw->Wait_Clock(30);

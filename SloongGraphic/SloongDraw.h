@@ -111,6 +111,10 @@ namespace SoaringLoong
 			int Clip_Line(int &x1, int &y1, int &x2, int &y2);
 			//int DrawPolygon2D(CPolygon2D* poly);
 
+			LPBYTE LockBackSurface(void);
+			HRESULT UnlockBackSurface(void);
+			bool	IsBackSurfaceLocked();
+
 		public:
 			// TODO:: 还未整理的函数
 
@@ -137,8 +141,7 @@ namespace SoaringLoong
 			UCHAR *DDraw_Lock_Primary_Surface(void);
 			HRESULT DDraw_Unlock_Primary_Surface(void);
 
-			UCHAR *DDraw_Lock_Back_Surface(void);
-			HRESULT DDraw_Unlock_Back_Surface(void);
+			
 
 			// general utility functions
 			DWORD Get_Clock(void);
@@ -224,6 +227,7 @@ namespace SoaringLoong
 			LPDIRECTDRAWSURFACE7	m_pBackSurface;
 			LPBYTE					m_pBackBuffer;
 			DWORD					m_dwBackPitch;
+			bool					m_bBackSurfaceLocked;
 			// Status
 			LPDIRECTDRAWCLIPPER		m_pWindowClipper;
 			DDSURFACEDESC2			m_stSurfaceDesc;

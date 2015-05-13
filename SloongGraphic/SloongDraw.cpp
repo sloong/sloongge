@@ -24,7 +24,7 @@ CDDraw::CDDraw()
 
 	start_clock_count = 0;     // used for timing
 
-
+	m_bBackSurfaceLocked = false;
 
 	// notice that interface 7.0 is used on a number of interfaces
 	m_pDDraw = NULL;  // dd object
@@ -250,6 +250,10 @@ int CDDraw::Draw_Pixel(int x, int y, COLORREF color, LPBYTE video_buffer, int lp
 //				memory pitch
 int CDDraw::Draw_Line(int x0, int y0, int x1, int y1, COLORREF color, LPBYTE vb_start, int lpitch)
 {
+	if ( !vb_start )
+	{
+		return 0;
+	}
 	// this function draws a line from xo,yo to x1,y1 using differential error
 	// terms (based on Bresenahams work)
 
@@ -426,15 +430,20 @@ int CDDraw::DrawPolygon2D(CPolygon2D* poly, LPBYTE vbuffer, int lpitch, RECT rcS
 
 int CDDraw::DrawText(LPCTSTR strText, int x, int y, COLORREF dwColor)
 {
-	DDraw_Lock_Back_Surface();
+	//LockBackSurface();
 	DrawText(strText, x, y, dwColor, GetBackSurface());
-	DDraw_Unlock_Back_Surface();
+	//UnlockBackSurface();
 	return 0;
 } // end Draw_Text_GDI
 
 
 int CDDraw::DrawText(LPCTSTR strText, int x, int y, COLORREF dwColor, LPDIRECTDRAWSURFACE7 lpdds)
 {
+// 	if (!IsBackSurfaceLocked())
+// 	{
+// 		LockBackSurface();
+// 	}
+
 	// this function draws the sent text on the sent surface 
 	// using color index as the color in the palette
 
@@ -456,6 +465,7 @@ int CDDraw::DrawText(LPCTSTR strText, int x, int y, COLORREF dwColor, LPDIRECTDR
 	// release the dc
 	lpdds->ReleaseDC(xdc);
 
+	//UnlockBackSurface();
 	// return success
 	return(1);
 } // end Draw_Text_GDI
@@ -1226,7 +1236,7 @@ HRESULT CDDraw::DDraw_Unlock_Primary_Surface(void)
 
 //////////////////////////////////////////////////////////
 
-UCHAR* CDDraw::DDraw_Lock_Back_Surface(void)
+LPBYTE CDDraw::LockBackSurface(void)
 {
 	// this function locks the secondary back surface and returns a pointer to it
 	// and updates the global variables secondary buffer, and back_lpitch
@@ -1243,8 +1253,10 @@ UCHAR* CDDraw::DDraw_Lock_Back_Surface(void)
 	m_pBackSurface->Lock(NULL, &m_stSurfaceDesc, DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL);
 
 	// set globals
-	m_pBackBuffer = (UCHAR *)m_stSurfaceDesc.lpSurface;
+	m_pBackBuffer = (LPBYTE)m_stSurfaceDesc.lpSurface;
 	m_dwBackPitch = m_stSurfaceDesc.lPitch;
+
+	m_bBackSurfaceLocked = true;
 
 	// return pointer to surface
 	return(m_pBackBuffer);
@@ -1253,7 +1265,7 @@ UCHAR* CDDraw::DDraw_Lock_Back_Surface(void)
 
 ///////////////////////////////////////////////////////////   
 
-HRESULT CDDraw::DDraw_Unlock_Back_Surface(void)
+HRESULT CDDraw::UnlockBackSurface(void)
 {
 	// this unlocks the secondary
 
@@ -1268,6 +1280,7 @@ HRESULT CDDraw::DDraw_Unlock_Back_Surface(void)
 	m_pBackBuffer = NULL;
 	m_dwBackPitch = 0;
 
+	m_bBackSurfaceLocked = false;
 	// return success
 	return hRes;
 } // end DDraw_Unlock_Back_Surface
@@ -3143,4 +3156,9 @@ LPBYTE SoaringLoong::Graphics::CDDraw::GetBackBuffer()
 int SoaringLoong::Graphics::CDDraw::GetBackPitch()
 {
 	return m_dwBackPitch;
+}
+
+bool SoaringLoong::Graphics::CDDraw::IsBackSurfaceLocked()
+{
+	return m_bBackSurfaceLocked;
 }

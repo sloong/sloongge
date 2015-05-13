@@ -80,6 +80,7 @@ void CUserInterface::Render()
 		for each (auto item in *m_p3DKeyIDMap)
 		{
 			auto pObject = (*m_p3DObjectMap)[item.first];
+			//CSloongEngine::AddRenderTask(pObject, item.second, m_pCamera);
 			pObject->SetCurrentIndex(item.second);
 			pObject->Reset();
 			pObject->Cull(m_pCamera, CULL_MODE::CULL_ON_XYZ_PLANES);
