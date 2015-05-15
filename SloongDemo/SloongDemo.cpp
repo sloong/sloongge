@@ -14,7 +14,7 @@
 #include "SloongSprite.h"
 #include "SloongD3D.h"
 #include "SloongString.h"
-#include "DInputClass.h"
+#include "SloongDInput.h"
 #include "SloongCamera.h"
 #include "SloongEngine.h"
 #include "SloongObject3D.h"
@@ -173,11 +173,13 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 		m_pEngine = new CSloongEngine();
 		m_pEngine->SetEnentHandler(SendEvent);
 
-		CWinConsole::StartConsole(m_hInst, m_pLua);
+		CRect rc(m_rcWindow);
+		rc.bottom -= 50;
+		CWinConsole::StartConsole(m_hInst, m_hMainWnd, rc, m_pLua);
 
 		//  		m_pD3D = new CSloongD3D();
 		//  		m_pD3D->Init(m_hMainWnd, m_hInst);
-		m_pInput = new DInputClass();
+		m_pInput = new CDInput();
 		m_pInput->Init(m_hMainWnd, m_hInst, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE); //前台，非独占模式
 		m_pDraw = new CDDraw();
 		m_pDraw->Initialize(m_hMainWnd, m_rcWindow.Width(), m_rcWindow.Height(), SCREEN_BPP, FULLSCREEN);
@@ -480,6 +482,14 @@ void CSloongGame::Render()
 	CString str;
 	str.Format(_T("Current Event List:%d"), CSloongEngine::GetEventListTotal());
 	m_pDraw->DrawText(str.GetString().c_str(), 0, 0, RGB(255, 255, 255));
+	HDC hDC;
+	if (SUCCEEDED(m_pDraw->GetBackSurface()->GetDC(&hDC)))
+	{
+		g_Console->Paint(hDC);
+		m_pDraw->GetBackSurface()->ReleaseDC(hDC);
+	}
+	
+
 	m_pDraw->DDraw_Flip();
 	m_pDraw->Wait_Clock(30);
 	return;

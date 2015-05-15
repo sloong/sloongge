@@ -50,8 +50,8 @@ namespace SoaringLoong
 using namespace SoaringLoong;
 using namespace SoaringLoong::Graphics;
 using namespace SoaringLoong::Graphics3D;
-class CSloongD3D;
-class DInputClass;
+class CD3D;
+class CDInput;
 class CSloongGame
 {
 public:
@@ -120,8 +120,8 @@ public:
 	CLua*				m_pLua;
 	IUniversal*			m_pUniversal;
 	ILogSystem*			m_pLog;
-	CSloongD3D*			m_pD3D;
-	DInputClass*		m_pInput;
+	CD3D*			m_pD3D;
+	CDInput*		m_pInput;
 	CRect				m_rcWindow;
 	CSloongEngine*		m_pEngine;
 

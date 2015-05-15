@@ -100,7 +100,7 @@ void CUserInterface::Render()
 	}
 }
 
-void CUserInterface::Initialize(ctstring& strPath, CDDraw* pDDraw, DInputClass* pInput, CLua* pLua, ILogSystem* pLog)
+void CUserInterface::Initialize(ctstring& strPath, CDDraw* pDDraw, CDInput* pInput, CLua* pLua, ILogSystem* pLog)
 {
 	m_pLog = pLog;
 	m_pLua = pLua;

@@ -40,6 +40,7 @@ namespace SoaringLoong
 		static DWORD WINAPI RenderCallBack(LPVOID lpData);
 		static void AddRenderTask(IObject* pObj,int nIndex, CCamera* pCamera);
 		static int GetEventListTotal();
+		static HANDLE GetJobListMutex();
 		void SetEnentHandler(EventFunc func);
 	protected:
 		static CSloongEngine* theEngine;

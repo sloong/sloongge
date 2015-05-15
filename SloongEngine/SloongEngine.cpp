@@ -115,3 +115,8 @@ void SoaringLoong::CSloongEngine::AddRenderTask(IObject* pObj, int nIndex, CCame
 	pTemp->pCamera = pCamera;
 	g_pThreadPool->AddTask(RenderCallBack, pTemp);
 }
+
+HANDLE SoaringLoong::CSloongEngine::GetJobListMutex()
+{
+	return g_pThreadPool->GetJobListMutex();
+}

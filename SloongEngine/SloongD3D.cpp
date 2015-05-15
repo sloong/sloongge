@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "SloongD3D.h"
+#include "SloongDInput.h"
 
+using namespace SoaringLoong::DirectX;
 
 //-----------------------------------【程序说明】----------------------------------------------
 //  程序名称:：D3Ddemo20
@@ -26,7 +28,7 @@
 #include <d3dx9.h>
 #include <tchar.h>
 #include <time.h> 
-#include "DInputClass.h"
+#include "SloongDInput.h"
 #include "CameraClass.h"
 #include "TerrainClass.h"
 #include "SkyBoxClass.h"
@@ -58,7 +60,7 @@ wchar_t										g_strFPS[50] = { 0 };    //包含帧速率的字符数组
 wchar_t										g_strAdapterName[60] = { 0 };   //包含显卡名称的字符数组
 D3DXMATRIX							g_matWorld;							//世界矩阵
 D3DLIGHT9								g_Light;   //全局光照
-DInputClass*								g_pDInput = NULL;				//DInputClass类的指针实例
+CDInput*								g_pDInput = NULL;				//DInputClass类的指针实例
 CameraClass*							g_pCamera = NULL;				//摄像机类的指针实例
 TerrainClass*								g_pTerrain = NULL;				//地形类的指针实例
 SkyBoxClass*								g_pSkyBox = NULL;					//天空盒类的指针实例
@@ -86,7 +88,7 @@ void								HelpText_Render(HWND hwnd);
 //------------------------------------------------------------------------------------------------
 
 
-void CSloongD3D::Init(HWND hWnd, HINSTANCE hInst)
+void CD3D::Init(HWND hWnd, HINSTANCE hInst)
 {
 	m_hWnd = hWnd;
 	if (!(S_OK == Direct3D_Init(hWnd, hInst)))
@@ -94,13 +96,13 @@ void CSloongD3D::Init(HWND hWnd, HINSTANCE hInst)
 		MessageBox(hWnd, _T("Direct3D初始化失败~！"), _T("浅墨的消息窗口"), 0); //使用MessageBox函数，创建一个消息窗口 
 	}
 
-	g_pDInput = new DInputClass();
+	g_pDInput = new CDInput();
 	g_pDInput->Init(hWnd, hInst, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE); //前台，非独占模式
 	PlaySound(L"GameMedia\\汪峰-光明.wav", NULL, SND_FILENAME | SND_ASYNC | SND_LOOP); //循环播放背景音乐 
 
 }
 
-void CSloongD3D::Loop()
+void CD3D::Loop()
 {
 	static FLOAT fLastTime = (float)::timeGetTime();
 	static FLOAT fCurrTime = (float)::timeGetTime();

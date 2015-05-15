@@ -1,13 +1,14 @@
 #pragma once
 #include "SloongLua.h"
-
+#include "IUniversal.h"
+using namespace SoaringLoong;
 namespace SoaringLoong
 {
 
 	class CWinConsole
 	{
 	public:
-		static HWND StartConsole(HINSTANCE hInstance, CLua *pScriptContext);
+		static HWND StartConsole(HINSTANCE hInstance, HWND hWnd, CRect rcWindow, CLua *pScriptContext);
 		static void StopConsole();
 		static void Write( LPCTSTR pString);
 
@@ -15,7 +16,7 @@ namespace SoaringLoong
 		static LRESULT CALLBACK SubclassInputEditProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 		bool	ConsoleReady(void)	{ return m_hWnd != NULL; }
-
+		void	Paint(HDC hDC);
 	private:
 		CWinConsole();
 		virtual ~CWinConsole();
@@ -23,12 +24,14 @@ namespace SoaringLoong
 		void	Init(HINSTANCE hInstance);
 		void	ResizeControls(void);
 		void	AdjustScrollBar(void);
-		void	Paint(HDC hDC);
+		
 
 
 	private:
 		static volatile bool	m_bWinIsActive;
 		static volatile HWND m_hWnd;
+		static volatile HWND m_hParentWnd;
+		static CRect	m_rcWindow;
 		static volatile HWND m_hEditControl;
 		static TCHAR m_CommandBuffer[4096];
 

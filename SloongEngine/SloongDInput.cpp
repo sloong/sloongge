@@ -3,13 +3,14 @@
 // 2013年 2月03日  Create by 浅墨 
 //=============================================================================
 #include "stdafx.h"
-#include "DInputClass.h"
+#include "SloongDInput.h"
 
+using namespace SoaringLoong::DirectX;
 
 //-----------------------------------------------------------------------------
 // Desc: 构造函数
 //-----------------------------------------------------------------------------
-DInputClass::DInputClass()
+CDInput::CDInput()
 {
 	m_pDirectInput = NULL;
 	m_KeyboardDevice = NULL;
@@ -23,7 +24,7 @@ DInputClass::DInputClass()
 // Name：DInputClass::Init(）
 // Desc: 初始化DirectInput键盘及鼠标输入设备
 //-----------------------------------------------------------------------------
-HRESULT DInputClass::Init(HWND hWnd, HINSTANCE hInstance, DWORD keyboardCoopFlags, DWORD mouseCoopFlags)
+HRESULT CDInput::Init(HWND hWnd, HINSTANCE hInstance, DWORD keyboardCoopFlags, DWORD mouseCoopFlags)
 {
 	HRESULT hr;
 	//初始化一个IDirectInput8接口对象
@@ -52,7 +53,7 @@ HRESULT DInputClass::Init(HWND hWnd, HINSTANCE hInstance, DWORD keyboardCoopFlag
 // Name：DInputClass::GetInput()
 // Desc: 用于获取输入信息的函数
 //-----------------------------------------------------------------------------
-void DInputClass::GetInput()
+void CDInput::GetInput()
 {
 	HRESULT hr = m_KeyboardDevice->GetDeviceState(sizeof(m_keyBuffer), (void**)&m_keyBuffer);
 	//获取键盘输入消息
@@ -79,7 +80,7 @@ void DInputClass::GetInput()
 // Name：DInputClass::IsKeyDown()
 // Desc: 判断键盘上某个键是否按下
 //-----------------------------------------------------------------------------
-bool DInputClass::IsKeyDown(int iKey)
+bool CDInput::IsKeyDown(int iKey)
 {
 	if (m_keyBuffer[iKey] & 0x80)
 		return true;
@@ -92,7 +93,7 @@ bool DInputClass::IsKeyDown(int iKey)
 // Name：DInputClass::IsMouseButtonDown()
 // Desc: 判断鼠标上某键是否按下
 //-----------------------------------------------------------------------------
-bool DInputClass::IsMouseButtonDown(int button)
+bool CDInput::IsMouseButtonDown(int button)
 {
 	return (m_MouseState.rgbButtons[button] & 0x80) != 0;
 }
@@ -101,7 +102,7 @@ bool DInputClass::IsMouseButtonDown(int button)
 // Name：DInputClass::MouseDX
 // Desc: 返回鼠标指针的X轴坐标值
 //-----------------------------------------------------------------------------
-float DInputClass::MouseDX()
+float CDInput::MouseDX()
 {
 	return (float)m_MouseState.lX;
 }
@@ -110,7 +111,7 @@ float DInputClass::MouseDX()
 // Name：DInputClass::MouseDY
 // Desc: 返回鼠标指针的Y轴坐标值
 //-----------------------------------------------------------------------------
-float DInputClass::MouseDY()
+float CDInput::MouseDY()
 {
 	return (float)m_MouseState.lY;
 }
@@ -119,7 +120,7 @@ float DInputClass::MouseDY()
 // Name：DInputClass::MouseDZ
 // Desc: 返回鼠标指针的Z轴坐标值（滚轮）
 //-----------------------------------------------------------------------------
-float DInputClass::MouseDZ()
+float CDInput::MouseDZ()
 {
 	return (float)m_MouseState.lZ;
 }
@@ -130,7 +131,7 @@ float DInputClass::MouseDZ()
 //-----------------------------------------------------------------------------
 // Desc: 析构函数
 //-----------------------------------------------------------------------------
-DInputClass::~DInputClass(void)
+CDInput::~CDInput(void)
 {
 	if (m_KeyboardDevice != NULL)
 		m_KeyboardDevice->Unacquire();

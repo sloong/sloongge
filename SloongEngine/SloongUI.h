@@ -9,7 +9,7 @@
 #include "SloongString.h"
 #include "ISloongObject.h"
 #include "SloongCamera.h"
-#include "DInputClass.h"
+#include "SloongDInput.h"
 namespace SoaringLoong
 {
 	class CRect;
@@ -18,6 +18,7 @@ namespace SoaringLoong
 	using Universal::CString;
 	using Graphics3D::IObject;
 	using Graphics3D::CCamera;
+	using DirectX::CDInput;
 	namespace Graphics
 	{
 		class CObject;
@@ -28,7 +29,7 @@ namespace SoaringLoong
 			CUserInterface();
 			~CUserInterface();
 
-			void Initialize(ctstring& strPath, CDDraw* pDDraw, DInputClass* pInput, CLua* pLua, ILogSystem* pLog);
+			void Initialize(ctstring& strPath, CDDraw* pDDraw, CDInput* pInput, CLua* pLua, ILogSystem* pLog);
 
 			tstring GetEventHandler() const;
 			void SetEventHandler(LPCTSTR strName);
@@ -55,7 +56,7 @@ namespace SoaringLoong
 			ILogSystem*					m_pLog;
 			CDDraw*						m_pDDraw;
 			CCamera*					m_pCamera;
-			DInputClass*				m_pInput;
+			CDInput*				m_pInput;
 		public:
 			void Update( HWND hWnd );
 		};

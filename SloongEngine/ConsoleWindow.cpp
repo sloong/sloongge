@@ -18,7 +18,9 @@ CWinConsole* SoaringLoong::g_Console = NULL;
 
 volatile bool CWinConsole::m_bWinIsActive = true;
 volatile HWND CWinConsole::m_hWnd = NULL;
+volatile HWND CWinConsole::m_hParentWnd = NULL;
 volatile HWND CWinConsole::m_hEditControl = NULL;
+CRect CWinConsole::m_rcWindow;
 
 TCHAR CWinConsole::m_CommandBuffer[4096];
 
@@ -27,13 +29,15 @@ WNDPROC lpfnInputEdit;  // Storage for subclassed edit control
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-HWND CWinConsole::StartConsole(HINSTANCE hInstance, CLua* pScriptContext)
+HWND CWinConsole::StartConsole(HINSTANCE hInstance, HWND hWnd, CRect rcWindow, CLua *pScriptContext)
 {
 	if (!g_Console)
 	{
 		g_Console = new CWinConsole();
 	}
 
+	m_hParentWnd = hWnd;
+	m_rcWindow = rcWindow;
 	if (!m_hWnd)
 		g_Console->Init(hInstance);
 
@@ -88,15 +92,14 @@ void CWinConsole::AdjustScrollBar(void)
 
 void CWinConsole::ResizeControls(void)
 {
-	RECT r;
+	RECT r = m_rcWindow;
 
-	GetClientRect(m_hWnd, &r);
 	m_textAreaHeight = (r.bottom - r.top) / 16;
 
 	SetWindowPos(m_hEditControl, HWND_TOP, r.left + 2, r.bottom - 18, r.right - r.left - 4, 16, SWP_NOZORDER);
 
 	AdjustScrollBar();
-	InvalidateRect(m_hWnd, NULL, TRUE);
+	InvalidateRect(m_hWnd, m_rcWindow, TRUE);
 }
 
 void CWinConsole::Paint(HDC hDC)
@@ -104,9 +107,7 @@ void CWinConsole::Paint(HDC hDC)
 	SetTextColor(hDC, RGB(255, 255, 255));
 	SetBkColor(hDC, RGB(0, 0, 0));
 
-	RECT r;
-
-	GetClientRect(m_hWnd, &r);
+	RECT r = m_rcWindow;
 
 	int x = 2;
 	int y = r.bottom - 40;
@@ -357,7 +358,7 @@ void CWinConsole::Init(HINSTANCE hInstance)
 		CW_USEDEFAULT, // top
 		640, // width
 		480, // height
-		NULL, // parent window
+		m_hParentWnd, // parent window
 		NULL, // menu 
 		m_hInstance, // instance
 		NULL); // parms
@@ -385,6 +386,7 @@ void CWinConsole::Init(HINSTANCE hInstance)
 
 	lpfnInputEdit = (WNDPROC)SetWindowLong(m_hEditControl, GWL_WNDPROC, (long)SubclassInputEditProc);
 	g_Console->ResizeControls();
+	m_stringList.push_back(_T("Sloong Lua Commander."));
 }
 
 static int Debug_Print(lua_State *L)

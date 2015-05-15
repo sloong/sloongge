@@ -231,3 +231,18 @@ size_t SoaringLoong::CLua::StringToNumber(LPCTSTR string)
 	
 	return lua_tonumber(m_pScriptContext, -1);
 }
+
+inline lua_State* SoaringLoong::CLua::GetScriptContext()
+{
+	return m_pScriptContext;
+}
+
+inline void SoaringLoong::CLua::SetErrorHandle(void(*pErrHandler)(LPCTSTR strError))
+{
+	m_pErrorHandler = pErrHandler;
+}
+
+void SoaringLoong::CLua::InitializeWindow(HWND hWnd)
+{
+
+}

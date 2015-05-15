@@ -134,7 +134,7 @@ void SoaringLoong::Graphics::CUIManager::Update()
 	GetCurrentUI()->Update(m_hWnd);
 }
 
-void SoaringLoong::Graphics::CUIManager::Initialize(CDDraw* pDDraw, CLua* pLua,DInputClass* pInput, ILogSystem* pLog,HWND hWnd)
+void SoaringLoong::Graphics::CUIManager::Initialize(CDDraw* pDDraw, CLua* pLua,CDInput* pInput, ILogSystem* pLog,HWND hWnd)
 {
 	m_pDDraw = pDDraw;
 	m_pLua = pLua;

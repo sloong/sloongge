@@ -30,9 +30,6 @@
     <ClInclude Include="CameraClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DInputClass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -45,19 +42,10 @@
     <ClInclude Include="SloongD3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SloongException.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SloongLua.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SloongObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SloongSprite.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SloongString.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SloongTextField.h">
@@ -84,16 +72,10 @@
     <ClInclude Include="SloongObject3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SloongFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ISloongObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SloongThreadPool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SloongThread.h">
+    <ClInclude Include="SloongDInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -110,9 +92,6 @@
     <ClCompile Include="CameraClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DInputClass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SkyBoxClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -122,19 +101,10 @@
     <ClCompile Include="SloongD3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SloongException.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SloongLua.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SloongObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SloongSprite.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SloongString.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SloongTextField.cpp">
@@ -161,13 +131,7 @@
     <ClCompile Include="SloongObject3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SloongFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SloongThreadPool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SloongThread.cpp">
+    <ClCompile Include="SloongDInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
