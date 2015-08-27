@@ -1,20 +1,23 @@
 #include "stdafx.h"
 #include "SloongUIManager.h"
-#include "SloongLua.h"
+#include "univ/lua.h"
 #include "SloongObject.h"
 #include "SloongUI.h"
 #include "SloongButton.h"
 #include "SloongSprite.h"
 #include "SloongTextField.h"
-#include "SloongDraw.h"
+#include "graphics/SloongGraphics.h"
 #include "SloongEngine.h"
-using namespace SoaringLoong;
-using namespace SoaringLoong::Graphics;
+using namespace Sloong;
+using namespace Sloong::Graphics;
+
+
+
 
 CUIManager::CUIManager()
 {
-	m_UIMap = new map<tstring, CUserInterface*>;
-	m_pModuleMap = new map<tstring, IObject*>;
+	m_UIMap = new map<CString, CUserInterface*>;
+	m_pModuleMap = new map<CString, CObject3D*>;
 }
 
 
@@ -32,7 +35,7 @@ CUIManager::~CUIManager()
 	SAFE_DELETE(m_pModuleMap);
 }
 
-void CUIManager::CreateGUIItem(const UINT nID, const tstring strType, const vector<tstring>& strTexture)
+void CUIManager::CreateGUIItem(const UINT nID, const CString& strType, vector<CString>* strTexture)
 {
 	if ( strTexture[0].empty() )
 	{
@@ -46,21 +49,21 @@ void CUIManager::CreateGUIItem(const UINT nID, const tstring strType, const vect
 
 	CObject* pObject = nullptr;
 
-	if (strSpriteName == strType)
+	if (strType == strSpriteName)
 	{
 		// Create Sprite
 		CSprite* pSprite = new CSprite(m_pDDraw);
 		pSprite->SetTexture(strTexture);
 		pObject = pSprite;
 	}
-	else if (strTextFieldName == strType)
+	else if (strType == strTextFieldName)
 	{
 		// Create Text field
 		CTextField* pText = new CTextField(m_pDDraw);
 		pText->SetTexture(strTexture);
 		pObject = pText;
 	}
-	else if (strButtonName == strType)
+	else if (strType == strButtonName)
 	{
 		// Create Button
 		CButton* pButton = new CButton(m_pDDraw);
@@ -85,7 +88,7 @@ CUserInterface* CUIManager::GetCurrentUI() const
 	return m_pCurrentUI;
 }
 
-void CUIManager::RunGUI(ctstring& strFileName)
+void CUIManager::RunGUI(const CString& strFileName)
 {
 	auto item = m_UIMap->find(strFileName);
 	if ( item == m_UIMap->end())
@@ -93,7 +96,7 @@ void CUIManager::RunGUI(ctstring& strFileName)
 		m_pCurrentUI = new CUserInterface();
 		(*m_UIMap)[strFileName] = m_pCurrentUI;
 		// TODO : build the full path
-		tstring strFullPath = strFileName;
+		CString strFullPath = strFileName;
 		m_pCurrentUI->Initialize(strFullPath, m_pDDraw, m_pInput, m_pLua, m_pLog);
 		CSloongEngine::SendEvent(0,UI_EVENT::ENTER_INTERFACE);
 	}
@@ -113,12 +116,12 @@ void CUIManager::RunGUI(ctstring& strFileName)
 	}
 }
 
-void SoaringLoong::Graphics::CUIManager::DeleteItem(const UINT nID)
+void Sloong::Graphics::CUIManager::DeleteItem(const UINT nID)
 {
 
 }
 
-void SoaringLoong::Graphics::CUIManager::MoveItem(const UINT nID, const CRect& rcRect)
+void Sloong::Graphics::CUIManager::MoveItem(const UINT nID, const CRect& rcRect)
 {
 	CUserInterface* pUI = GetCurrentUI();;
 	if (nullptr == pUI)
@@ -129,12 +132,12 @@ void SoaringLoong::Graphics::CUIManager::MoveItem(const UINT nID, const CRect& r
 }
 
 
-void SoaringLoong::Graphics::CUIManager::Update()
+void Sloong::Graphics::CUIManager::Update()
 {
 	GetCurrentUI()->Update(m_hWnd);
 }
 
-void SoaringLoong::Graphics::CUIManager::Initialize(CDDraw* pDDraw, CLua* pLua,CDInput* pInput, ILogSystem* pLog,HWND hWnd)
+void Sloong::Graphics::CUIManager::Initialize(CDDraw* pDDraw, CLua* pLua,CDInput* pInput, CLog* pLog,HWND hWnd)
 {
 	m_pDDraw = pDDraw;
 	m_pLua = pLua;
@@ -143,13 +146,13 @@ void SoaringLoong::Graphics::CUIManager::Initialize(CDDraw* pDDraw, CLua* pLua,C
 	m_hWnd = hWnd;
 }
 
-void SoaringLoong::Graphics::CUIManager::Load3DModule(const int& nID, const tstring& strFileName, const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRotate)
+void Sloong::Graphics::CUIManager::Load3DModule(const int& nID, const CString& strFileName, const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRotate)
 {
 	auto& item = m_pModuleMap->find(strFileName);
 	if (item == m_pModuleMap->end())
 	{
-		IObject* pObject = IObject::Create3D(m_pDDraw);
-		pObject->LoadPLGMode(strFileName.c_str());
+		CObject3D* pObject = new CObject3D(m_pDDraw);
+		pObject->LoadPLGMode(strFileName);
 		(*m_pModuleMap)[strFileName] = pObject;
 		item = m_pModuleMap->find(strFileName);
 	}
@@ -162,23 +165,23 @@ void SoaringLoong::Graphics::CUIManager::Load3DModule(const int& nID, const tstr
 	
 }
 
-void SoaringLoong::Graphics::CUIManager::Move3DModule(const int& nID, const CVector4D& vPos)
+void Sloong::Graphics::CUIManager::Move3DModule(const int& nID, const CVector4D& vPos)
 {
 	GetCurrentUI()->Move3DObject(nID, vPos);
 }
 
-void SoaringLoong::Graphics::CUIManager::Delete3DModule(const int& nID)
+void Sloong::Graphics::CUIManager::Delete3DModule(const int& nID)
 {
 
 }
 
-void SoaringLoong::Graphics::CUIManager::SetCamera(CCamera* pCamera)
+void Sloong::Graphics::CUIManager::SetCamera(CCamera* pCamera)
 {
 	m_pCamera = pCamera;
 	GetCurrentUI()->SetCamera(m_pCamera);
 }
 
-void SoaringLoong::Graphics::CUIManager::MoveCamera(const POINT4D& Position, const POINT4D& Direction, LPPOINT4D Target)
+void Sloong::Graphics::CUIManager::MoveCamera(const POINT4D& Position, const POINT4D& Direction, LPPOINT4D Target)
 {
 	m_pCamera->Move(Position, Direction, Target);
 }

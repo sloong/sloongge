@@ -1,20 +1,20 @@
 #include "stdafx.h"
 #include "SloongObject.h"
-#include "IUniversal.h"
-#include "SloongDraw.h"
-#include "SloongBitmap.h"
-#include "SloongException.h"
+#include "univ/univ.h"
+#include "graphics/SloongGraphics.h"
+#include "graphics/SloongBitmap.h"
+#include "univ/exception.h"
 #include "SloongEngine.h"
-#include "SloongString.h"
-using namespace SoaringLoong;
-using namespace SoaringLoong::Universal;
-using namespace SoaringLoong::Graphics;
+#include "string/string.h"
+using namespace Sloong;
+using namespace Sloong::Universal;
+using namespace Sloong::Graphics;
 
 LPCTSTR strSpriteName = _T("SloongGUISprite");
 LPCTSTR strTextFieldName = _T("SloongGUITextField");
 LPCTSTR strButtonName = _T("SloongGUIButton");
 
-tstring CObject::m_strTexturePath;
+CString CObject::m_strTexturePath;
 
 CObject::CObject(CDDraw* pDDraw)
 {
@@ -42,13 +42,13 @@ void CObject::SetID(UINT nID)
 	m_nID = nID;
 }
 
-void CObject::SetTexture(const vector<tstring>& vTexture)
+void CObject::SetTexture( vector<CString>* vTexture)
 {
 	m_vTexture.clear();
-	m_vTexture = vTexture;
+	m_vTexture = (*vTexture);
 
 	CBitmap oBitmap;
-	oBitmap.LoadBitmapFromFile(vTexture[0].c_str());
+	oBitmap.LoadBitmapFromFile(m_vTexture[0].c_str());
 	LoadFrame(&oBitmap, 0, 0, 0, BITMAP_EXTRACT_MODE_ABS);
 }
 
@@ -78,12 +78,12 @@ RECT CObject::GetScrrenRect()
 	return m_rcScreen;
 }
 
-void CObject::SetTexturePath(ctstring& strPath)
+void CObject::SetTexturePath(const CString& strPath)
 {
 	m_strTexturePath = strPath;
 }
 
-tstring CObject::GetTexturePath()
+const CString& CObject::GetTexturePath()
 {
 	return m_strTexturePath;
 }
@@ -98,7 +98,7 @@ void CObject::SetPosition( const CRect& rcRect, float z)
 	*m_rcObject = rcRect;
 }
 
-void CObject::SetFont(ctstring& strFontName, float fFontSize)
+void CObject::SetFont(const CString& strFontName, float fFontSize)
 {
 
 }
@@ -120,15 +120,15 @@ bool CObject::Update( const CPoint& MousePos )
 
 		switch (m_stStatus)
 		{
-		case SoaringLoong::Graphics::DOWN:
+		case Sloong::Graphics::DOWN:
 			CSloongEngine::SendEvent(m_nID, UI_EVENT::BUTTON_DOWN);
 			break;
-		case SoaringLoong::Graphics::HOVER:
+		case Sloong::Graphics::HOVER:
 			CSloongEngine::SendEvent(m_nID, UI_EVENT::HOVER_TIMED_START);
 			break;
-		case SoaringLoong::Graphics::UP:
+		case Sloong::Graphics::UP:
 			break;
-		case SoaringLoong::Graphics::NORMAL:
+		case Sloong::Graphics::NORMAL:
 			break;
 		default:
 			break;
@@ -323,9 +323,7 @@ void CObject::Draw(LPDIRECTDRAWSURFACE7 dest) // surface to draw the bob on
 	{
 		m_bRenderError = true;
 		LPCTSTR ErrorString = DXGetErrorDescription(hRes);
-		CString str;
-		str.Format(_T("Render Error, object id : %d.Error string: %s.\r\n"), m_nID, ErrorString);
-		throw CException(str.GetString().c_str());
+		throw CException(CUniversal::Format(_T("Render Error, object id : %d.Error string: %s.\r\n"), m_nID, ErrorString));
 	}
 
 	/*// blt to destination surface

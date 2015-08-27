@@ -1,8 +1,5 @@
 #pragma once
 
-#include "SloongString.h"
-
-
 // states for objects
 #define OBJECT4DV1_STATE_ACTIVE           0x0001
 #define OBJECT4DV1_STATE_VISIBLE          0x0002 
@@ -44,10 +41,18 @@
 #define PLX_COLOR_MODE_INDEXED_FLAG 0x0000   // this poly uses an indexed 8-bit color 
 
 
-#include "SloongVector.h"
-namespace SoaringLoong
+#include "math\\SloongVector.h"
+using namespace Sloong::Math::Vector;
+namespace Sloong
 {
-	using Universal::CString;
+	namespace Graphics
+	{
+		class CDDraw;
+	}
+}
+using namespace Sloong::Graphics;
+namespace Sloong
+{
 	namespace Math
 	{
 		namespace Matrix
@@ -59,14 +64,9 @@ namespace SoaringLoong
 			class IPolygon;
 		}
 	}
-	using namespace Math::Vector;
+	
 	using namespace Math::Matrix;
 	using namespace Math::Polygon;
-	namespace Graphics
-	{
-		class CDDraw;
-	}
-	using Graphics::CDDraw;
 	namespace Graphics3D
 	{
 		typedef enum _TransformMode
@@ -83,62 +83,7 @@ namespace SoaringLoong
 			CULL_ON_Z_PLANE = 0x0004, // cull on the z clipping planes
 			CULL_ON_XYZ_PLANES = (CULL_ON_X_PLANE | CULL_ON_Y_PLANE | CULL_ON_Z_PLANE),
 		}CULL_MODE;
-		class CCamera;
-		class SLOONGENGINE_API IObject
-		{
-		public:
-			static IObject* Create3D(CDDraw* pDDraw);
 
-		public:
-			virtual void LoadPLGMode(LPCTSTR strFileName) = 0;
-			virtual void Update() = 0;
-			virtual void Render() = 0;
-			virtual void RenderAll( CCamera* cam, CMatrix4x4* mTrans ) = 0;
-			virtual void UpdateWorldVertex(const CVector4D& mWorld) = 0;
-			virtual void UpdateCameraVertex(const CMatrix4x4& mCamera) = 0;
-			virtual void UpdateProjectVertex(const CMatrix4x4& mProject) = 0;
-			virtual void UpdateScreenVertex(const CMatrix4x4& mScreen) = 0;
-			virtual void UpdateVertex(const CMatrix4x4& mMarix, bool bNormal) = 0;
-			virtual void AddPolygon(IPolygon* pPoly) = 0;
-			virtual void AddVertex(const CVector4D& vVertex) = 0;
-			virtual CVector4D* GetVertex(int nIndex) = 0;
-			virtual void AddAttribute(DWORD dwAttribute) = 0;
-			virtual void SetAttribute(DWORD dwAttribute) = 0;
-			virtual DWORD GetAttribute() = 0;
-			virtual void AddStatus(DWORD dwStatus) = 0;
-			virtual void DeleteStatus(DWORD dwStatus) = 0;
-			virtual void SetStatus(DWORD dwStatus) = 0;
-			virtual DWORD GetStatus() = 0;
 
-			virtual void SetWorldPosition(const CVector4D& vPos) = 0;
-			virtual CVector4D GetWorldPosition() = 0;
-
-			virtual void ComputeRadius() = 0;
-
-			virtual void Reset() = 0;
-
-			virtual void Transform(const CMatrix4x4& mMatrix, TRANS_MODE emMode, bool transform_basis) = 0;
-			virtual void Move(const CVector4D& vTrans) = 0;
-			virtual void Scale(const CVector4D& vScale) = 0;
-
-			virtual void Rotate(float x, float y, float z) = 0;
-
-			virtual void ToWorld(TRANS_MODE emMode) = 0;
-			virtual void ToCamera(CCamera* pCam) = 0;
-			virtual void ToProject(CCamera* pCam) = 0;
-			virtual void CameraToPerspectiveScreen(CCamera* pCam) = 0;
-			virtual void PerspectiveToScreen(CCamera* pCam) = 0;
-			virtual void Cull(CCamera* cam, CULL_MODE emMode) = 0;
-			virtual void ConvertFromHomogeneous4D() = 0;
-
-			virtual void RemoveBackface(CCamera* cam) = 0;
-			virtual bool Visible() = 0;
-
-			virtual int AddObject( const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRot) = 0;
-			virtual void SetCurrentIndex(int index) = 0;
-			virtual int GetCurrentIndex() = 0;
-
-			virtual void GetRadius(double& avg, double& max) = 0;
-		};
 	}
 }

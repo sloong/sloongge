@@ -1,15 +1,15 @@
 #pragma once
-#include "SloongLua.h"
+#include "univ\\lua.h"
 #include "SloongUIManager.h"
 #include "resource.h"
-using namespace SoaringLoong;
+using namespace Sloong;
 #pragma comment(lib,"SloongEngine.lib")
 
-#include "SloongVector.h"
+#include "math\\SloongVector.h"
 #include "SloongObject3D.h"
 #include "SloongCamera.h"
-using namespace SoaringLoong::Math::Vector;
-using namespace SoaringLoong::Graphics3D;
+using namespace Sloong::Math::Vector;
+using namespace Sloong::Graphics3D;
 enum UI_EVENT
 {
 	BUTTON_UP = 0,
@@ -34,7 +34,7 @@ typedef struct EVENT_PARAM
 	UI_EVENT event;
 }*LPEVENT_PARAM;
 
-namespace SoaringLoong
+namespace Sloong
 {
 	class CSloongEngine;
 	namespace Graphics
@@ -46,10 +46,18 @@ namespace SoaringLoong
 	{
 		class CCamera;
 	}
+	namespace Universal
+	{
+		class CLua;
+		class CRect;
+		class CSize;
+
+	}
 }
-using namespace SoaringLoong;
-using namespace SoaringLoong::Graphics;
-using namespace SoaringLoong::Graphics3D;
+using namespace Sloong;
+using namespace Sloong::Graphics;
+using namespace Sloong::Graphics3D;
+using namespace Sloong::Universal;
 class CD3D;
 class CDInput;
 class CSloongGame
@@ -89,9 +97,9 @@ public:
 	static int MoveCamera(lua_State* l);
 
 public:
-	static int SendEvent(int id, LPCTSTR args);
+	static int SendEvent(int id, CString args);
 	static   DWORD WINAPI SendEvent(LPVOID pArgs);
-	static void ErrorHandler(LPCTSTR strError);
+	static void ErrorHandler(CString strError);
 
 public:
 	static LuaFunctionRegistr g_LuaFunctionList[];
@@ -102,8 +110,8 @@ public:
 	static CUIManager* GetSloongUIManager();
 
 	static CDDraw* GetDDraw();
-	static ILogSystem* GetLogSystem();
-	static IUniversal* GetUniversal();
+	static CLog* GetLogSystem();
+	//static IUniversal* GetUniversal();
 	static tstring Format(LPCTSTR strText, ...);
 	static bool InRect(const CSize& pos, const CRect& rc);
 
@@ -118,15 +126,15 @@ public:
 	CDDraw*		m_pDraw;
 	CUIManager*			m_pUIManager;
 	CLua*				m_pLua;
-	IUniversal*			m_pUniversal;
-	ILogSystem*			m_pLog;
+//	IUniversal*			m_pUniversal;
+	CLog*			m_pLog;
 	CD3D*			m_pD3D;
 	CDInput*		m_pInput;
 	CRect				m_rcWindow;
 	CSloongEngine*		m_pEngine;
 
 	CVector4D vscale, vpos, vrot;
-	IObject*     obj_tower,    // used to hold the master tower
+	CObject3D*     obj_tower,    // used to hold the master tower
 		*obj_tank,     // used to hold the master tank
 		*obj_marker,   // the ground marker
 		*obj_player;   // the player object        

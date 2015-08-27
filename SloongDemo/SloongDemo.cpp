@@ -2,30 +2,30 @@
 //
 
 #include "stdafx.h"
-#include "IUniversal.h"
+#include "univ\\univ.h"
 #include "SloongDemo.h"
 #include "Defines.h"
 #include "SloongUIManager.h"
 #include "SloongUI.h"
 #include "SloongObject.h"
-#include "SloongDraw.h"
-#include "SloongException.h"
+#include "graphics\\SloongGraphics.h"
+#include "univ\\exception.h"
 #include "ConsoleWindow.h"
 #include "SloongSprite.h"
 #include "SloongD3D.h"
-#include "SloongString.h"
+#include "string\\string.h"
 #include "SloongDInput.h"
 #include "SloongCamera.h"
 #include "SloongEngine.h"
 #include "SloongObject3D.h"
-#include "SloongMath2.h"
-#pragma comment(lib,"Universal.lib")
-#pragma comment(lib,"SloongMath.lib")
-#pragma comment(lib,"SloongGraphic.lib")
-using namespace SoaringLoong;
-using namespace SoaringLoong::Graphics;
-using namespace SoaringLoong::Universal;
-using namespace SoaringLoong::Graphics3D;
+#include "math\\SloongMath2.h"
+#pragma comment(lib,"univ.lib")
+#pragma comment(lib,"math.lib")
+#pragma comment(lib,"graphics.lib")
+using namespace Sloong;
+using namespace Sloong::Graphics;
+using namespace Sloong::Universal;
+using namespace Sloong::Graphics3D;
 // Global Variables:							
 CSloongGame* CSloongGame::g_pApp = NULL;
 LuaFunctionRegistr CSloongGame::g_LuaFunctionList[] =
@@ -80,8 +80,8 @@ CSloongGame::CSloongGame()
 
 CSloongGame::~CSloongGame()
 {
-	SAFE_RELEASE(m_pLog);
-	SAFE_RELEASE(m_pUniversal);
+	SAFE_DELETE(m_pLog);
+	//SAFE_RELEASE(m_pUniversal);
 	SAFE_DELETE(m_pLua);
 	SAFE_DELETE(m_pUIManager);
 	CoUninitialize();
@@ -113,7 +113,9 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	CSloongGame::MyRegisterClass(hInstance);
 
-	if (SUCCEEDED(CreateUniversal((LPVOID*)&m_pUniversal)) && m_pUniversal )
+	m_pLog = new CLog();
+
+	/*if (SUCCEEDED(CreateUniversal((LPVOID*)&m_pUniversal)) && m_pUniversal )
 	{
 		if (SUCCEEDED(m_pUniversal->CreateLogSystem(m_pUniversal, &m_pLog)))
 		{
@@ -131,7 +133,7 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 	{
 		MessageBox(NULL, _T("Create Universal fialed."), NULL, MB_OK);
 		ExitProcess(-1);
-	}
+	}*/
 
 
 	m_hInst = hInstance; // Store instance handle in our global variable
@@ -259,7 +261,7 @@ int CSloongGame::Run()
 
 LuaRes CSloongGame::Version(lua_State* l)
 {
-	tstring str = GetSloongLua()->GetStringArgument(1);
+	CString str = GetSloongLua()->GetStringArgument(1);
 	MessageBox(NULL, str.c_str(), _T("Test"), MB_OK);
 	return 0;
 }
@@ -276,14 +278,14 @@ LuaRes CSloongGame::RegisterEvent(lua_State* l)
 	return 0;
 }
 
-LuaRes CSloongGame::SendEvent(int id, LPCTSTR args)
+LuaRes CSloongGame::SendEvent(int id, CString args)
 {
 	auto strEventHandler = GetSloongUIManager()->GetCurrentUI()->GetEventHandler();
 	auto pLua = GetSloongLua();
 	if (pLua && !strEventHandler.empty())
 	{
 		TCHAR buf[256] = { 0 };
-		if (args)
+		if (!args.empty())
 		{
 			_stprintf_s(buf, 256, _T("%d,%s"), id, args);
 		}
@@ -315,7 +317,7 @@ DWORD CSloongGame::SendEvent(LPVOID pArgs)
 	return 0;
 }
 
-void CSloongGame::ErrorHandler(LPCTSTR strError)
+void CSloongGame::ErrorHandler(CString strError)
 {
 	GetAppMain()->m_pLog->WriteLine(strError);
 }
@@ -329,14 +331,14 @@ int CSloongGame::CreateGUIItem(lua_State* l)
 		CLua* pLua = GetSloongLua();
 
 		UINT nID = pLua->GetNumberArgument(1);
-		tstring strType = pLua->GetStringArgument(2);
-		vector<tstring> strTexture;
+		CString strType = pLua->GetStringArgument(2);
+		vector<CString> strTexture;
 
-		if (strSpriteName == strType || strTextFieldName == strType)
+		if (strType == strSpriteName ||strType == strTextFieldName)
 		{
 			strTexture.push_back(pLua->GetStringArgument(3));
 		}
-		else if (strButtonName == strType)
+		else if ( strType == strButtonName )
 		{
 			strTexture.push_back(pLua->GetStringArgument(3));
 			strTexture.push_back(pLua->GetStringArgument(4));
@@ -348,7 +350,7 @@ int CSloongGame::CreateGUIItem(lua_State* l)
 			throw tstring(_T("Type error"));
 		}
 
-		pGUIManager->CreateGUIItem(nID, strType, strTexture);
+		pGUIManager->CreateGUIItem(nID, strType, &strTexture);
 	}
 
 	return 0;
@@ -417,7 +419,7 @@ int CSloongGame::Load3DModule(lua_State* l)
 	auto pUIM = GetSloongUIManager();
 	auto pLua = GetSloongLua();
 	int nID = pLua->GetNumberArgument(1);
-	tstring strFile = pLua->GetStringArgument(2);
+	CString strFile = pLua->GetStringArgument(2);
 	CVector4D vPos(pLua->GetNumberArgument(3), pLua->GetNumberArgument(4), pLua->GetNumberArgument(5));
 	CVector4D vScale(pLua->GetNumberArgument(6), pLua->GetNumberArgument(7), pLua->GetNumberArgument(8));
 	CVector4D vRot(pLua->GetNumberArgument(9), pLua->GetNumberArgument(10), pLua->GetNumberArgument(11));
@@ -500,15 +502,11 @@ CDDraw* CSloongGame::GetDDraw()
 	return g_pApp->m_pDraw;
 }
 
-ILogSystem* CSloongGame::GetLogSystem()
+CLog* CSloongGame::GetLogSystem()
 {
 	return g_pApp->m_pLog;
 }
 
-IUniversal* CSloongGame::GetUniversal()
-{
-	return g_pApp->m_pUniversal;
-}
 
 bool CSloongGame::InRect(const CSize& pos, const CRect& rc)
 {
@@ -532,10 +530,10 @@ void CSloongGame::InitTest()
 	m_cam.Initialize(CAMERA_ELUER, cam_pos, cam_dir, &cam_target, CAM_ROT_SEQ_XYZ, 200, 12000, 120, WINDOW_WIDTH, WINDOW_HEIGHT);
 	//m_cam.Initialize(CAMERA_UVN, cam_pos, cam_dir, &cam_target, UVN_MODE_SPHERICAL, 200, 12000, 120, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-	obj_tank = IObject::Create3D(m_pDraw);
-	obj_marker = IObject::Create3D(m_pDraw);
-	obj_player = IObject::Create3D(m_pDraw);
-	obj_tower = IObject::Create3D(m_pDraw);
+	obj_tank = new CObject3D(m_pDraw);
+	obj_marker = new CObject3D(m_pDraw);
+	obj_player = new CObject3D(m_pDraw);
+	obj_tower = new CObject3D(m_pDraw);
 
 #define UNIVERSE_RADIUS   4000
 

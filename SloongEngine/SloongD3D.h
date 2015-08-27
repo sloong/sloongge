@@ -15,7 +15,7 @@
 #ifndef SAFE_DELETE_ARRAY
 #define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=NULL; } }
 #endif    
-namespace SoaringLoong
+namespace Sloong
 {
 	namespace DirectX
 	{

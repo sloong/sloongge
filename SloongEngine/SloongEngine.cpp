@@ -3,18 +3,18 @@
 
 #include "stdafx.h"
 #include "SloongEngine.h"
-#include "IUniversal.h"
-#include "SloongThreadPool.h"
-#include "ISloongObject.h"
+#include "univ/univ.h"
+#include "univ/threadpool.h"
+#include "SloongObject3D.h"
 #include "SloongCamera.h"
 
-using namespace SoaringLoong;
-using namespace SoaringLoong::Universal;
-using namespace SoaringLoong::Graphics3D;
+using namespace Sloong;
+using namespace Sloong::Universal;
+using namespace Sloong::Graphics3D;
 
-#pragma comment(lib,"SloongGraphic.lib")
-#pragma comment(lib,"SloongMath.lib")
-#pragma comment(lib,"Universal.lib")
+#pragma comment(lib,"graphics.lib")
+#pragma comment(lib,"math.lib")
+#pragma comment(lib,"univ.lib")
 typedef struct EVENT_PARAM
 {
 	int id;
@@ -23,13 +23,13 @@ typedef struct EVENT_PARAM
 
 typedef struct RENDER_PARAM
 {
-	IObject*	pObj;
+	CObject3D*	pObj;
 	int			nIndex;
 	CCamera*	pCamera;
 }*LPRENDER_PARAM;
 
 CThreadPool* g_pThreadPool = nullptr;
-CSloongEngine* SoaringLoong::CSloongEngine::theEngine = nullptr;
+CSloongEngine* Sloong::CSloongEngine::theEngine = nullptr;
 HANDLE		g_hRenderMutex = INVALID_HANDLE_VALUE;
 // This is the constructor of a class that has been exported.
 // see SloongEngine.h for the class definition
@@ -48,7 +48,7 @@ bool CSloongEngine::InRect(const CSize& pos, const CRect& rc)
 	return true;
 }
 
-void SoaringLoong::CSloongEngine::SendEvent(int id, UI_EVENT args)
+void Sloong::CSloongEngine::SendEvent(int id, UI_EVENT args)
 {
 	if ( !g_pThreadPool )
 	{
@@ -66,22 +66,22 @@ void SoaringLoong::CSloongEngine::SendEvent(int id, UI_EVENT args)
 	}
 }
 
-void SoaringLoong::CSloongEngine::SetEnentHandler(EventFunc func)
+void Sloong::CSloongEngine::SetEnentHandler(EventFunc func)
 {
 	g_EventFunc = func;
 }
 
-SoaringLoong::CSloongEngine::~CSloongEngine()
+Sloong::CSloongEngine::~CSloongEngine()
 {
 	theEngine = nullptr;
 }
 
-int SoaringLoong::CSloongEngine::GetEventListTotal()
+int Sloong::CSloongEngine::GetEventListTotal()
 {
 	return g_pThreadPool->GetTaskTotal();
 }
 
-DWORD WINAPI SoaringLoong::CSloongEngine::RenderCallBack(LPVOID lpData)
+DWORD WINAPI Sloong::CSloongEngine::RenderCallBack(LPVOID lpData)
 {
 	RENDER_PARAM* pTemp = (RENDER_PARAM*)lpData;
 	auto pObject = pTemp->pObj;
@@ -103,7 +103,7 @@ DWORD WINAPI SoaringLoong::CSloongEngine::RenderCallBack(LPVOID lpData)
 	return 0;
 }
 
-void SoaringLoong::CSloongEngine::AddRenderTask(IObject* pObj, int nIndex, CCamera* pCamera)
+void Sloong::CSloongEngine::AddRenderTask(CObject3D* pObj, int nIndex, CCamera* pCamera)
 {
 	if ( g_hRenderMutex == INVALID_HANDLE_VALUE )
 	{
@@ -116,7 +116,7 @@ void SoaringLoong::CSloongEngine::AddRenderTask(IObject* pObj, int nIndex, CCame
 	g_pThreadPool->AddTask(RenderCallBack, pTemp);
 }
 
-HANDLE SoaringLoong::CSloongEngine::GetJobListMutex()
+HANDLE Sloong::CSloongEngine::GetJobListMutex()
 {
 	return g_pThreadPool->GetJobListMutex();
 }

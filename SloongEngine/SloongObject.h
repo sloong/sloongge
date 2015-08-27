@@ -18,10 +18,17 @@ extern SLOONGENGINE_API LPCTSTR strButtonName;
 #define BOB_ATTR_CLONE          256 // the bob is a clone
 
 #include <ddraw.h>
-namespace SoaringLoong
+#include "univ/univ.h"
+#include "string/string.h"
+namespace Sloong
 {
-	class CRect;
-	class CPoint;
+	namespace Graphics
+	{
+		class CDDraw;
+		class CBitmap;
+	}
+	using namespace Universal;
+	using namespace Graphics;
 	namespace Graphics
 	{
 		typedef enum _Body_Status
@@ -39,8 +46,6 @@ namespace SoaringLoong
 			NORMAL,
 		};
 
-		class CDDraw;
-		class CBitmap;
 		class CObject
 		{
 		public:
@@ -51,9 +56,9 @@ namespace SoaringLoong
 			virtual void SetID(UINT nID);
 			virtual UINT GetID() const;
 
-			virtual void SetTexture(const vector<tstring>& vTexture);
+			virtual void SetTexture(vector<CString>* vTexture);
 			virtual void SetPosition(const CRect& rcRect, float z);
-			virtual void SetFont(ctstring& strFontName, float fFontSize);
+			virtual void SetFont(const CString& strFontName, float fFontSize);
 
 			virtual bool isDrawing() const;
 			virtual bool isDisable() const;
@@ -114,15 +119,15 @@ namespace SoaringLoong
 			//
 
 		public:
-			static void SetTexturePath(ctstring& strPath);
-			static tstring GetTexturePath();
+			static void SetTexturePath(const CString& strPath);
+			static const CString& GetTexturePath();
 
 		private:
-			static tstring m_strTexturePath;
+			static CString m_strTexturePath;
 
 		protected:
 			UINT m_nID;
-			vector<tstring> m_vTexture;
+			vector<CString> m_vTexture;
 			bool m_bIsDrawing;
 			bool m_bEnable;
 			bool m_bKeepDrawing;

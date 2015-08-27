@@ -2,7 +2,7 @@
 #include "SloongD3D.h"
 #include "SloongDInput.h"
 
-using namespace SoaringLoong::DirectX;
+using namespace Sloong::DirectX;
 
 //-----------------------------------【程序说明】----------------------------------------------
 //  程序名称:：D3Ddemo20

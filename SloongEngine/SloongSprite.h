@@ -1,7 +1,7 @@
 #pragma once
 #include "SloongObject.h"
 
-namespace SoaringLoong
+namespace Sloong
 {
 	namespace Graphics
 	{

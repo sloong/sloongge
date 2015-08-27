@@ -2,8 +2,8 @@
 #include "SloongTextField.h"
 #include "Defines.h"
 
-using namespace SoaringLoong;
-using namespace SoaringLoong::Graphics;
+using namespace Sloong;
+using namespace Sloong::Graphics;
 
 CTextField::CTextField(CDDraw* pDDraw) : CObject(pDDraw)
 {
@@ -14,7 +14,7 @@ CTextField::~CTextField()
 {
 }
 
-void SoaringLoong::Graphics::CTextField::Render(LPDIRECTDRAWSURFACE7 lpDDrawSurface)
+void Sloong::Graphics::CTextField::Render(LPDIRECTDRAWSURFACE7 lpDDrawSurface)
 {
 	Draw(lpDDrawSurface);
 }

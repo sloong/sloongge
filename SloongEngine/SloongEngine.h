@@ -10,11 +10,9 @@
 #define SLOONGENGINE_API __declspec(dllimport)
 #endif
 
-namespace SoaringLoong
+#include "univ/univ.h"
+namespace Sloong
 {
-	class CSize;
-	class CRect;
-
 	typedef LPTHREAD_START_ROUTINE EventFunc;
 
 	namespace Graphics
@@ -25,10 +23,11 @@ namespace SoaringLoong
 
 	namespace Graphics3D
 	{
-		class IObject;
+		class CObject3D;
 		class CCamera;
 	}
 	using namespace Graphics3D;
+	using namespace Universal;
 	class SLOONGENGINE_API CSloongEngine {
 	public:
 		CSloongEngine(void);
@@ -38,7 +37,7 @@ namespace SoaringLoong
 		static bool InRect(const CSize& pos, const CRect& rc);
 		static void SendEvent(int id, UI_EVENT args);
 		static DWORD WINAPI RenderCallBack(LPVOID lpData);
-		static void AddRenderTask(IObject* pObj,int nIndex, CCamera* pCamera);
+		static void AddRenderTask(CObject3D* pObj,int nIndex, CCamera* pCamera);
 		static int GetEventListTotal();
 		static HANDLE GetJobListMutex();
 		void SetEnentHandler(EventFunc func);

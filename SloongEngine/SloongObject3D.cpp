@@ -1,19 +1,20 @@
 #include "stdafx.h"
 #include "SloongObject3D.h"
-#include "SloongVector.h"
-#include "SloongMatrix.h"
-#include "SloongPolygon.h"
+#include "math/SloongVector.h"
+#include "math/SloongMatrix.h"
+#include "math/SloongPolygon.h"
 #include "SloongCamera.h"
-#include "SloongDraw.h"
-#include "SloongException.h"
-#include "SloongFile.h"
-using namespace SoaringLoong::Graphics3D;
-using namespace SoaringLoong::Math::Vector;
-using namespace SoaringLoong::Math::Matrix;
-using namespace SoaringLoong::Math::Polygon;
-using namespace SoaringLoong::Graphics;
-using namespace SoaringLoong::Universal;
-SoaringLoong::Graphics3D::CObject3D::CObject3D(CDDraw* pDDraw)
+#include "graphics/SloongGraphics.h"
+#include "univ/exception.h"
+#include "univ/file.h"
+
+using namespace Sloong::Graphics3D;
+using namespace Sloong::Math::Vector;
+using namespace Sloong::Math::Matrix;
+using namespace Sloong::Math::Polygon;
+using namespace Sloong::Graphics;
+
+Sloong::Graphics3D::CObject3D::CObject3D(CDDraw* pDDraw)
 {
 	m_pCamera = nullptr;
 	m_pCameraMatrix = nullptr;
@@ -35,7 +36,7 @@ SoaringLoong::Graphics3D::CObject3D::CObject3D(CDDraw* pDDraw)
 	m_dwStatus = new vector<DWORD>;
 }
 
-SoaringLoong::Graphics3D::CObject3D::~CObject3D()
+Sloong::Graphics3D::CObject3D::~CObject3D()
 {
 	m_pCamera = nullptr;
 	m_pCameraMatrix = nullptr;
@@ -74,7 +75,7 @@ SoaringLoong::Graphics3D::CObject3D::~CObject3D()
 	SAFE_DELETE(m_dwStatus);
 }
 
-void SoaringLoong::Graphics3D::CObject3D::Update()
+void Sloong::Graphics3D::CObject3D::Update()
 {
 	//UpdateWorldVertex(*m_pWorldPos);
 	//DeleteBackface()
@@ -83,7 +84,7 @@ void SoaringLoong::Graphics3D::CObject3D::Update()
 	UpdateScreenVertex(*m_pScreenMatrix);
 }
 
-void SoaringLoong::Graphics3D::CObject3D::Render()
+void Sloong::Graphics3D::CObject3D::Render()
 {
 	if ( !Visible())
 	{
@@ -109,7 +110,7 @@ void SoaringLoong::Graphics3D::CObject3D::Render()
 	m_pDDraw->UnlockBackSurface();
 }
 
-void SoaringLoong::Graphics3D::CObject3D::UpdateWorldVertex(const POINT4D& mWorld)
+void Sloong::Graphics3D::CObject3D::UpdateWorldVertex(const POINT4D& mWorld)
 {
 // 	if (!m_pWorldPosList->size())
 // 	{
@@ -120,7 +121,7 @@ void SoaringLoong::Graphics3D::CObject3D::UpdateWorldVertex(const POINT4D& mWorl
 }
 
 
-void SoaringLoong::Graphics3D::CObject3D::UpdateCameraVertex(const CMatrix4x4& mCamera)
+void Sloong::Graphics3D::CObject3D::UpdateCameraVertex(const CMatrix4x4& mCamera)
 {
 	if (!m_pCameraMatrix)
 	{
@@ -130,7 +131,7 @@ void SoaringLoong::Graphics3D::CObject3D::UpdateCameraVertex(const CMatrix4x4& m
 	UpdateVertex(mCamera, false);
 }
 
-void SoaringLoong::Graphics3D::CObject3D::UpdateProjectVertex(const CMatrix4x4& mProject)
+void Sloong::Graphics3D::CObject3D::UpdateProjectVertex(const CMatrix4x4& mProject)
 {
 	if (!m_pProjectMatrix)
 	{
@@ -140,7 +141,7 @@ void SoaringLoong::Graphics3D::CObject3D::UpdateProjectVertex(const CMatrix4x4& 
 	UpdateVertex(mProject, true);
 }
 
-void SoaringLoong::Graphics3D::CObject3D::UpdateScreenVertex(const CMatrix4x4& mScreen)
+void Sloong::Graphics3D::CObject3D::UpdateScreenVertex(const CMatrix4x4& mScreen)
 {
 	if (!m_pScreenMatrix)
 	{
@@ -150,7 +151,7 @@ void SoaringLoong::Graphics3D::CObject3D::UpdateScreenVertex(const CMatrix4x4& m
 	UpdateVertex(mScreen, true);
 }
 
-void SoaringLoong::Graphics3D::CObject3D::UpdateVertex(const CMatrix4x4& mMarix, bool bNormal)
+void Sloong::Graphics3D::CObject3D::UpdateVertex(const CMatrix4x4& mMarix, bool bNormal)
 {
 	auto len = m_pPolygonList->size();
 	for (int i = 0; i < len; i++)
@@ -159,12 +160,12 @@ void SoaringLoong::Graphics3D::CObject3D::UpdateVertex(const CMatrix4x4& mMarix,
 	}
 }
 
-void SoaringLoong::Graphics3D::CObject3D::AddPolygon(IPolygon* pPoly)
+void Sloong::Graphics3D::CObject3D::AddPolygon(IPolygon* pPoly)
 {
 	m_pPolygonList->push_back(pPoly);
 }
 
-void SoaringLoong::Graphics3D::CObject3D::AddVertex(const CVector4D& vVertex)
+void Sloong::Graphics3D::CObject3D::AddVertex(const CVector4D& vVertex)
 {
 	CVector4D* pLocal = new CVector4D();
 	CVector4D* pTrans = new CVector4D();
@@ -174,7 +175,7 @@ void SoaringLoong::Graphics3D::CObject3D::AddVertex(const CVector4D& vVertex)
 	m_pTransList->push_back(pTrans);
 }
 
-void SoaringLoong::Graphics3D::CObject3D::ComputeRadius()
+void Sloong::Graphics3D::CObject3D::ComputeRadius()
 {
 	// this function computes the average and maximum radius for 
 	// sent object and opdates the object data
@@ -211,7 +212,7 @@ void SoaringLoong::Graphics3D::CObject3D::ComputeRadius()
 	avg /= m_nNumVertices;
 }
 
-CVector4D* SoaringLoong::Graphics3D::CObject3D::GetVertex(int nIndex)
+CVector4D* Sloong::Graphics3D::CObject3D::GetVertex(int nIndex)
 {
 	if (nIndex < m_nNumVertices)
 	{
@@ -221,7 +222,7 @@ CVector4D* SoaringLoong::Graphics3D::CObject3D::GetVertex(int nIndex)
 		return nullptr;
 }
 
-void SoaringLoong::Graphics3D::CObject3D::Reset()
+void Sloong::Graphics3D::CObject3D::Reset()
 {
 	// this function resets the sent object and redies it for 
 	// transformations, basically just resets the culled, clipped and
@@ -250,7 +251,7 @@ void SoaringLoong::Graphics3D::CObject3D::Reset()
 	} // end for poly
 }
 
-void SoaringLoong::Graphics3D::CObject3D::Transform(const CMatrix4x4& mMatrix, TRANS_MODE emMode, bool transform_basis)
+void Sloong::Graphics3D::CObject3D::Transform(const CMatrix4x4& mMatrix, TRANS_MODE emMode, bool transform_basis)
 {
 	// this function simply transforms all of the vertices in the local or trans
 	// array by the sent matrix
@@ -326,7 +327,7 @@ void SoaringLoong::Graphics3D::CObject3D::Transform(const CMatrix4x4& mMatrix, T
 
 }
 
-void SoaringLoong::Graphics3D::CObject3D::LoadPLGMode(LPCTSTR strFileName)
+void Sloong::Graphics3D::CObject3D::LoadPLGMode(const CString& strFileName)
 {
 	// file format review, note types at end of each description
 	// # this is a comment
@@ -369,28 +370,28 @@ void SoaringLoong::Graphics3D::CObject3D::LoadPLGMode(LPCTSTR strFileName)
 	oFile.OpenStream(strFileName, _T("r"));
 
 	// Step 3: get the first token string which should be the object descriptor
-	LPCTSTR token_string;  // pointer to actual token text, ready for parsing
+	wstring token_string;  // pointer to actual token text, ready for parsing
 	token_string = oFile.GetLine();
-	if (token_string == NULL)
+	if (token_string.empty())
 	{
-		throw CException(CString(_T("PLG file error with file %s (object descriptor invalid)."), strFileName));
+		throw CException(CUniversal::Format(L"PLG file error with file %s (object descriptor invalid).", strFileName.c_str()));
 	} // end if
 
 	//Write_Error("Object Descriptor: %s", token_string);
 
 	// parse out the info object
 	TCHAR szTemp[65] = { 0 };
-	_stscanf_s(token_string, _T("%s %d %d"), szTemp, 64, &this->m_nNumVertices, &this->m_nNumPolygones);
+	_stscanf_s(token_string.c_str(), _T("%s %d %d"), szTemp, 64, &this->m_nNumVertices, &this->m_nNumPolygones);
 	m_strName = szTemp;
 
 	// Step 4: load the vertex list
 	for (int vertex = 0; vertex < this->m_nNumVertices; vertex++)
 	{
 		// get the next vertex
-		if (!(token_string = oFile.GetLine()))
+		token_string = oFile.GetLine();
+		if (token_string.empty())
 		{
-			throw CException(CString(_T("PLG file error with file %s (vertex list invalid)."), strFileName));
-			return;
+			throw CException(CUniversal::Format(_T("PLG file error with file %s (vertex list invalid)."), strFileName.c_str()));
 		} // end if
 
 
@@ -398,7 +399,7 @@ void SoaringLoong::Graphics3D::CObject3D::LoadPLGMode(LPCTSTR strFileName)
 		vTemp.Zero();
 
 		// parse out vertex
-		stscanf_s(token_string, _T("%f %f %f"), &vTemp.x, &vTemp.y, &vTemp.z);
+		stscanf_s(token_string.c_str(), _T("%f %f %f"), &vTemp.x, &vTemp.y, &vTemp.z);
 
 		AddVertex(vTemp);
 	} // end for vertex
@@ -418,20 +419,21 @@ void SoaringLoong::Graphics3D::CObject3D::LoadPLGMode(LPCTSTR strFileName)
 	for (int poly = 0; poly < this->m_nNumPolygones; poly++)
 	{
 		// get the next polygon descriptor
-		if (!(token_string = oFile.GetLine()))
+		token_string = oFile.GetLine();
+		if (token_string.empty())
 		{
-			throw CException(CString(_T("PLG file error with file %s (polygon descriptor invalid)."), strFileName));
+			throw CException(CUniversal::Format(_T("PLG file error with file %s (polygon descriptor invalid)."), strFileName.c_str()));
 		} // end if
 
 		//Write_Error("\nPolygon %d:", poly);
 
-		IPolygon* pPoly = IPolygon::Create3D(m_pDDraw);
+		IPolygon* pPoly = IPolygon::Create3D(m_pDDraw->DrawLine_API);
 
 		int n1, n2, n3;
 		// each vertex list MUST have 3 vertices since we made this a rule that all models
 		// must be constructed of triangles
 		// read in surface descriptor, number of vertices, and vertex list
-		stscanf_s(token_string, _T("%s %d %d %d %d"), tmp_string, 8,
+		stscanf_s(token_string.c_str(), _T("%s %d %d %d %d"), tmp_string, 8,
 			&poly_num_verts, // should always be 3 
 			&n1, &n2, &n3);
 
@@ -545,7 +547,7 @@ void SoaringLoong::Graphics3D::CObject3D::LoadPLGMode(LPCTSTR strFileName)
 	} // end for poly
 }
 
-void SoaringLoong::Graphics3D::CObject3D::Move(const CVector4D& vTrans)
+void Sloong::Graphics3D::CObject3D::Move(const CVector4D& vTrans)
 {
 	// NOTE: Not matrix based
 	// this function translates an object without matrices,
@@ -553,7 +555,7 @@ void SoaringLoong::Graphics3D::CObject3D::Move(const CVector4D& vTrans)
 	m_pWorldPosList->at(m_nCurrent)->Add(vTrans);
 }
 
-void SoaringLoong::Graphics3D::CObject3D::Scale(const CVector4D& vScale)
+void Sloong::Graphics3D::CObject3D::Scale(const CVector4D& vScale)
 {
 	// NOTE: Not matrix based
 	// this function scales and object without matrices 
@@ -585,7 +587,7 @@ void SoaringLoong::Graphics3D::CObject3D::Scale(const CVector4D& vScale)
 
 }
 
-void SoaringLoong::Graphics3D::CObject3D::Rotate(float x, float y, float z)
+void Sloong::Graphics3D::CObject3D::Rotate(float x, float y, float z)
 {
 	// this function rotates and object parallel to the
 	// XYZ axes in that order or a subset thereof, without
@@ -639,7 +641,7 @@ void SoaringLoong::Graphics3D::CObject3D::Rotate(float x, float y, float z)
 
 }
 
-void SoaringLoong::Graphics3D::CObject3D::ToWorld(TRANS_MODE emMode)
+void Sloong::Graphics3D::CObject3D::ToWorld(TRANS_MODE emMode)
 {
 	// NOTE: Not matrix based
 	// this function converts the local model coordinates of the
@@ -685,7 +687,7 @@ void SoaringLoong::Graphics3D::CObject3D::ToWorld(TRANS_MODE emMode)
 
 }
 
-void SoaringLoong::Graphics3D::CObject3D::Cull(CCamera* cam, CULL_MODE emMode)
+void Sloong::Graphics3D::CObject3D::Cull(CCamera* cam, CULL_MODE emMode)
 {
 	// NOTE: is matrix based
 	// this function culls an entire object from the viewing
@@ -767,41 +769,41 @@ void SoaringLoong::Graphics3D::CObject3D::Cull(CCamera* cam, CULL_MODE emMode)
 
 }
 
-void SoaringLoong::Graphics3D::CObject3D::AddStatus(DWORD dwStatus)
+void Sloong::Graphics3D::CObject3D::AddStatus(DWORD dwStatus)
 {
 	auto& status = m_dwStatus->at(m_nCurrent);
 	status |= dwStatus;
 }
 
-void SoaringLoong::Graphics3D::CObject3D::SetStatus(DWORD dwStatus)
+void Sloong::Graphics3D::CObject3D::SetStatus(DWORD dwStatus)
 {
 	auto& status = m_dwStatus->at(m_nCurrent);
 	status = dwStatus;
 }
 
-DWORD SoaringLoong::Graphics3D::CObject3D::GetStatus()
+DWORD Sloong::Graphics3D::CObject3D::GetStatus()
 {
 	return m_dwStatus->at(m_nCurrent);
 }
 
-DWORD SoaringLoong::Graphics3D::CObject3D::GetAttribute()
+DWORD Sloong::Graphics3D::CObject3D::GetAttribute()
 {
 	return m_dwAttribute->at(m_nCurrent);
 }
 
-void SoaringLoong::Graphics3D::CObject3D::SetAttribute(DWORD dwAttribute)
+void Sloong::Graphics3D::CObject3D::SetAttribute(DWORD dwAttribute)
 {
 	auto& attr = m_dwAttribute->at(m_nCurrent);
 	attr = dwAttribute;
 }
 
-void SoaringLoong::Graphics3D::CObject3D::AddAttribute(DWORD dwAttribute)
+void Sloong::Graphics3D::CObject3D::AddAttribute(DWORD dwAttribute)
 {
 	auto& attr = m_dwAttribute->at(m_nCurrent);
 	attr |= dwAttribute;
 }
 
-void SoaringLoong::Graphics3D::CObject3D::RemoveBackface(CCamera* pCam)
+void Sloong::Graphics3D::CObject3D::RemoveBackface(CCamera* pCam)
 {
 	// NOTE: this is not a matrix based function
 	// this function removes the backfaces from an object's
@@ -865,7 +867,7 @@ void SoaringLoong::Graphics3D::CObject3D::RemoveBackface(CCamera* pCam)
 
 }
 
-void SoaringLoong::Graphics3D::CObject3D::ToCamera(CCamera* pCam)
+void Sloong::Graphics3D::CObject3D::ToCamera(CCamera* pCam)
 {
 
 	// NOTE: this is a matrix based function
@@ -894,7 +896,7 @@ void SoaringLoong::Graphics3D::CObject3D::ToCamera(CCamera* pCam)
 
 }
 
-void SoaringLoong::Graphics3D::CObject3D::ToProject(CCamera* pCam)
+void Sloong::Graphics3D::CObject3D::ToProject(CCamera* pCam)
 {
 	// NOTE: this is not a matrix based function
 	// this function transforms the camera coordinates of an object
@@ -929,7 +931,7 @@ void SoaringLoong::Graphics3D::CObject3D::ToProject(CCamera* pCam)
 
 }
 
-void SoaringLoong::Graphics3D::CObject3D::CameraToPerspectiveScreen(CCamera* pCam)
+void Sloong::Graphics3D::CObject3D::CameraToPerspectiveScreen(CCamera* pCam)
 {
 	// NOTE: this is not a matrix based function
 	// this function transforms the camera coordinates of an object
@@ -980,7 +982,7 @@ void SoaringLoong::Graphics3D::CObject3D::CameraToPerspectiveScreen(CCamera* pCa
 
 }
 
-void SoaringLoong::Graphics3D::CObject3D::PerspectiveToScreen(CCamera* pCam)
+void Sloong::Graphics3D::CObject3D::PerspectiveToScreen(CCamera* pCam)
 {
 	// NOTE: this is not a matrix based function
 	// this function transforms the perspective coordinates of an object
@@ -1020,7 +1022,7 @@ void SoaringLoong::Graphics3D::CObject3D::PerspectiveToScreen(CCamera* pCam)
 
 }
 
-void SoaringLoong::Graphics3D::CObject3D::ConvertFromHomogeneous4D()
+void Sloong::Graphics3D::CObject3D::ConvertFromHomogeneous4D()
 {
 	// this function convertes all vertices in the transformed
 	// vertex list from 4D homogeneous coordinates to normal 3D coordinates
@@ -1035,7 +1037,7 @@ void SoaringLoong::Graphics3D::CObject3D::ConvertFromHomogeneous4D()
 
 }
 
-void SoaringLoong::Graphics3D::CObject3D::SetWorldPosition(const CVector4D& vPos)
+void Sloong::Graphics3D::CObject3D::SetWorldPosition(const CVector4D& vPos)
 {
 	if ( m_nCurrent >= m_pWorldPosList->size() )
 	{
@@ -1044,12 +1046,12 @@ void SoaringLoong::Graphics3D::CObject3D::SetWorldPosition(const CVector4D& vPos
 	m_pWorldPosList->at(m_nCurrent)->Copy(vPos);
 }
 
-SoaringLoong::Math::Vector::CVector4D SoaringLoong::Graphics3D::CObject3D::GetWorldPosition()
+Sloong::Math::Vector::CVector4D Sloong::Graphics3D::CObject3D::GetWorldPosition()
 {
 	return *m_pWorldPosList->at(0);
 }
 
-bool SoaringLoong::Graphics3D::CObject3D::Visible()
+bool Sloong::Graphics3D::CObject3D::Visible()
 {
 	if (!(GetStatus() & OBJECT4DV1_STATE_ACTIVE) ||
 		(GetStatus() & OBJECT4DV1_STATE_CULLED) ||
@@ -1059,18 +1061,18 @@ bool SoaringLoong::Graphics3D::CObject3D::Visible()
 		return true;
 }
 
-void SoaringLoong::Graphics3D::CObject3D::DeleteStatus(DWORD dwStatus)
+void Sloong::Graphics3D::CObject3D::DeleteStatus(DWORD dwStatus)
 {
 	auto& cur = m_dwStatus->at(m_nCurrent);
 	cur &= (~dwStatus);
 }
 
-void SoaringLoong::Graphics3D::CObject3D::SetCurrentIndex(int index)
+void Sloong::Graphics3D::CObject3D::SetCurrentIndex(int index)
 {
 	m_nCurrent = index;
 }
 
-int SoaringLoong::Graphics3D::CObject3D::AddObject( const CVector4D& vPos, const CVector4D& vScale, const CVector4D& vRot)
+int Sloong::Graphics3D::CObject3D::AddObject( const CVector4D& vPos, const CVector4D& vScale, const CVector4D& vRot)
 {
 	m_nCurrent = m_nNumObjects;
 		m_nNumObjects++;
@@ -1087,18 +1089,18 @@ int SoaringLoong::Graphics3D::CObject3D::AddObject( const CVector4D& vPos, const
 	return m_nCurrent;
 }
 
-void SoaringLoong::Graphics3D::CObject3D::GetRadius(double& avg, double& max)
+void Sloong::Graphics3D::CObject3D::GetRadius(double& avg, double& max)
 {
 	avg = m_fAvgRadiusList->at(m_nCurrent);
 	max = m_fMaxRadiusList->at(m_nCurrent);
 }
 
-int SoaringLoong::Graphics3D::CObject3D::GetCurrentIndex()
+int Sloong::Graphics3D::CObject3D::GetCurrentIndex()
 {
 	return m_nCurrent;
 }
 
-void SoaringLoong::Graphics3D::CObject3D::RenderAll(CCamera* cam,CMatrix4x4* mTrans)
+void Sloong::Graphics3D::CObject3D::RenderAll(CCamera* cam,CMatrix4x4* mTrans)
 {
 	int nOldIndex = m_nCurrent;
 	for (int i = 0; i < m_nNumObjects;i++)
@@ -1122,8 +1124,3 @@ void SoaringLoong::Graphics3D::CObject3D::RenderAll(CCamera* cam,CMatrix4x4* mTr
 	m_nCurrent = nOldIndex;
 }
 
-SLOONGENGINE_API IObject* SoaringLoong::Graphics3D::IObject::Create3D(CDDraw* pDDraw)
-{
-	IObject* pNew = new CObject3D(pDDraw);
-	return pNew;
-}

@@ -1,7 +1,7 @@
 #pragma once
-#include "SloongVector.h"
-#include "SloongPlane.h"
-#include "SloongMatrix.h"
+#include "math\\SloongVector.h"
+#include "math\\SloongPlane.h"
+#include "math\\SloongMatrix.h"
 
 // defines for camera rotation sequences
 #define CAM_ROT_SEQ_XYZ  0
@@ -14,7 +14,7 @@
 #define UVN_MODE_SIMPLE            0 
 #define UVN_MODE_SPHERICAL         1
 
-namespace SoaringLoong
+namespace Sloong
 {
 	using namespace Math;
 	using namespace Math::Vector;

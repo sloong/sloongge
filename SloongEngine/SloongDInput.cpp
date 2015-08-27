@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "SloongDInput.h"
 
-using namespace SoaringLoong::DirectX;
+using namespace Sloong::DirectX;
 
 //-----------------------------------------------------------------------------
 // Desc: ¹¹Ôìº¯Êý

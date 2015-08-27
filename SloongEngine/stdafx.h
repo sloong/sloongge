@@ -33,6 +33,7 @@
 
 #import "C:\Program Files\Common Files\System\ado\msado15.dll" no_namespace rename("EOF","rstEOF") rename("BOF","rstBOF")
 
+#include <ddraw.h>
 #include <sys/timeb.h>
 #include <time.h>
 #include <string>

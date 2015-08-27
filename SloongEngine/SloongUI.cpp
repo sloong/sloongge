@@ -1,20 +1,21 @@
 #include "stdafx.h"
 #include "SloongUI.h"
 #include "SloongObject.h"
-#include "SloongLua.h"
-#include "SloongDraw.h"
-#include "SloongException.h"
+#include "univ/lua.h"
+#include "univ/log.h"
+#include "graphics/SloongGraphics.h"
+#include "univ/exception.h"
 #include "SloongEngine.h"
-using namespace SoaringLoong;
-using namespace SoaringLoong::Graphics;
-using namespace SoaringLoong::Universal;
-using SoaringLoong::Graphics3D::CULL_MODE;
-using SoaringLoong::Graphics3D::TRANS_MODE;
+using namespace Sloong;
+using namespace Sloong::Graphics;
+using namespace Sloong::Universal;
+using Sloong::Graphics3D::CULL_MODE;
+using Sloong::Graphics3D::TRANS_MODE;
 
 CUserInterface::CUserInterface()
 {
 	m_ObjectsMap = new map<UINT, CObject*>;
-	m_p3DObjectMap = new map<UINT, IObject*>;
+	m_p3DObjectMap = new map<UINT, CObject3D*>;
 	m_p3DKeyIDMap = new map<UINT, UINT>;
 }
 
@@ -100,21 +101,21 @@ void CUserInterface::Render()
 	}
 }
 
-void CUserInterface::Initialize(ctstring& strPath, CDDraw* pDDraw, CDInput* pInput, CLua* pLua, ILogSystem* pLog)
+void CUserInterface::Initialize(const CString& strPath, CDDraw* pDDraw, CDInput* pInput, CLua* pLua, CLog* pLog)
 {
 	m_pLog = pLog;
 	m_pLua = pLua;
 	m_pDDraw = pDDraw;
 	m_pInput = pInput;
-	pLua->RunScript(strPath.c_str());
+	pLua->RunScript(strPath);
 }
 
-tstring CUserInterface::GetEventHandler() const
+const CString& CUserInterface::GetEventHandler() const
 {
-	return m_strEventHandlerName.GetString();
+	return m_strEventHandlerName;
 }
 
-void SoaringLoong::Graphics::CUserInterface::SetObjectPosition(UINT nID, const CRect& rcClient)
+void Sloong::Graphics::CUserInterface::SetObjectPosition(UINT nID, const CRect& rcClient)
 {
 	auto item = m_ObjectsMap->find(nID);
 	if (item != m_ObjectsMap->end())
@@ -125,7 +126,7 @@ void SoaringLoong::Graphics::CUserInterface::SetObjectPosition(UINT nID, const C
 }
 
 
-void SoaringLoong::Graphics::CUserInterface::Update( HWND hWnd )
+void Sloong::Graphics::CUserInterface::Update( HWND hWnd )
 {
 	try
 	{
@@ -133,12 +134,11 @@ void SoaringLoong::Graphics::CUserInterface::Update( HWND hWnd )
 		// Update the keyboard event
 		for each (auto& item in m_vKeyboardEvent)
 		{
-			if (m_pInput->IsKeyDown(item))
+			if (m_pInput->IsKeyDown((int)item))
 			{
-				CSloongEngine::SendEvent(item, UI_EVENT::KEY_PRESS);
+				CSloongEngine::SendEvent((int)item, UI_EVENT::KEY_PRESS);
 			}
 		}
-
 
 		if (m_ObjectsMap->size())
 		{
@@ -170,23 +170,23 @@ void SoaringLoong::Graphics::CUserInterface::Update( HWND hWnd )
 	}
 }
 
-void SoaringLoong::Graphics::CUserInterface::SetEventHandler(LPCTSTR strName)
+void Sloong::Graphics::CUserInterface::SetEventHandler(const CString& strName)
 {
 	m_strEventHandlerName = strName;
 }
 
-void SoaringLoong::Graphics::CUserInterface::Add3DObject(UINT nKey, UINT nID,IObject* pObject)
+void Sloong::Graphics::CUserInterface::Add3DObject(UINT nKey, UINT nID,CObject3D* pObject)
 {
 	(*m_p3DKeyIDMap)[nKey] = nID;
 	(*m_p3DObjectMap)[nKey] = pObject;
 }
 
-void SoaringLoong::Graphics::CUserInterface::SetCamera(CCamera* pCamera)
+void Sloong::Graphics::CUserInterface::SetCamera(CCamera* pCamera)
 {
 	m_pCamera = pCamera;
 }
 
-void SoaringLoong::Graphics::CUserInterface::Move3DObject(UINT nKey, const CVector4D& vPos)
+void Sloong::Graphics::CUserInterface::Move3DObject(UINT nKey, const CVector4D& vPos)
 {
 	// 根據參數Key從KeyIDMap中找到對應的Object ID
 	int nID = (*m_p3DKeyIDMap)[nKey];
@@ -199,7 +199,7 @@ void SoaringLoong::Graphics::CUserInterface::Move3DObject(UINT nKey, const CVect
 
 }
 
-void SoaringLoong::Graphics::CUserInterface::RegisterKeyboardEvent(const vector<size_t>& keyList)
+void Sloong::Graphics::CUserInterface::RegisterKeyboardEvent(const vector<size_t>& keyList)
 {
 	m_vKeyboardEvent = keyList;
 }

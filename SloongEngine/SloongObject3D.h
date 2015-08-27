@@ -1,18 +1,28 @@
 #pragma once
 
+#ifdef SLOONGENGINE_EXPORTS
+#define SLOONGENGINE_API __declspec(dllexport)
+#else
+#define SLOONGENGINE_API __declspec(dllimport)
+#endif
+
+
 #include "ISloongObject.h"
-namespace SoaringLoong
+#include "string/string.h"
+using namespace Sloong::Universal;
+namespace Sloong
 {
 	namespace Graphics3D
 	{
-		class CObject3D : public IObject
+		class CCamera;
+		class SLOONGENGINE_API CObject3D
 		{
 		public:
 			CObject3D( CDDraw* pDDraw );
 			~CObject3D();
 
 		public:
-			virtual void LoadPLGMode(LPCTSTR strFileName);
+			virtual void LoadPLGMode(const CString& strFileName);
 			virtual void Update();
 			virtual void Render();
 			virtual void RenderAll(CCamera* cam, CMatrix4x4* mTrans);

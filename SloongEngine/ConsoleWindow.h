@@ -1,14 +1,14 @@
 #pragma once
-#include "SloongLua.h"
-#include "IUniversal.h"
-using namespace SoaringLoong;
-namespace SoaringLoong
+#include "univ\\lua.h"
+#include "univ\\univ.h"
+using namespace Sloong;
+namespace Sloong
 {
-
+	using namespace Universal;
 	class CWinConsole
 	{
 	public:
-		static HWND StartConsole(HINSTANCE hInstance, HWND hWnd, CRect rcWindow, CLua *pScriptContext);
+		static HWND StartConsole(HINSTANCE hInstance, HWND hWnd, CRect rcWindow, CLua* pScriptContext);
 		static void StopConsole();
 		static void Write( LPCTSTR pString);
 
@@ -45,6 +45,6 @@ namespace SoaringLoong
 	};
 	extern CWinConsole *g_Console;
 }
-using namespace SoaringLoong;
+using namespace Sloong;
 static int Debug_Print(lua_State *L);
 

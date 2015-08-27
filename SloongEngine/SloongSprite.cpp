@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "SloongSprite.h"
 
-using namespace SoaringLoong;
-using namespace SoaringLoong::Graphics;
+using namespace Sloong;
+using namespace Sloong::Graphics;
 
 CSprite::CSprite(CDDraw* pDDraw) : CObject(pDDraw)
 {

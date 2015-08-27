@@ -1,7 +1,7 @@
 #pragma once
 #include "SloongObject.h"
 
-namespace SoaringLoong
+namespace Sloong
 {
 	namespace Graphics
 	{
@@ -11,7 +11,7 @@ namespace SoaringLoong
 			CButton(CDDraw* pDDraw);
 			~CButton();
 
-			void SetTexture(const vector<tstring>& vTexture);
+			void SetTexture(vector<CString>* vTexture);
 			void Render(LPDIRECTDRAWSURFACE7 lpDDrawSurface);
 		protected:
 

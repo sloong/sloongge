@@ -1,22 +1,22 @@
 #include "stdafx.h"
 #include "SloongCamera.h"
-#include "SloongMathBase.h"
-#include "SloongMath2.h"
-using namespace SoaringLoong::Math;
-using namespace SoaringLoong::Math::Vector;
+#include "math/SloongMathBase.h"
+#include "math/SloongMath2.h"
+using namespace Sloong::Math;
+using namespace Sloong::Math::Vector;
 
-SoaringLoong::Graphics3D::CCamera::CCamera()
+Sloong::Graphics3D::CCamera::CCamera()
 {
 
 }
 
-SoaringLoong::Graphics3D::CCamera::~CCamera()
+Sloong::Graphics3D::CCamera::~CCamera()
 {
 
 }
 
 
-void SoaringLoong::Graphics3D::CCamera::Initialize(CAMERA_TYPE emType, const POINT4D& Position, const POINT4D& Direction, LPPOINT4D Target, int nMode, double NearZ, double farZ, double FOV, double ScreenWidth, double ScreenHeight)
+void Sloong::Graphics3D::CCamera::Initialize(CAMERA_TYPE emType, const POINT4D& Position, const POINT4D& Direction, LPPOINT4D Target, int nMode, double NearZ, double farZ, double FOV, double ScreenWidth, double ScreenHeight)
 {
 	// this function initializes the camera object cam, the function
 	// doesn't do a lot of error checking or sanity checking since 
@@ -129,7 +129,7 @@ void SoaringLoong::Graphics3D::CCamera::Initialize(CAMERA_TYPE emType, const POI
 	} // end else
 }
 
-void SoaringLoong::Graphics3D::CCamera::UpdateCameraMatrix()
+void Sloong::Graphics3D::CCamera::UpdateCameraMatrix()
 {
 	if ( emType == CAMERA_ELUER )
 	{
@@ -333,7 +333,7 @@ void SoaringLoong::Graphics3D::CCamera::UpdateCameraMatrix()
 	}
 }
 
-void SoaringLoong::Graphics3D::CCamera::UpdateProjectMatrix()
+void Sloong::Graphics3D::CCamera::UpdateProjectMatrix()
 {
 	// this function builds up a camera to perspective transformation
 	// matrix, in most cases the camera would have a 2x2 normalized
@@ -352,7 +352,7 @@ void SoaringLoong::Graphics3D::CCamera::UpdateProjectMatrix()
 		0, 0, 0, 0); 
 }
 
-void SoaringLoong::Graphics3D::CCamera::UpdateScreenMatrix()
+void Sloong::Graphics3D::CCamera::UpdateScreenMatrix()
 {
 	// this function builds up a perspective to screen transformation
 	// matrix, the function assumes that you want to perform the
@@ -376,7 +376,7 @@ void SoaringLoong::Graphics3D::CCamera::UpdateScreenMatrix()
 		0, 0, 0, 1);
 }
 
-void SoaringLoong::Graphics3D::CCamera::Move(const POINT4D& Position, const POINT4D& Direction, LPPOINT4D Target)
+void Sloong::Graphics3D::CCamera::Move(const POINT4D& Position, const POINT4D& Direction, LPPOINT4D Target)
 {
 	m_WorldPos = Position;
 	m_Direction = Direction;

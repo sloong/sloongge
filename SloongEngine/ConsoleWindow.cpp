@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "ConsoleWindow.h"
-#include "SloongLua.h"
+#include "univ\\lua.h"
 #include "Resource.h"
-#include "SloongString.h"
-using namespace SoaringLoong::Universal;
+using namespace Sloong::Universal;
 
 LuaFunctionRegistr DebugGlue[] = 
 {
@@ -13,7 +12,7 @@ LuaFunctionRegistr DebugGlue[] =
 	{ NULL, NULL }
 };
 
-CWinConsole* SoaringLoong::g_Console = NULL;
+CWinConsole* Sloong::g_Console = NULL;
 
 
 volatile bool CWinConsole::m_bWinIsActive = true;
@@ -384,7 +383,7 @@ void CWinConsole::Init(HINSTANCE hInstance)
 	SetFocus(m_hEditControl);
 	m_ScrollyPos = 0;
 
-	lpfnInputEdit = (WNDPROC)SetWindowLong(m_hEditControl, GWL_WNDPROC, (long)SubclassInputEditProc);
+	//lpfnInputEdit = (WNDPROC)SetWindowLong(m_hEditControl, GWL_WNDPROC, (long)SubclassInputEditProc);
 	g_Console->ResizeControls();
 	m_stringList.push_back(_T("Sloong Lua Commander."));
 }
