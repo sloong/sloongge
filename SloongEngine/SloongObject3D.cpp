@@ -374,7 +374,7 @@ void Sloong::Graphics3D::CObject3D::LoadPLGMode(const CString& strFileName)
 	token_string = oFile.GetLine();
 	if (token_string.empty())
 	{
-		throw CException(CUniversal::Format(L"PLG file error with file %s (object descriptor invalid).", strFileName.c_str()));
+		throw CException(CString(L"PLG file error with file %s (object descriptor invalid).", strFileName.w_str()));
 	} // end if
 
 	//Write_Error("Object Descriptor: %s", token_string);
@@ -391,7 +391,7 @@ void Sloong::Graphics3D::CObject3D::LoadPLGMode(const CString& strFileName)
 		token_string = oFile.GetLine();
 		if (token_string.empty())
 		{
-			throw CException(CUniversal::Format(_T("PLG file error with file %s (vertex list invalid)."), strFileName.c_str()));
+			throw CException(CString(_T("PLG file error with file %s (vertex list invalid)."), strFileName.t_str()));
 		} // end if
 
 
@@ -422,7 +422,7 @@ void Sloong::Graphics3D::CObject3D::LoadPLGMode(const CString& strFileName)
 		token_string = oFile.GetLine();
 		if (token_string.empty())
 		{
-			throw CException(CUniversal::Format(_T("PLG file error with file %s (polygon descriptor invalid)."), strFileName.c_str()));
+			throw CException(CString(_T("PLG file error with file %s (polygon descriptor invalid)."), strFileName.t_str()));
 		} // end if
 
 		//Write_Error("\nPolygon %d:", poly);

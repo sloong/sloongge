@@ -71,7 +71,7 @@ void CUserInterface::Render()
 					}
 					catch (CException& e)
 					{
-						m_pLog->Write(e.GetException().c_str());
+						m_pLog->Write(e.GetException());
 					}
 				}
 				item++;

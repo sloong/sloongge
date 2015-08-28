@@ -48,7 +48,7 @@ void CObject::SetTexture( vector<CString>* vTexture)
 	m_vTexture = (*vTexture);
 
 	CBitmap oBitmap;
-	oBitmap.LoadBitmapFromFile(m_vTexture[0].c_str());
+	oBitmap.LoadBitmapFromFile(m_vTexture[0]);
 	LoadFrame(&oBitmap, 0, 0, 0, BITMAP_EXTRACT_MODE_ABS);
 }
 
@@ -167,6 +167,7 @@ HRESULT CObject::Initialize(CDDraw* pDDraw, int x, int y, int width, int height,
 	this->m_rcObject->SetRect(x, y, width, height);
 	this->xv = 0;
 	this->yv = 0;
+	this->width_fill = 0;
 
 	// set dimensions of the new bitmap surface
 
@@ -184,7 +185,7 @@ HRESULT CObject::Initialize(CDDraw* pDDraw, int x, int y, int width, int height,
 		auto pSurface = m_pDDraw->CreateSurface(this->m_rcObject->Width() + this->width_fill, this->m_rcObject->Height(), mem_flags,-1);
 		if ( !pSurface )
 		{
-			return S_FALSE;
+			throw exception("Create Surface Failed.");
 		}
 		pDDraw->DDrawFillSurface(pSurface, dwColor);
 		m_pBodyImageList[i] = pSurface;

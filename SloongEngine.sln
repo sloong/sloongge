@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SloongEngine", "SloongEngine\SloongEngine.vcxproj", "{F98E1B97-AA3D-4B17-99C3-689DCE610CCA}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -38,6 +38,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "univ", "library\univ\univ.v
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "graphics", "library\graphics\SloongGraphics.vcxproj", "{78DBD20E-C94A-4221-ADA0-289D19ECD733}"
 	ProjectSection(ProjectDependencies) = postProject
+		{2C099C1F-DEDC-4EE9-9C9D-1A4EB763BBAE} = {2C099C1F-DEDC-4EE9-9C9D-1A4EB763BBAE}
 		{A3A8387F-9C65-4C46-8C0F-8B3B9CA4C4F5} = {A3A8387F-9C65-4C46-8C0F-8B3B9CA4C4F5}
 	EndProjectSection
 EndProject

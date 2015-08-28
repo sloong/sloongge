@@ -114,7 +114,7 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 	CSloongGame::MyRegisterClass(hInstance);
 
 	m_pLog = new CLog();
-
+	m_pLog->Initialize();
 	/*if (SUCCEEDED(CreateUniversal((LPVOID*)&m_pUniversal)) && m_pUniversal )
 	{
 		if (SUCCEEDED(m_pUniversal->CreateLogSystem(m_pUniversal, &m_pLog)))
@@ -195,7 +195,7 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 	}
 	catch (CException& e)
 	{
-		m_pLog->Log(LOGLEVEL::FATAL, e.GetResult(), e.GetException().c_str());
+		m_pLog->Log(LOGLEVEL::FATAL, e.GetResult(), e.GetException());
 	}
 
 	ShowWindow(m_hMainWnd, nCmdShow);
@@ -262,7 +262,7 @@ int CSloongGame::Run()
 LuaRes CSloongGame::Version(lua_State* l)
 {
 	CString str = GetSloongLua()->GetStringArgument(1);
-	MessageBox(NULL, str.c_str(), _T("Test"), MB_OK);
+	MessageBox(NULL, str.t_str(), _T("Test"), MB_OK);
 	return 0;
 }
 
@@ -273,7 +273,7 @@ LuaRes CSloongGame::RegisterEvent(lua_State* l)
 	{
 		auto handlerName = pLua->GetStringArgument(1);
 		auto param = pLua->GetNumberArgument(2);
-		GetSloongUIManager()->GetCurrentUI()->SetEventHandler(handlerName.c_str());
+		GetSloongUIManager()->GetCurrentUI()->SetEventHandler(handlerName);
 	}
 	return 0;
 }
@@ -284,16 +284,16 @@ LuaRes CSloongGame::SendEvent(int id, CString args)
 	auto pLua = GetSloongLua();
 	if (pLua && !strEventHandler.empty())
 	{
-		TCHAR buf[256] = { 0 };
+		CString cmd;
 		if (!args.empty())
 		{
-			_stprintf_s(buf, 256, _T("%d,%s"), id, args);
+			cmd.Format(_T("%d,%s"), id, args.t_str());
 		}
 		else
 		{
-			_stprintf_s(buf, 256, _T("%d"), id);
+			cmd.Format(_T("%d"), id);
 		}
-		pLua->RunFunction(strEventHandler.c_str(), buf);
+		pLua->RunFunction(strEventHandler, cmd);
 	}
 	return 0;
 }

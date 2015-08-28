@@ -2,7 +2,12 @@
 #include "ConsoleWindow.h"
 #include "univ\\lua.h"
 #include "Resource.h"
+
 using namespace Sloong::Universal;
+
+#ifndef GWL_WNDPROC
+#define GWL_WNDPROC         (-4)
+#endif // !GWL_WNDPROC
 
 LuaFunctionRegistr DebugGlue[] = 
 {
@@ -383,7 +388,7 @@ void CWinConsole::Init(HINSTANCE hInstance)
 	SetFocus(m_hEditControl);
 	m_ScrollyPos = 0;
 
-	//lpfnInputEdit = (WNDPROC)SetWindowLong(m_hEditControl, GWL_WNDPROC, (long)SubclassInputEditProc);
+	lpfnInputEdit = (WNDPROC)SetWindowLong(m_hEditControl, GWL_WNDPROC, (long)SubclassInputEditProc);
 	g_Console->ResizeControls();
 	m_stringList.push_back(_T("Sloong Lua Commander."));
 }
