@@ -249,7 +249,7 @@ LRESULT WINAPI CWinConsole::MsgProc(HWND hWnd, unsigned uMsg, WPARAM wParam, LPA
 
 		CString str(m_CommandBuffer);
 		
-		if (0 != luaL_loadbuffer(g_Console->m_pScriptContext->GetScriptContext(), str.GetStringA().c_str(), strlen(str.GetStringA().c_str()), NULL))
+		if (0 != luaL_loadbuffer(g_Console->m_pScriptContext->GetScriptContext(), str.a_str(), strlen(str.a_str()), NULL))
 		{
 			Write(_T("Error loading Command\n"));
 		}

@@ -313,7 +313,6 @@ DWORD CSloongGame::SendEvent(LPVOID pArgs)
 	CString str;
 	str.Format(_T("%d"), pParam->event);
 	SendEvent(pParam->id, str.GetString().c_str());
-	SAFE_DELETE(pArgs);
 	return 0;
 }
 

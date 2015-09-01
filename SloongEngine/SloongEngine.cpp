@@ -115,8 +115,3 @@ void Sloong::CSloongEngine::AddRenderTask(CObject3D* pObj, int nIndex, CCamera* 
 	pTemp->pCamera = pCamera;
 	g_pThreadPool->AddTask(RenderCallBack, pTemp);
 }
-
-HANDLE Sloong::CSloongEngine::GetJobListMutex()
-{
-	return g_pThreadPool->GetJobListMutex();
-}
