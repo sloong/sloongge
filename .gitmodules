@@ -1,3 +1,3 @@
 [submodule "library"]
 	path = library
-	url = ssh://www.sloong.com:8002/source/library
+	url = git@git.sloong.com:public/library.git
