@@ -6,7 +6,6 @@
 #include "SloongCamera.h"
 #include "graphics/SloongGraphics.h"
 #include "univ/exception.h"
-#include "univ/file.h"
 
 using namespace Sloong::Graphics3D;
 using namespace Sloong::Math::Vector;
@@ -366,12 +365,17 @@ void Sloong::Graphics3D::CObject3D::LoadPLGMode(const wstring& strFileName)
 	//this->SetWorldPosition(vPos);
 
 	// Step 2: open the file for reading
-	CFile oFile;
-	oFile.OpenStream(strFileName, L"r");
-
+	wifstream ifs;
+	ifs.open(strFileName.c_str(), ios::in);
+	
 	// Step 3: get the first token string which should be the object descriptor
-	wstring token_string;  // pointer to actual token text, ready for parsing
-	token_string = oFile.GetLine();
+	//wstring token_string;  // pointer to actual token text, ready for parsing
+	wstring token_string;
+	while (token_string[0] == L'#' || token_string.empty())
+	{
+		getline(ifs, token_string);
+		CUniversal::trim(token_string);
+	}
 	if (token_string.empty())
 	{
 		throw normal_except(CUniversal::Format("PLG file error with file %s (object descriptor invalid).", strFileName.c_str()));
@@ -388,7 +392,12 @@ void Sloong::Graphics3D::CObject3D::LoadPLGMode(const wstring& strFileName)
 	for (int vertex = 0; vertex < this->m_nNumVertices; vertex++)
 	{
 		// get the next vertex
-		token_string = oFile.GetLine();
+		token_string.clear();
+		while (token_string[0] == L'#' || token_string.empty())
+		{
+			getline(ifs, token_string);
+			CUniversal::trim(token_string);
+		}
 		if (token_string.empty())
 		{
 			throw normal_except(CUniversal::Format("PLG file error with file %s (vertex list invalid).", strFileName.c_str()));
@@ -419,7 +428,12 @@ void Sloong::Graphics3D::CObject3D::LoadPLGMode(const wstring& strFileName)
 	for (int poly = 0; poly < this->m_nNumPolygones; poly++)
 	{
 		// get the next polygon descriptor
-		token_string = oFile.GetLine();
+		token_string.clear();
+		while (token_string[0] == L'#' || token_string.empty())
+		{
+			getline(ifs, token_string);
+			CUniversal::trim(token_string);
+		}
 		if (token_string.empty())
 		{
 			throw normal_except(CUniversal::Format("PLG file error with file %s (polygon descriptor invalid).", strFileName.c_str()));
