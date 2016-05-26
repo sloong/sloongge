@@ -1,8 +1,8 @@
 #pragma once
 
-extern SLOONGENGINE_API LPCTSTR strSpriteName;
-extern SLOONGENGINE_API LPCTSTR strTextFieldName;
-extern SLOONGENGINE_API LPCTSTR strButtonName;
+extern SLOONGENGINE_API const wstring strSpriteName;
+extern SLOONGENGINE_API const wstring strTextFieldName;
+extern SLOONGENGINE_API const wstring strButtonName;
 
 #define MAX_BOB_FRAMES         64   // maximum number of bob frames
 #define MAX_BOB_ANIMATIONS     16   // maximum number of animation sequeces
@@ -19,7 +19,6 @@ extern SLOONGENGINE_API LPCTSTR strButtonName;
 
 #include <ddraw.h>
 #include "univ/univ.h"
-#include "string/string.h"
 namespace Sloong
 {
 	namespace Graphics
@@ -56,9 +55,9 @@ namespace Sloong
 			virtual void SetID(UINT nID);
 			virtual UINT GetID() const;
 
-			virtual void SetTexture(vector<CString>* vTexture);
+			virtual void SetTexture(vector<wstring>* vTexture);
 			virtual void SetPosition(const CRect& rcRect, float z);
-			virtual void SetFont(const CString& strFontName, float fFontSize);
+			virtual void SetFont(const string& strFontName, float fFontSize);
 
 			virtual bool isDrawing() const;
 			virtual bool isDisable() const;
@@ -119,15 +118,15 @@ namespace Sloong
 			//
 
 		public:
-			static void SetTexturePath(const CString& strPath);
-			static const CString& GetTexturePath();
+			static void SetTexturePath(const wstring& strPath);
+			static const wstring& GetTexturePath();
 
 		private:
-			static CString m_strTexturePath;
+			static wstring m_strTexturePath;
 
 		protected:
 			UINT m_nID;
-			vector<CString> m_vTexture;
+			vector<wstring> m_vTexture;
 			bool m_bIsDrawing;
 			bool m_bEnable;
 			bool m_bKeepDrawing;

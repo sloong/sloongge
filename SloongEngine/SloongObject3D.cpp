@@ -327,7 +327,7 @@ void Sloong::Graphics3D::CObject3D::Transform(const CMatrix4x4& mMatrix, TRANS_M
 
 }
 
-void Sloong::Graphics3D::CObject3D::LoadPLGMode(const CString& strFileName)
+void Sloong::Graphics3D::CObject3D::LoadPLGMode(const wstring& strFileName)
 {
 	// file format review, note types at end of each description
 	// # this is a comment
@@ -367,21 +367,21 @@ void Sloong::Graphics3D::CObject3D::LoadPLGMode(const CString& strFileName)
 
 	// Step 2: open the file for reading
 	CFile oFile;
-	oFile.OpenStream(strFileName, _T("r"));
+	oFile.OpenStream(strFileName, L"r");
 
 	// Step 3: get the first token string which should be the object descriptor
 	wstring token_string;  // pointer to actual token text, ready for parsing
 	token_string = oFile.GetLine();
 	if (token_string.empty())
 	{
-		throw CException(CString(L"PLG file error with file %s (object descriptor invalid).", strFileName.w_str()));
+		throw normal_except(CUniversal::Format("PLG file error with file %s (object descriptor invalid).", strFileName.c_str()));
 	} // end if
 
 	//Write_Error("Object Descriptor: %s", token_string);
 
 	// parse out the info object
-	TCHAR szTemp[65] = { 0 };
-	_stscanf_s(token_string.c_str(), _T("%s %d %d"), szTemp, 64, &this->m_nNumVertices, &this->m_nNumPolygones);
+	WCHAR szTemp[65] = { 0 };
+	swscanf_s(token_string.c_str(), (L"%s %d %d"), szTemp, 64, &this->m_nNumVertices, &this->m_nNumPolygones);
 	m_strName = szTemp;
 
 	// Step 4: load the vertex list
@@ -391,7 +391,7 @@ void Sloong::Graphics3D::CObject3D::LoadPLGMode(const CString& strFileName)
 		token_string = oFile.GetLine();
 		if (token_string.empty())
 		{
-			throw CException(CString(_T("PLG file error with file %s (vertex list invalid)."), strFileName.t_str()));
+			throw normal_except(CUniversal::Format("PLG file error with file %s (vertex list invalid).", strFileName.c_str()));
 		} // end if
 
 
@@ -422,7 +422,7 @@ void Sloong::Graphics3D::CObject3D::LoadPLGMode(const CString& strFileName)
 		token_string = oFile.GetLine();
 		if (token_string.empty())
 		{
-			throw CException(CString(_T("PLG file error with file %s (polygon descriptor invalid)."), strFileName.t_str()));
+			throw normal_except(CUniversal::Format("PLG file error with file %s (polygon descriptor invalid).", strFileName.c_str()));
 		} // end if
 
 		//Write_Error("\nPolygon %d:", poly);

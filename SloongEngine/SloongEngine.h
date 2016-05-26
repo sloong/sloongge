@@ -11,10 +11,12 @@
 #endif
 
 #include "univ/univ.h"
+
+typedef LPVOID(*pCallBack)(LPVOID);
+typedef pCallBack LPCALLBACKFUNC;
+
 namespace Sloong
 {
-	typedef LPTHREAD_START_ROUTINE EventFunc;
-
 	namespace Graphics
 	{
 		class CDDraw;
@@ -36,13 +38,13 @@ namespace Sloong
 		static CDDraw* GetDraw();
 		static bool InRect(const CSize& pos, const CRect& rc);
 		static void SendEvent(int id, UI_EVENT args);
-		static DWORD WINAPI RenderCallBack(LPVOID lpData);
+		static LPVOID RenderCallBack(LPVOID lpData);
 		static void AddRenderTask(CObject3D* pObj,int nIndex, CCamera* pCamera);
 		static int GetEventListTotal();
-		void SetEnentHandler(EventFunc func);
+		void SetEnentHandler(LPCALLBACKFUNC func);
 	protected:
 		static CSloongEngine* theEngine;
-		EventFunc g_EventFunc;
+		LPCALLBACKFUNC g_EventFunc;
 	};
 
 }

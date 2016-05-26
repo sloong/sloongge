@@ -6,7 +6,6 @@
 #define SLOONGENGINE_API __declspec(dllimport)
 #endif
 
-#include "string\\string.h"
 #include "SloongObject3D.h"
 #include "SloongObject.h"
 #include "SloongCamera.h"
@@ -34,10 +33,10 @@ namespace Sloong
 			CUserInterface();
 			~CUserInterface();
 
-			void Initialize(const CString& strPath, CDDraw* pDDraw, CDInput* pInput, CLua* pLua, CLog* pLog);
+			void Initialize(const wstring& strPath, CDDraw* pDDraw, CDInput* pInput, CLua* pLua, CLog* pLog);
 
-			const CString& GetEventHandler() const;
-			void SetEventHandler(const CString& strName);
+			const wstring& GetEventHandler() const;
+			void SetEventHandler(const wstring& strName);
 			void DeleteObject(UINT nID);
 			void AddObject(UINT nID, CObject* pObject);
 			void SetObjectPosition(UINT nID, const CRect& rcClient);
@@ -56,7 +55,7 @@ namespace Sloong
 			map<UINT, CObject3D*>*		m_p3DObjectMap;
 			map<UINT, UINT>*			m_p3DKeyIDMap;
 			vector<size_t>				m_vKeyboardEvent;
-			CString						m_strEventHandlerName;
+			wstring						m_strEventHandlerName;
 			CLua*						m_pLua;
 			CLog*					m_pLog;
 			CDDraw*						m_pDDraw;

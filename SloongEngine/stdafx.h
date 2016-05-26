@@ -24,12 +24,11 @@
 #endif
 
 // TODO: reference additional headers your program requires here
-#include <DxErr.h>
+
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 #pragma comment(lib,"ddraw.lib")
 #pragma comment(lib,"dxguid.lib")
-#pragma comment(lib,"DxErr.lib")
 
 #import "C:\Program Files\Common Files\System\ado\msado15.dll" no_namespace rename("EOF","rstEOF") rename("BOF","rstBOF")
 

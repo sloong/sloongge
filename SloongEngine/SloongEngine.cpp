@@ -62,11 +62,11 @@ void Sloong::CSloongEngine::SendEvent(int id, UI_EVENT args)
 		EVENT_PARAM* temp = new EVENT_PARAM();
 		temp->id = id;
 		temp->event = args;
-		g_pThreadPool->AddTask(theEngine->g_EventFunc,temp);
+		g_pThreadPool->EnqueTask(theEngine->g_EventFunc,temp);
 	}
 }
 
-void Sloong::CSloongEngine::SetEnentHandler(EventFunc func)
+void Sloong::CSloongEngine::SetEnentHandler(Sloong::Universal::LPCALLBACKFUNC func)
 {
 	g_EventFunc = func;
 }
@@ -78,10 +78,10 @@ Sloong::CSloongEngine::~CSloongEngine()
 
 int Sloong::CSloongEngine::GetEventListTotal()
 {
-	return g_pThreadPool->GetTaskTotal();
+	return -1;// g_pThreadPool->GetTaskTotal();
 }
 
-DWORD WINAPI Sloong::CSloongEngine::RenderCallBack(LPVOID lpData)
+LPVOID Sloong::CSloongEngine::RenderCallBack(LPVOID lpData)
 {
 	RENDER_PARAM* pTemp = (RENDER_PARAM*)lpData;
 	auto pObject = pTemp->pObj;
@@ -113,5 +113,5 @@ void Sloong::CSloongEngine::AddRenderTask(CObject3D* pObj, int nIndex, CCamera* 
 	pTemp->pObj = pObj;
 	pTemp->nIndex = nIndex;
 	pTemp->pCamera = pCamera;
-	g_pThreadPool->AddTask(RenderCallBack, pTemp);
+	g_pThreadPool->EnqueTask(RenderCallBack, pTemp);
 }

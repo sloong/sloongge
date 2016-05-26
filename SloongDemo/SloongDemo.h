@@ -97,9 +97,9 @@ public:
 	static int MoveCamera(lua_State* l);
 
 public:
-	static int SendEvent(int id, CString args);
-	static   DWORD WINAPI SendEvent(LPVOID pArgs);
-	static void ErrorHandler(CString strError);
+	static int SendEvent(int id, string args);
+	static LPVOID SendEvent(LPVOID pArgs);
+	static void ErrorHandler(string strError);
 
 public:
 	static LuaFunctionRegistr g_LuaFunctionList[];
@@ -117,6 +117,7 @@ public:
 
 private:
 	static CSloongGame* g_pApp;
+	mutex m_oEventMutex;
 
 public:
 	HINSTANCE	m_hInst;

@@ -13,7 +13,6 @@
 #include "ConsoleWindow.h"
 #include "SloongSprite.h"
 #include "SloongD3D.h"
-#include "string\\string.h"
 #include "SloongDInput.h"
 #include "SloongCamera.h"
 #include "SloongEngine.h"
@@ -30,22 +29,22 @@ using namespace Sloong::Graphics3D;
 CSloongGame* CSloongGame::g_pApp = NULL;
 LuaFunctionRegistr CSloongGame::g_LuaFunctionList[] =
 {
-	{ _T("Version"), CSloongGame::Version },
-	{ _T("RegisterEvent"), CSloongGame::RegisterEvent },
-	{ _T("CreateGUIItem"), CSloongGame::CreateGUIItem },
-	{ _T("MoveGUIItem"), CSloongGame::MoveGUIItem },
-	{ _T("DeleteGUIItem"), CSloongGame::DeleteGUIItem },
-	{ _T("EnableItem"), CSloongGame::EnableItem },
-	{ _T("RunGUI"), CSloongGame::RunGUI },
-	{ _T("RunItemCommand"), CSloongGame::RunItemCommand },
-	{ _T("SendEvent"), CSloongGame::SendEvent },
-	{ _T("SetItemFont"), CSloongGame::SetItemFont },
-	{ _T("StartTimer"), CSloongGame::StartTimer },
-	{ _T("Exit"), CSloongGame::Exit },
-	{ _T("Load3DModule"), CSloongGame::Load3DModule},
-	{ _T("CreateCamera"), CSloongGame::CreateCamera },
-	{ _T("MoveCamera"), CSloongGame::MoveCamera },
-	{ _T("RegisterKeyboardEvent"), CSloongGame::RegisterKeyboardEvent },
+	{"Version", CSloongGame::Version },
+	{"RegisterEvent", CSloongGame::RegisterEvent },
+	{"CreateGUIItem", CSloongGame::CreateGUIItem },
+	{"MoveGUIItem", CSloongGame::MoveGUIItem },
+	{"DeleteGUIItem", CSloongGame::DeleteGUIItem },
+	{"EnableItem", CSloongGame::EnableItem },
+	{"RunGUI", CSloongGame::RunGUI },
+	{"RunItemCommand", CSloongGame::RunItemCommand },
+	{"SendEvent", CSloongGame::SendEvent },
+	{"SetItemFont", CSloongGame::SetItemFont },
+	{"StartTimer", CSloongGame::StartTimer },
+	{"Exit", CSloongGame::Exit },
+	{"Load3DModule", CSloongGame::Load3DModule},
+	{"CreateCamera", CSloongGame::CreateCamera },
+	{"MoveCamera", CSloongGame::MoveCamera },
+	{"RegisterKeyboardEvent", CSloongGame::RegisterKeyboardEvent },
 };
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
@@ -108,13 +107,12 @@ ATOM CSloongGame::MyRegisterClass(const HINSTANCE hInstance)
 	return RegisterClassEx(&wcex);
 }
 
-
 BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	CSloongGame::MyRegisterClass(hInstance);
-
 	m_pLog = new CLog();
 	m_pLog->Initialize();
+	
 	/*if (SUCCEEDED(CreateUniversal((LPVOID*)&m_pUniversal)) && m_pUniversal )
 	{
 		if (SUCCEEDED(m_pUniversal->CreateLogSystem(m_pUniversal, &m_pLog)))
@@ -189,13 +187,13 @@ BOOL CSloongGame::InitInstance(HINSTANCE hInstance, int nCmdShow)
 		m_pUIManager = new CUIManager();
 		m_pUIManager->Initialize(m_pDraw, m_pLua, m_pInput,m_pLog, m_hMainWnd);
 
-		m_pLua->RunScript(_T("Start.lua"));
+		m_pLua->RunScript("Start.lua");
 
 		//InitTest();
 	}
-	catch (CException& e)
+	catch (normal_except& e)
 	{
-		m_pLog->Log(LOGLEVEL::FATAL, e.GetResult(), e.GetException());
+		m_pLog->Log(e.what(), LOGLEVEL::FATAL);
 	}
 
 	ShowWindow(m_hMainWnd, nCmdShow);
@@ -261,8 +259,8 @@ int CSloongGame::Run()
 
 LuaRes CSloongGame::Version(lua_State* l)
 {
-	CString str = GetSloongLua()->GetStringArgument(1);
-	MessageBox(NULL, str.t_str(), _T("Test"), MB_OK);
+	auto str = GetSloongLua()->GetStringArgument(1);
+	MessageBox(NULL, CUniversal::toutf(str).c_str(), _T("Test"), MB_OK);
 	return 0;
 }
 
@@ -273,27 +271,28 @@ LuaRes CSloongGame::RegisterEvent(lua_State* l)
 	{
 		auto handlerName = pLua->GetStringArgument(1);
 		auto param = pLua->GetNumberArgument(2);
-		GetSloongUIManager()->GetCurrentUI()->SetEventHandler(handlerName);
+		GetSloongUIManager()->GetCurrentUI()->SetEventHandler(CUniversal::toutf(handlerName));
 	}
 	return 0;
 }
 
-LuaRes CSloongGame::SendEvent(int id, CString args)
+LuaRes CSloongGame::SendEvent(int id, string args)
 {
 	auto strEventHandler = GetSloongUIManager()->GetCurrentUI()->GetEventHandler();
+	std::lock_guard<std::mutex> lck(g_pApp->m_oEventMutex);
 	auto pLua = GetSloongLua();
 	if (pLua && !strEventHandler.empty())
 	{
-		CString cmd;
+		string cmd;
 		if (!args.empty())
 		{
-			cmd.Format(_T("%d,%s"), id, args.t_str());
+			cmd = CUniversal::Format("%d,%s", id, args.c_str());
 		}
 		else
 		{
-			cmd.Format(_T("%d"), id);
+			cmd = CUniversal::Format("%d", id);
 		}
-		pLua->RunFunction(strEventHandler, cmd);
+		pLua->RunFunction(CUniversal::toansi(strEventHandler), cmd);
 	}
 	return 0;
 }
@@ -303,20 +302,18 @@ int CSloongGame::SendEvent(lua_State* l)
 	return 0;
 }
 
-DWORD CSloongGame::SendEvent(LPVOID pArgs)
+LPVOID CSloongGame::SendEvent(LPVOID pArgs)
 {
 	LPEVENT_PARAM pParam = (LPEVENT_PARAM)pArgs;
 	if ( pParam->id < 0 || pParam->event < 0)
 	{
 		return 0;
 	}
-	CString str;
-	str.Format(_T("%d"), pParam->event);
-	SendEvent(pParam->id, str.GetString().c_str());
+	SendEvent(pParam->id, CUniversal::Format("%d", pParam->event));
 	return 0;
 }
 
-void CSloongGame::ErrorHandler(CString strError)
+void CSloongGame::ErrorHandler(string strError)
 {
 	GetAppMain()->m_pLog->WriteLine(strError);
 }
@@ -330,19 +327,19 @@ int CSloongGame::CreateGUIItem(lua_State* l)
 		CLua* pLua = GetSloongLua();
 
 		UINT nID = pLua->GetNumberArgument(1);
-		CString strType = pLua->GetStringArgument(2);
-		vector<CString> strTexture;
+		wstring strType = CUniversal::toutf(pLua->GetStringArgument(2));
+		vector<wstring> strTexture;
 
 		if (strType == strSpriteName ||strType == strTextFieldName)
 		{
-			strTexture.push_back(pLua->GetStringArgument(3));
+			strTexture.push_back(CUniversal::toutf(pLua->GetStringArgument(3)));
 		}
 		else if ( strType == strButtonName )
 		{
-			strTexture.push_back(pLua->GetStringArgument(3));
-			strTexture.push_back(pLua->GetStringArgument(4));
-			strTexture.push_back(pLua->GetStringArgument(5));
-			strTexture.push_back(pLua->GetStringArgument(6));
+			strTexture.push_back(CUniversal::toutf(pLua->GetStringArgument(3)));
+			strTexture.push_back(CUniversal::toutf(pLua->GetStringArgument(4)));
+			strTexture.push_back(CUniversal::toutf(pLua->GetStringArgument(5)));
+			strTexture.push_back(CUniversal::toutf(pLua->GetStringArgument(6)));
 		}
 		else
 		{
@@ -382,7 +379,7 @@ int CSloongGame::RunItemCommand(lua_State* l)
 int CSloongGame::RunGUI(lua_State* l)
 {
 	auto pLug = GetSloongLua();
-	GetSloongUIManager()->RunGUI(pLug->GetStringArgument(1));
+	GetSloongUIManager()->RunGUI(CUniversal::toutf(pLug->GetStringArgument(1)));
 	return 0;
 }
 
@@ -418,7 +415,7 @@ int CSloongGame::Load3DModule(lua_State* l)
 	auto pUIM = GetSloongUIManager();
 	auto pLua = GetSloongLua();
 	int nID = pLua->GetNumberArgument(1);
-	CString strFile = pLua->GetStringArgument(2);
+	wstring strFile = CUniversal::toutf(pLua->GetStringArgument(2));
 	CVector4D vPos(pLua->GetNumberArgument(3), pLua->GetNumberArgument(4), pLua->GetNumberArgument(5));
 	CVector4D vScale(pLua->GetNumberArgument(6), pLua->GetNumberArgument(7), pLua->GetNumberArgument(8));
 	CVector4D vRot(pLua->GetNumberArgument(9), pLua->GetNumberArgument(10), pLua->GetNumberArgument(11));
@@ -480,9 +477,8 @@ void CSloongGame::Render()
 	
 	GetSloongUIManager()->GetCurrentUI()->Render();
 	
-	CString str;
-	str.Format(_T("Current Event List:%d"), CSloongEngine::GetEventListTotal());
-	m_pDraw->DrawText(str.GetString().c_str(), 0, 0, RGB(255, 255, 255));
+	wstring text = CUniversal::Format(L"Current Event List:%d", CSloongEngine::GetEventListTotal());
+	m_pDraw->DrawText(text.c_str(), 0, 0, RGB(255, 255, 255));
 	HDC hDC;
 	if (SUCCEEDED(m_pDraw->GetBackSurface()->GetDC(&hDC)))
 	{
@@ -610,8 +606,6 @@ void CSloongGame::RenderTest()
 	static float tank_speed;
 	static float turning = 0;
 
-	char work_string[256]; // temp string
-
 	// draw the sky
 	m_pDraw->Draw_Rectangle(0, 0, WINDOW_WIDTH - 1, WINDOW_HEIGHT / 2, RGB(0, 140, 192), m_pDraw->GetBackSurface());
 
@@ -710,11 +704,9 @@ void CSloongGame::RenderTest()
 	obj_tower->RenderAll(&m_cam, &mrot);
 	obj_marker->RenderAll(&m_cam, &mrot);
 
-	sprintf_s(work_string, 256, "pos:[%f, %f, %f] heading:[%f] elev:[%f]",
+	wstring strEvent = CUniversal::Format(L"pos:[%f, %f, %f] heading:[%f] elev:[%f]",
 		m_cam.m_WorldPos.x, m_cam.m_WorldPos.y, m_cam.m_WorldPos.z, m_cam.m_Direction.y, m_cam.m_Direction.x);
-
-	CString str(work_string);
-	m_pDraw->DrawText(str.GetString().c_str(), 0, WINDOW_HEIGHT - 20, RGB(0, 255, 0), m_pDraw->GetBackSurface());
+	m_pDraw->DrawText(strEvent.c_str(), 0, WINDOW_HEIGHT - 20, RGB(0, 255, 0), m_pDraw->GetBackSurface());
 
 	// draw instructions
 	m_pDraw->DrawText(_T("Press ESC to exit. Press Arrow Keys to Move. Space for TURBO."), 0, 0, RGB(0, 255, 0), m_pDraw->GetBackSurface());

@@ -16,8 +16,8 @@ using namespace Sloong::Graphics;
 
 CUIManager::CUIManager()
 {
-	m_UIMap = new map<CString, CUserInterface*>;
-	m_pModuleMap = new map<CString, CObject3D*>;
+	m_UIMap = new map<wstring, CUserInterface*>;
+	m_pModuleMap = new map<wstring, CObject3D*>;
 }
 
 
@@ -35,7 +35,7 @@ CUIManager::~CUIManager()
 	SAFE_DELETE(m_pModuleMap);
 }
 
-void CUIManager::CreateGUIItem(const UINT nID, const CString& strType, vector<CString>* strTexture)
+void CUIManager::CreateGUIItem(const UINT nID, const wstring& strType, vector<wstring>* strTexture)
 {
 	if ( strTexture[0].empty() )
 	{
@@ -88,7 +88,7 @@ CUserInterface* CUIManager::GetCurrentUI() const
 	return m_pCurrentUI;
 }
 
-void CUIManager::RunGUI(const CString& strFileName)
+void CUIManager::RunGUI(const wstring& strFileName)
 {
 	auto item = m_UIMap->find(strFileName);
 	if ( item == m_UIMap->end())
@@ -96,8 +96,7 @@ void CUIManager::RunGUI(const CString& strFileName)
 		m_pCurrentUI = new CUserInterface();
 		(*m_UIMap)[strFileName] = m_pCurrentUI;
 		// TODO : build the full path
-		CString strFullPath = strFileName;
-		m_pCurrentUI->Initialize(strFullPath, m_pDDraw, m_pInput, m_pLua, m_pLog);
+		m_pCurrentUI->Initialize(strFileName, m_pDDraw, m_pInput, m_pLua, m_pLog);
 		CSloongEngine::SendEvent(0,UI_EVENT::ENTER_INTERFACE);
 	}
 	else
@@ -146,7 +145,7 @@ void Sloong::Graphics::CUIManager::Initialize(CDDraw* pDDraw, CLua* pLua,CDInput
 	m_hWnd = hWnd;
 }
 
-void Sloong::Graphics::CUIManager::Load3DModule(const int& nID, const CString& strFileName, const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRotate)
+void Sloong::Graphics::CUIManager::Load3DModule(const int& nID, const wstring& strFileName, const CVector4D& vScale, const CVector4D& vPos, const CVector4D& vRotate)
 {
 	auto& item = m_pModuleMap->find(strFileName);
 	if (item == m_pModuleMap->end())

@@ -11,7 +11,7 @@ namespace Sloong
 			CButton(CDDraw* pDDraw);
 			~CButton();
 
-			void SetTexture(vector<CString>* vTexture);
+			void SetTexture(vector<wstring>* vTexture);
 			void Render(LPDIRECTDRAWSURFACE7 lpDDrawSurface);
 		protected:
 

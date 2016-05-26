@@ -69,9 +69,9 @@ void CUserInterface::Render()
 					{
 						item->second->Render(m_pDDraw->GetBackSurface());
 					}
-					catch (CException& e)
+					catch (normal_except& e)
 					{
-						m_pLog->Write(e.GetException());
+						m_pLog->Write(e.what());
 					}
 				}
 				item++;
@@ -95,22 +95,22 @@ void CUserInterface::Render()
 			}
 		}
 	}
-	catch (CException& e)
+	catch (normal_except& e)
 	{
 		
 	}
 }
 
-void CUserInterface::Initialize(const CString& strPath, CDDraw* pDDraw, CDInput* pInput, CLua* pLua, CLog* pLog)
+void CUserInterface::Initialize(const wstring& strPath, CDDraw* pDDraw, CDInput* pInput, CLua* pLua, CLog* pLog)
 {
 	m_pLog = pLog;
 	m_pLua = pLua;
 	m_pDDraw = pDDraw;
 	m_pInput = pInput;
-	pLua->RunScript(strPath);
+	pLua->RunScript(CUniversal::toansi(strPath));
 }
 
-const CString& CUserInterface::GetEventHandler() const
+const wstring& CUserInterface::GetEventHandler() const
 {
 	return m_strEventHandlerName;
 }
@@ -155,7 +155,7 @@ void Sloong::Graphics::CUserInterface::Update( HWND hWnd )
 					{
 						item->second->Update(pos);
 					}
-					catch (CException& e)
+					catch (normal_except& e)
 					{
 						//pLog->Write(e.GetException().c_str());
 					}
@@ -164,13 +164,13 @@ void Sloong::Graphics::CUserInterface::Update( HWND hWnd )
 			}
 		}
 	}
-	catch (CException& e)
+	catch (normal_except& e)
 	{
 		
 	}
 }
 
-void Sloong::Graphics::CUserInterface::SetEventHandler(const CString& strName)
+void Sloong::Graphics::CUserInterface::SetEventHandler(const wstring& strName)
 {
 	m_strEventHandlerName = strName;
 }

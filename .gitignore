@@ -39,3 +39,13 @@
 /SloongMath/Debug
 /*.vsp
 /SloongUniversal/Debug
+*.log
+*.tlog
+*.idb
+*.pdb
+*.tli
+*.ilk
+Debug
+*.suo
+*.db
+*.opendb

@@ -6,10 +6,7 @@
 #define SLOONGENGINE_API __declspec(dllimport)
 #endif
 
-
 #include "ISloongObject.h"
-#include "string/string.h"
-using namespace Sloong::Universal;
 namespace Sloong
 {
 	namespace Graphics3D
@@ -22,7 +19,7 @@ namespace Sloong
 			~CObject3D();
 
 		public:
-			virtual void LoadPLGMode(const CString& strFileName);
+			virtual void LoadPLGMode(const wstring& strFileName);
 			virtual void Update();
 			virtual void Render();
 			virtual void RenderAll(CCamera* cam, CMatrix4x4* mTrans);
@@ -77,7 +74,7 @@ namespace Sloong
 			CMatrix4x4*			m_pScreenMatrix;
 			CMatrix4x4*			m_pProjectMatrix;
 			CCamera*			m_pCamera;
-			CString				m_strName;
+			wstring				m_strName;
 			int					m_nNumPolygones;
 			int					m_nNumVertices;
 			int					m_nNumObjects;

@@ -5,16 +5,15 @@
 #include "graphics/SloongBitmap.h"
 #include "univ/exception.h"
 #include "SloongEngine.h"
-#include "string/string.h"
 using namespace Sloong;
 using namespace Sloong::Universal;
 using namespace Sloong::Graphics;
 
-LPCTSTR strSpriteName = _T("SloongGUISprite");
-LPCTSTR strTextFieldName = _T("SloongGUITextField");
-LPCTSTR strButtonName = _T("SloongGUIButton");
+const wstring strSpriteName = L"SloongGUISprite";
+const wstring strTextFieldName = L"SloongGUITextField";
+const wstring strButtonName = L"SloongGUIButton";
 
-CString CObject::m_strTexturePath;
+wstring CObject::m_strTexturePath;
 
 CObject::CObject(CDDraw* pDDraw)
 {
@@ -42,13 +41,13 @@ void CObject::SetID(UINT nID)
 	m_nID = nID;
 }
 
-void CObject::SetTexture( vector<CString>* vTexture)
+void CObject::SetTexture( vector<wstring>* vTexture)
 {
 	m_vTexture.clear();
 	m_vTexture = (*vTexture);
 
 	CBitmap oBitmap;
-	oBitmap.LoadBitmapFromFile(m_vTexture[0]);
+	oBitmap.LoadBitmapFromFile(CUniversal::toansi(m_vTexture[0]));
 	LoadFrame(&oBitmap, 0, 0, 0, BITMAP_EXTRACT_MODE_ABS);
 }
 
@@ -78,12 +77,12 @@ RECT CObject::GetScrrenRect()
 	return m_rcScreen;
 }
 
-void CObject::SetTexturePath(const CString& strPath)
+void CObject::SetTexturePath(const wstring& strPath)
 {
 	m_strTexturePath = strPath;
 }
 
-const CString& CObject::GetTexturePath()
+const wstring& CObject::GetTexturePath()
 {
 	return m_strTexturePath;
 }
@@ -98,7 +97,7 @@ void CObject::SetPosition( const CRect& rcRect, float z)
 	*m_rcObject = rcRect;
 }
 
-void CObject::SetFont(const CString& strFontName, float fFontSize)
+void CObject::SetFont(const string& strFontName, float fFontSize)
 {
 
 }
@@ -323,8 +322,7 @@ void CObject::Draw(LPDIRECTDRAWSURFACE7 dest) // surface to draw the bob on
 	if ( FAILED(hRes) && m_bRenderError == false )
 	{
 		m_bRenderError = true;
-		LPCTSTR ErrorString = DXGetErrorDescription(hRes);
-		throw CException(CUniversal::Format(_T("Render Error, object id : %d.Error string: %s.\r\n"), m_nID, ErrorString));
+		throw normal_except(CUniversal::Format("Render Error, object id : %d.Error string: %s.\r\n", m_nID, CUniversal::FormatWindowsErrorMessage(hRes).c_str()));
 	}
 
 	/*// blt to destination surface

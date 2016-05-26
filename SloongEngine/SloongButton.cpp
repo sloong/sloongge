@@ -15,25 +15,25 @@ CButton::~CButton()
 {
 }
 
-void Sloong::Graphics::CButton::SetTexture( vector<CString>* vTexture)
+void Sloong::Graphics::CButton::SetTexture( vector<wstring>* vTexture)
 {
 	m_vTexture.clear();
 	m_vTexture = (*vTexture);
 
 	CBitmap oBitmap;
-	oBitmap.LoadBitmapFromFile(m_vTexture[0]);
+	oBitmap.LoadBitmapFromFile(CUniversal::toansi(m_vTexture[0]));
 	LoadFrame(&oBitmap, 0, 0, 0, BITMAP_EXTRACT_MODE_ABS);
 	oBitmap.Shutdown();
 
-	oBitmap.LoadBitmapFromFile(m_vTexture[1]);
+	oBitmap.LoadBitmapFromFile(CUniversal::toansi(m_vTexture[1]));
 	LoadFrame(&oBitmap, 1, 0, 0, BITMAP_EXTRACT_MODE_ABS);
 	oBitmap.Shutdown();
 
-	oBitmap.LoadBitmapFromFile(m_vTexture[2]);
+	oBitmap.LoadBitmapFromFile(CUniversal::toansi(m_vTexture[2]));
 	LoadFrame(&oBitmap, 2, 0, 0, BITMAP_EXTRACT_MODE_ABS);
 	oBitmap.Shutdown();
 
-	oBitmap.LoadBitmapFromFile(m_vTexture[3]);
+	oBitmap.LoadBitmapFromFile(CUniversal::toansi(m_vTexture[3]));
 	LoadFrame(&oBitmap, 3, 0, 0, BITMAP_EXTRACT_MODE_ABS);
 	oBitmap.Shutdown();
 }

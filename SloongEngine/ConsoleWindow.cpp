@@ -2,7 +2,6 @@
 #include "ConsoleWindow.h"
 #include "univ\\lua.h"
 #include "Resource.h"
-
 using namespace Sloong::Universal;
 
 #ifndef GWL_WNDPROC
@@ -11,10 +10,10 @@ using namespace Sloong::Universal;
 
 LuaFunctionRegistr DebugGlue[] = 
 {
-	{ _T("Print"), Debug_Print },
-	{ _T("print"), Debug_Print },
+	{ ("Print"), Debug_Print },
+	{ ("print"), Debug_Print },
 
-	{ NULL, NULL }
+	{ "", NULL }
 };
 
 CWinConsole* Sloong::g_Console = NULL;
@@ -47,9 +46,9 @@ HWND CWinConsole::StartConsole(HINSTANCE hInstance, HWND hWnd, CRect rcWindow, C
 
 	g_Console->m_pScriptContext = pScriptContext;
 	// init the glue functions required for the debug window
-	for (int i = 0; DebugGlue[i].strFunctionName; i++)
+	for (int i = 0; !DebugGlue[i].strFunctionName.empty(); i++)
 	{
-		pScriptContext->AddFunction(DebugGlue[i].strFunctionName, DebugGlue->pFunction);
+		//pScriptContext->AddFunction(DebugGlue[i].strFunctionName, DebugGlue->pFunction);
 	}
 
 	return (m_hWnd);
@@ -247,9 +246,7 @@ LRESULT WINAPI CWinConsole::MsgProc(HWND hWnd, unsigned uMsg, WPARAM wParam, LPA
 		// string should be in m_CommandBuffer
 		Write(m_CommandBuffer);
 
-		CString str(m_CommandBuffer);
-		
-		if (0 != luaL_loadbuffer(g_Console->m_pScriptContext->GetScriptContext(), str.a_str(), strlen(str.a_str()), NULL))
+		/*if (0 != luaL_loadbuffer(g_Console->m_pScriptContext->GetScriptContext(), str.GetA().c_str(), strlen(str.GetA().c_str()), NULL))
 		{
 			Write(_T("Error loading Command\n"));
 		}
@@ -262,7 +259,7 @@ LRESULT WINAPI CWinConsole::MsgProc(HWND hWnd, unsigned uMsg, WPARAM wParam, LPA
 		}
 		// clear buffer when done processing
 		memset(m_CommandBuffer, 0, 4096*sizeof(TCHAR));
-		break;
+		break;*/
 	}
 
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -396,21 +393,21 @@ void CWinConsole::Init(HINSTANCE hInstance)
 static int Debug_Print(lua_State *L)
 {
 #ifdef _DEBUG
-	int n = lua_gettop(L);  /* number of arguments */
+/*	int n = lua_gettop(L);  /// number of arguments 
 	int i;
 	lua_getglobal(L, "tostring");
 	for (i = 1; i <= n; i++) {
-		lua_pushvalue(L, -1);  /* function to be called */
-		lua_pushvalue(L, i);   /* value to print */
+		lua_pushvalue(L, -1);  // function to be called 
+		lua_pushvalue(L, i);   // value to print 
 		lua_call(L, 1, 1);
-		CString str = lua_tostring(L, -1);  /* get result */
+		CString str = lua_tostring(L, -1);  //get result 
 		if (str.GetString().empty())
 			return luaL_error(L, "`tostring' must return a string to `print'");
 		if (i > 1) CWinConsole::Write(_T("\t"));
 		CWinConsole::Write(str.GetString().c_str());
-		lua_pop(L, 1);  /* pop result */
+		lua_pop(L, 1);  //pop result 
 	}
-	CWinConsole::Write(_T("\n"));
+	CWinConsole::Write(_T("\n"));*/
 #endif
 	return 0;
 }
