@@ -51,15 +51,19 @@ namespace Sloong
 		class CLua;
 		class CRect;
 		class CSize;
-
+	}
+	namespace DirectX
+	{
+		class CD3D;
+		class CDInput;
 	}
 }
 using namespace Sloong;
 using namespace Sloong::Graphics;
 using namespace Sloong::Graphics3D;
 using namespace Sloong::Universal;
-class CD3D;
-class CDInput;
+using namespace Sloong::DirectX;
+
 class CSloongGame
 {
 public:
