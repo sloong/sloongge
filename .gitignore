@@ -49,3 +49,4 @@ Debug
 *.suo
 *.db
 *.opendb
+*.user

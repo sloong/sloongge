@@ -2,22 +2,23 @@
 //
 
 #include "stdafx.h"
-#include "univ\\univ.h"
+#include "univ/univ.h"
+#include "univ/exception.h"
+#include "graphics/SloongGraphics.h"
 #include "SloongDemo.h"
-#include "Defines.h"
-#include "SloongUIManager.h"
-#include "SloongUI.h"
-#include "SloongObject.h"
-#include "graphics\\SloongGraphics.h"
-#include "univ\\exception.h"
 #include "ConsoleWindow.h"
-#include "SloongSprite.h"
-#include "SloongD3D.h"
-#include "SloongDInput.h"
-#include "SloongCamera.h"
-#include "SloongEngine.h"
-#include "SloongObject3D.h"
-#include "math\\SloongMath2.h"
+#include "Defines.h"
+#include "sloongge/SloongUIManager.h"
+#include "sloongge/SloongUI.h"
+#include "sloongge/SloongObject.h"
+
+#include "sloongge/SloongSprite.h"
+#include "sloongge/SloongD3D.h"
+#include "sloongge/SloongDInput.h"
+#include "sloongge/SloongCamera.h"
+#include "sloongge/SloongEngine.h"
+#include "sloongge/SloongObject3D.h"
+#include "math/SloongMath2.h"
 #pragma comment(lib,"univ.lib")
 #pragma comment(lib,"math.lib")
 #pragma comment(lib,"graphics.lib")

@@ -1,13 +1,13 @@
 #pragma once
-#include "univ\\lua.h"
-#include "SloongUIManager.h"
+#include "univ/lua.h"
+#include "sloongge/SloongUIManager.h"
 #include "resource.h"
 using namespace Sloong;
-#pragma comment(lib,"SloongEngine.lib")
+#pragma comment(lib,"sloongge.lib")
 
-#include "math\\SloongVector.h"
-#include "SloongObject3D.h"
-#include "SloongCamera.h"
+#include "math/SloongVector.h"
+#include "sloongge/SloongObject3D.h"
+#include "sloongge/SloongCamera.h"
 using namespace Sloong::Math::Vector;
 using namespace Sloong::Graphics3D;
 enum UI_EVENT

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "SloongTextField.h"
-#include "Defines.h"
+//#include "Defines.h"
 
 using namespace Sloong;
 using namespace Sloong::Graphics;
